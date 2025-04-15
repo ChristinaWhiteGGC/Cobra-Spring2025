@@ -1,12 +1,6 @@
 package Controllers;
 
-import Exceptions.*;
 import Models.*;
-
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import Views.GameView;
@@ -14,13 +8,11 @@ import Views.GameView;
 public class GameController {
 
     // Array list to store the rooms in
-    private Map<Integer, Room> roomsList;
+    private final Map<Integer, Room> roomsList;
 
-    Map<String, Artifact> artifactList;
+    private final Map<String, Artifact> artifactList;
 
     private Player player;
-
-    private Room currentRoom;
 
     private final GameView view;
 
@@ -100,6 +92,13 @@ public class GameController {
                             nextRoomIndex = player.getRoom().getExit(command[0]);
                             if (nextRoomIndex == 0) {
                                 view.outputString("You can't go this way.");
+                            }
+                            break;
+                        case "HELP":
+                            if (command.length == 1) {
+                                view.printHelpList();
+                            } else {
+                                view.printDetailedHelp(command[1]);
                             }
                             break;
                         case "EXIT", "X":
