@@ -104,15 +104,33 @@ public class GameController {
                         }
                         case "SAVE" -> {
                             isMovingRooms = false;
+                            // Check if player entered a filename after "SAVE"
+                            if (command.length < 2 || command[1].isEmpty()) {
+                                view.outputString("Please enter the player name you'd like to save your game under.");
+                                view.outputString("Example: SAVE + yourname");
+                                break;
+                            }
+
                             if (GameStateManager.save(command[1], roomsList, artifactList, player)) {
                                 view.outputString("Successfully saved game data to: " + command[1]);
+                            } else {
+                                view.outputString("An error occurred while trying to save the game.");
                             }
                         }
                         case "LOAD" -> {
                             isMovingRooms = false;
+                            // Check if player entered a filename after "LOAD"
+                            if (command.length < 2 || command[1].isEmpty()) {
+                                view.outputString("Please enter the name of the file you'd like to load.");
+                                view.outputString("Example: LOAD + yourname");
+                                break;
+                            }
+
                             if (GameStateManager.load(command[1], roomsList, artifactList, player)) {
                                 view.outputString("Welcome back to the game " + player.getName() + "!");
-                                view.outputString("You can continue where you left off");
+                                view.outputString("You can continue where you left off.");
+                            } else {
+                                view.outputString("Failed to load the game. Please make sure the file exists and is valid.");
                             }
                         }
                         default ->
