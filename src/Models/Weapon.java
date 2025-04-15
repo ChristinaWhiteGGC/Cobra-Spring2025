@@ -1,6 +1,6 @@
 package Models;
 public class Weapon extends Artifact {
-    private int strBoost;
+    private final int strBoost;
 
     public Weapon(String id, String name, String description, int strBoost) {
         super(id, "weapon", name, description, "+" + strBoost + " STR");
