@@ -45,7 +45,7 @@ public class GameView {
         System.out.println("What would you like to do?");
         System.out.println("Enter command: ");
         Scanner userInput = new Scanner(System.in);
-        String command = userInput.nextLine().toUpperCase();
+        String command = userInput.nextLine();
         return command.split(" ");
     }
 
@@ -54,41 +54,43 @@ public class GameView {
     }
 
     public void printHelpList() {
-        outputString("The navigation commands are:\n");
-        outputString("N - to go to the room to the North");
-        outputString("E - to go to the room to the East");
-        outputString("S - to go to the room to the South");
-        outputString("W - to go to the room to the West");
-        outputString("BACK - to go to the last visited room");
-        outputString("MAP - Displays a map of the game showing explored locations.");
-        outputString("LOCATION - Provides the player’s current location and a room description.");
-        outputString("Exploration & Interaction Commands:\n");
-        outputString("EXPLORE – Provides a detailed description of the current room.");
-        outputString("SEARCH – Searches the room for hidden objects, loot, or clues.");
-        outputString("INTERACT – Engages with objects, puzzles, or mechanisms.");
-        outputString("LISTEN – Detects subtle auditory cues like enemy movements or hidden dangers.");
-        outputString("STEALTH – Attempts to move undetected through an area, avoiding enemies or traps.");
-        outputString("UNLOCK DOOR - Attempts to open a locked passage; success will depend on if the player has collected the required number of keys.\n");
-        outputString("Combat Commands:\n");
-        outputString("FIGHT – Initiates combat with an enemy.");
-        outputString("BLOCK – Defends against an enemy’s attack, reducing damage.");
-        outputString("FLEE – Attempts to escape combat; success depends on the enemy.");
-        outputString("STATS – Displays the player’s current health, strength, and defense.\n");
-        outputString("Puzzle Commands:\n");
-        outputString("SOLVE – Attempts to solve a puzzle by entering an answer or interacting with objects.");
-        outputString("IGNORE – Skips a puzzle if allowed (may block progress or rewards).");
-        outputString("HINT – (For applicable puzzles) Provides a hint at the cost of a small penalty.\n");
-        outputString("Item & Inventory Commands:\n");
-        outputString("PICKUP – Adds an item to the player's inventory, provided they don’t already have one of that type.");
-        outputString("SWAP – Exchanges an equipped item for a newly found one.");
-        outputString("IGNORE – Leaves an item behind instead of picking it up.");
-        outputString("SEE <item> – Revisits a previously ignored item to pick it up, swap, or leave it.");
-        outputString("INVENTORY – Displays all currently held items and their effects.");
-        outputString("USE <item> – Uses a consumable item if available and not on cooldown.\n");
-        outputString("General Commands:\n");
-        outputString("HELP – Displays a categorized list of all available commands.");
-        outputString("HELP <command> – Provides details on a specific command.");
-        outputString("EXIT – Ends the game session.");
+        outputString("The navigation commands are:");
+        outputString("N");
+        outputString("E");
+        outputString("S");
+        outputString("W");
+        outputString("BACK");
+        outputString("MAP");
+        outputString("LOCATION");
+        outputString("\nExploration & Interaction Commands:");
+        outputString("EXPLORE");
+        outputString("SEARCH");
+        outputString("INTERACT");
+        outputString("LISTEN");
+        outputString("STEALTH");
+        outputString("UNLOCK DOOR");
+        outputString("\nCombat Commands:");
+        outputString("FIGHT");
+        outputString("BLOCK");
+        outputString("FLEE ");
+        outputString("STATS");
+        outputString("\nPuzzle Commands:");
+        outputString("SOLVE");
+        outputString("IGNORE");
+        outputString("HINT");
+        outputString("\nItem & Inventory Commands:");
+        outputString("PICKUP");
+        outputString("SWAP");
+        outputString("IGNORE");
+        outputString("SEE <item>");
+        outputString("INVENTORY");
+        outputString("USE <item>");
+        outputString("\nGeneral Commands:");
+        outputString("HELP");
+        outputString("HELP <command>");
+        outputString("LOAD <fileName>");
+        outputString("SAVE <fileName>");
+        outputString("EXIT");
     }
 
     public void printDetailedHelp(String command) {
@@ -172,6 +174,12 @@ public class GameView {
                 break;
             case "HELP":
                 outputString("Displays a categorized list of all available commands.");
+                break;
+            case "LOAD":
+                outputString("LOAD <fileName> - Loads a previously saved game.");
+                break;
+            case "SAVE":
+                outputString("SAVE <fileName> - Saves your current game.");
                 break;
             case "EXIT":
                 outputString("Ends the game session.");

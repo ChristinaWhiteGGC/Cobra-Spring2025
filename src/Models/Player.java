@@ -2,10 +2,7 @@ package Models;
 
 import Exceptions.GameException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
     the Models.Player class represents the player of the game and maintains
@@ -29,8 +26,8 @@ public class Player extends Character {
        inventoryList.clear();
     }
 
-   public List<Artifact> getInventory() {
-      return (List<Artifact>) inventoryList.values();
+   public Collection<Artifact> getInventory() {
+      return inventoryList.values();
    }
 
    public boolean addToInventory(Artifact a) {

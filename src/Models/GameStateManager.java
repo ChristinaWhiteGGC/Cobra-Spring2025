@@ -1,8 +1,7 @@
 package Models;
 
 import javax.xml.crypto.Data;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -57,15 +56,15 @@ public class GameStateManager {
     }
 
 
-    private static void mapPuzzlesToRooms(Map<Integer,Room> roomsList/* TODO: Add Puzzles list here */) {
+    private static void mapPuzzlesToRooms(Map<Integer, Room> roomsList/* TODO: Add Puzzles list here */) {
         // TODO: Map puzzles to rooms when puzzles are complete
     }
 
-    private static void mapMonstersToRooms(Map<Integer,Room> roomsList/* TODO: Add Monsters list here */) {
+    private static void mapMonstersToRooms(Map<Integer, Room> roomsList/* TODO: Add Monsters list here */) {
         // TODO: Map monsters to rooms
     }
 
-    private static void mapArtifactsToRooms(Map<Integer,Room> roomsList, Map<String, Artifact> artifactList) {
+    private static void mapArtifactsToRooms(Map<Integer, Room> roomsList, Map<String, Artifact> artifactList) {
         for (Room r : roomsList.values()) {
             String[] artifactIds = r.getInitialArtifactIds();
             for (String id : artifactIds) {
@@ -94,37 +93,66 @@ public class GameStateManager {
         return lines;
     }
 
-    public boolean save(String saveName, Map<Integer,Room> rooms, Player p) {
-        return false;
+    public static boolean save(String saveName, Map<Integer, Room> rooms, Map<String, Artifact> artifactsList, Player player) throws FileNotFoundException, UnsupportedEncodingException {
+        try {
+            PrintWriter writer = new PrintWriter(Paths.get("src", "Data", "Saves", saveName).toAbsolutePath().toString(), "UTF-8");
+
+
+            // Write out player state
+            writer.println("Player:");
+            writer.println("\t" + player.getName() + "~" + player.getHp() + "~" + player.getStr() + "~" + player.getDef());
+
+            // Write out player inventory
+            writer.println("Player Inventory:");
+            for (Artifact a : player.getInventory()) {
+                writer.println("\t" + a.getId() + "~" + a.getType());
+            }
+
+            // Write out room state
+            writer.println("Rooms:");
+            for (Room r : rooms.values()) {
+                StringBuilder roomLine = new StringBuilder(r.getRoomId() + "~" + (r.getIsVisited() ? "true" : "false" + "~"));
+                for (Artifact a : r.getArtifacts()) {
+                    roomLine.append(a.getId());
+                }
+                writer.println("\t" + roomLine);
+            }
+            writer.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            System.out.println("Unable to save game: " + e.getMessage());
+            return false;
+        }
+        return true;
     }
 
-    public boolean load(String loadName, Map<Integer,Room> roomsList, Player p, Map<String, Artifact> artifactsList) {
+    public static boolean load(String loadName, Map<Integer, Room> roomsList, Map<String, Artifact> artifactsList, Player p) {
         try {
             Exception invalidSaveGameData = new Exception("Invalid saved game data. Data file is corrupt.");
-            ArrayList<String> savedLines = readFile("Data", "Saves", loadName);
+            ArrayList<String> savedLines = readFile("src", "Data", "Saves", loadName);
             DataFileSections currentSection = DataFileSections.None;
             for (String line : savedLines) {
                 switch (line) {
-                    case "Player":
+                    case "Player:":
                         currentSection = DataFileSections.Player;
                         break;
-                    case "PlayerInventory":
+                    case "Player Inventory:":
                         currentSection = DataFileSections.PlayerInventory;
                         break;
                     case "Rooms:":
                         currentSection = DataFileSections.Rooms;
                         break;
-                    case "Puzzles":
+                    case "Puzzles:":
                         currentSection = DataFileSections.Puzzles;
                         break;
-                    case "Monsters":
+                    case "Monsters:":
                         currentSection = DataFileSections.Monsters;
                         break;
-                    case "Artifacts":
+                    case "Artifacts:":
                         currentSection = DataFileSections.Artifacts;
                         break;
                     default:
-                        if (line.trim().isEmpty()) {
+                        line = line.trim();
+                        if (line.isEmpty()) {
                             continue;
                         }
                         if (currentSection == DataFileSections.None) {
@@ -140,8 +168,7 @@ public class GameStateManager {
                             p.setHp(Integer.parseInt(sections[1]));
                             p.setStr(Integer.parseInt(sections[2]));
                             p.setDef(Integer.parseInt(sections[3]));
-                        }
-                        if (currentSection == DataFileSections.PlayerInventory) {
+                        } else if (currentSection == DataFileSections.PlayerInventory) {
                             // Artifact Name
                             Artifact a = artifactsList.get(line);
                             if (a != null) {
@@ -149,11 +176,10 @@ public class GameStateManager {
                             } else {
                                 throw invalidSaveGameData;
                             }
-                        }
-                        if (currentSection == DataFileSections.Rooms) {
+                        } else if (currentSection == DataFileSections.Rooms) {
                             // Load room data
                             String[] sections = line.split("~");
-                            if (sections.length != 3) {
+                            if (sections.length < 2) {
                                 throw invalidSaveGameData;
                             }
                             int roomId = Integer.parseInt(sections[0]);
@@ -162,10 +188,13 @@ public class GameStateManager {
                             if (isVisited) {
                                 r.setVisited();
                             }
-                            String[] savedArtifactList = sections[2].split("|");
+                            if (sections.length == 3) {
+                                // We have artifacts in the room
+                                String[] savedArtifactList = sections[2].split("\\|");
 
-                            for (String artifact : savedArtifactList) {
-                                r.addLoot(artifactsList.get(artifact));
+                                for (String artifact : savedArtifactList) {
+                                    r.addLoot(artifactsList.get(artifact));
+                                }
                             }
                         }
                 }

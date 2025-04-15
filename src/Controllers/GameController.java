@@ -83,7 +83,7 @@ public class GameController {
                     continue;  // Ask for input again
                 }
                 try {
-                    switch (command[0]) {
+                    switch (command[0].toUpperCase()) {
                         case "N":
                         case "E":
                         case "S":
@@ -105,10 +105,17 @@ public class GameController {
                             view.outputString("Thanks for playing Pyramid Plunder!");
                             System.exit(0);
                         case "SAVE":
-                            // TODO: Implement save
+                            isMovingRooms = false;
+                            if (GameStateManager.save(command[1], roomsList, artifactList, player)) {
+                                view.outputString("Successfully saved game data to: " + command[1]);
+                            }
                             break;
                         case "LOAD":
-                            // TODO: Implement load
+                            isMovingRooms = false;
+                            if (GameStateManager.load(command[1], roomsList, artifactList, player)) {
+                                view.outputString("Welcome back to the game " + player.getName() + "!");
+                                view.outputString("You can continue where you left off");
+                            }
                             break;
                         default:
                             view.outputString("Invalid input received. Please enter a valid command. Enter 'help' to see list of valid commands.");
