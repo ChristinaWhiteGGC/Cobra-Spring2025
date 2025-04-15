@@ -1,6 +1,5 @@
 import Controllers.GameController;
 import Models.GameStateManager;
-import Models.Room;
 import Views.GameView;
 
 public class Main {

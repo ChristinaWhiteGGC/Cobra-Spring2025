@@ -1,14 +1,8 @@
 package Views;
-
-import Controllers.GameController;
 import Models.*;
-
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class GameView {
-    private boolean isFirstEntry = true;
-
     // printRoom method tells the user the room they are in and informs them if they have previously visited the room
     public void printRoom(Room room) {
         System.out.println("Welcome to the " + room.getName() + ".");
@@ -23,8 +17,7 @@ public class GameView {
     public String getPlayerName() {
         System.out.println("Please enter your name: ");
         Scanner input = new Scanner(System.in);
-        String name = input.nextLine();
-        return name;
+        return input.nextLine();
     }
 
     public void printPlayerStats(Player p) {
@@ -51,6 +44,7 @@ public class GameView {
 
     public void showMap(String playerRoom, Room currentRoom) {
         // TODO: Map showing the different floors
+        return;
     }
 
     public void printHelpList() {
@@ -95,95 +89,42 @@ public class GameView {
 
     public void printDetailedHelp(String command) {
         switch (command) {
-            case "N":
-                outputString("to go to the room to the North");
-                break;
-            case "E":
-                outputString("to go to the room to the East");
-                break;
-            case "S":
-                outputString("to go to the room to the South");
-                break;
-            case "W":
-                outputString("to go to the room to the West");
-                break;
-            case "BACK":
-                outputString("to go to the last visited room");
-                break;
-            case "MAP":
-                outputString("Displays a map of the game showing explored locations.");
-                break;
-            case "LOCATION":
-                outputString("Provides the player’s current location and a room description.");
-                break;
-            case "EXPLORE":
-                outputString("Provides a detailed description of the current room.");
-                break;
-            case "SEARCH":
-                outputString("Searches the room for hidden objects, loot, or clues.");
-                break;
-            case "INTERACT":
-                outputString("Engages with objects, puzzles, or mechanisms.");
-                break;
-            case "LISTEN":
-                outputString("Detects subtle auditory cues like enemy movements or hidden dangers.");
-                break;
-            case "STEALTH":
-                outputString("Attempts to move undetected through an area, avoiding enemies or traps.");
-                break;
-            case "UNLOCK DOOR ":
-                outputString("Attempts to open a locked passage; success will depend on if the player has collected the required number of keys.\n");
-                break;
-            case "FIGHT":
-                outputString("Initiates combat with an enemy.");
-                break;
-            case "BLOCK":
-                outputString("Defends against an enemy’s attack, reducing damage.");
-                break;
-            case "FLEE":
-                outputString("Attempts to escape combat; success depends on the enemy.");
-                break;
-            case "STATS":
-                outputString("Displays the player’s current health, strength, and defense.\n");
-                break;
-            case "SOLVE":
-                outputString("Attempts to solve a puzzle by entering an answer or interacting with objects.");
-                break;
-            case "IGNORE":
+            case "N" -> outputString("to go to the room to the North");
+            case "E" -> outputString("to go to the room to the East");
+            case "S" -> outputString("to go to the room to the South");
+            case "W" -> outputString("to go to the room to the West");
+            case "BACK" -> outputString("to go to the last visited room");
+            case "MAP" -> outputString("Displays a map of the game showing explored locations.");
+            case "LOCATION" -> outputString("Provides the player’s current location and a room description.");
+            case "EXPLORE" -> outputString("Provides a detailed description of the current room.");
+            case "SEARCH" -> outputString("Searches the room for hidden objects, loot, or clues.");
+            case "INTERACT" -> outputString("Engages with objects, puzzles, or mechanisms.");
+            case "LISTEN" -> outputString("Detects subtle auditory cues like enemy movements or hidden dangers.");
+            case "STEALTH" -> outputString("Attempts to move undetected through an area, avoiding enemies or traps.");
+            case "UNLOCK DOOR " ->
+                    outputString("Attempts to open a locked passage; success will depend on if the player has collected the required number of keys.\n");
+            case "FIGHT" -> outputString("Initiates combat with an enemy.");
+            case "BLOCK" -> outputString("Defends against an enemy’s attack, reducing damage.");
+            case "FLEE" -> outputString("Attempts to escape combat; success depends on the enemy.");
+            case "STATS" -> outputString("Displays the player’s current health, strength, and defense.\n");
+            case "SOLVE" ->
+                    outputString("Attempts to solve a puzzle by entering an answer or interacting with objects.");
+            case "IGNORE" -> {
                 outputString("Skips a puzzle if allowed (may block progress or rewards).");
                 outputString(" -OR- ");
                 outputString("Leaves an item behind instead of picking it up.");
-                break;
-            case "HINT":
-                outputString("(For applicable puzzles) Provides a hint at the cost of a small penalty.\n");
-                break;
-            case "PICKUP":
-                outputString("Adds an item to the player's inventory, provided they don’t already have one of that type.");
-                break;
-            case "SWAP":
-                outputString("Exchanges an equipped item for a newly found one.");
-                break;
-            case "SEE":
-                outputString("Revisits a previously ignored item to pick it up, swap, or leave it.");
-                break;
-            case "INVENTORY":
-                outputString("Displays all currently held items and their effects.");
-                break;
-            case "USE":
-                outputString("Uses a consumable item if available and not on cooldown.");
-                break;
-            case "HELP":
-                outputString("Displays a categorized list of all available commands.");
-                break;
-            case "LOAD":
-                outputString("LOAD <fileName> - Loads a previously saved game.");
-                break;
-            case "SAVE":
-                outputString("SAVE <fileName> - Saves your current game.");
-                break;
-            case "EXIT":
-                outputString("Ends the game session.");
-                break;
+            }
+            case "HINT" -> outputString("(For applicable puzzles) Provides a hint at the cost of a small penalty.\n");
+            case "PICKUP" ->
+                    outputString("Adds an item to the player's inventory, provided they don’t already have one of that type.");
+            case "SWAP" -> outputString("Exchanges an equipped item for a newly found one.");
+            case "SEE" -> outputString("Revisits a previously ignored item to pick it up, swap, or leave it.");
+            case "INVENTORY" -> outputString("Displays all currently held items and their effects.");
+            case "USE" -> outputString("Uses a consumable item if available and not on cool-down.");
+            case "HELP" -> outputString("Displays a categorized list of all available commands.");
+            case "LOAD" -> outputString("LOAD <fileName> - Loads a previously saved game.");
+            case "SAVE" -> outputString("SAVE <fileName> - Saves your current game.");
+            case "EXIT" -> outputString("Ends the game session.");
         }
     }
 

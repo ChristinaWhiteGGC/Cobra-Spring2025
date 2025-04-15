@@ -11,8 +11,6 @@ public abstract class Character {
 
     protected int strength;
 
-    protected int baseAttackDamage;
-
     public void setDef(int defense) {
         this.defense = defense;
     }
@@ -54,10 +52,6 @@ public abstract class Character {
         return name;
     }
 
-    public String viewStats() {
-        return "";
-    }
-
     // Setter for currentRoom
     public void setRoom(Room room) {
         this.currentRoom = room;
@@ -67,7 +61,5 @@ public abstract class Character {
     public Room getRoom() {
         return this.currentRoom;
     }
-
-    public void takeDamage(int amount) { health -= amount; }
 
 }

@@ -84,7 +84,7 @@ SWAP – Exchanges an equipped item for a newly found one.
 IGNORE – Leaves an item behind instead of picking it up.
 SEE <item> – Revisits a previously ignored item to pick it up, swap, or leave it.
 INVENTORY – Displays all currently held items and their effects.
-USE <item> – Uses a consumable item if available and not on cooldown.
+USE <item> – Uses a consumable item if available and not on cool-down.
 
 General Commands:
 
@@ -96,7 +96,7 @@ EXIT – Ends the game session.
 Some rooms have items and puzzles in them. The player may use the "Explore"
 command to get a list of items in the room; if the room has no items,
 the player will be told the room doesn't have any items. If the room does have items,
-the player may pickup the item and place it in their inventory using
+the player may pick up the item and place it in their inventory using
 the "Pickup + <item-name>" command. Once the item is picked up the player may
 then get a description of the item using the "Inspect + <item-name>" command.
 To see a list of items the player has, the player may use the "Inventory" command.

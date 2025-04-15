@@ -1,7 +1,6 @@
 package Models;
-
-import javax.xml.crypto.Data;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -58,10 +57,12 @@ public class GameStateManager {
 
     private static void mapPuzzlesToRooms(Map<Integer, Room> roomsList/* TODO: Add Puzzles list here */) {
         // TODO: Map puzzles to rooms when puzzles are complete
+        return;
     }
 
     private static void mapMonstersToRooms(Map<Integer, Room> roomsList/* TODO: Add Monsters list here */) {
         // TODO: Map monsters to rooms
+        return;
     }
 
     private static void mapArtifactsToRooms(Map<Integer, Room> roomsList, Map<String, Artifact> artifactList) {
@@ -93,9 +94,9 @@ public class GameStateManager {
         return lines;
     }
 
-    public static boolean save(String saveName, Map<Integer, Room> rooms, Map<String, Artifact> artifactsList, Player player) throws FileNotFoundException, UnsupportedEncodingException {
+    public static boolean save(String saveName, Map<Integer, Room> rooms, Map<String, Artifact> artifactsList, Player player) {
         try {
-            PrintWriter writer = new PrintWriter(Paths.get("src", "Data", "Saves", saveName).toAbsolutePath().toString(), "UTF-8");
+            PrintWriter writer = new PrintWriter(Paths.get("src", "Data", "Saves", saveName).toAbsolutePath().toString(), StandardCharsets.UTF_8);
 
 
             // Write out player state
@@ -118,7 +119,7 @@ public class GameStateManager {
                 writer.println("\t" + roomLine);
             }
             writer.close();
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+        } catch (IOException e) {
             System.out.println("Unable to save game: " + e.getMessage());
             return false;
         }
@@ -132,25 +133,13 @@ public class GameStateManager {
             DataFileSections currentSection = DataFileSections.None;
             for (String line : savedLines) {
                 switch (line) {
-                    case "Player:":
-                        currentSection = DataFileSections.Player;
-                        break;
-                    case "Player Inventory:":
-                        currentSection = DataFileSections.PlayerInventory;
-                        break;
-                    case "Rooms:":
-                        currentSection = DataFileSections.Rooms;
-                        break;
-                    case "Puzzles:":
-                        currentSection = DataFileSections.Puzzles;
-                        break;
-                    case "Monsters:":
-                        currentSection = DataFileSections.Monsters;
-                        break;
-                    case "Artifacts:":
-                        currentSection = DataFileSections.Artifacts;
-                        break;
-                    default:
+                    case "Player:" -> currentSection = DataFileSections.Player;
+                    case "Player Inventory:" -> currentSection = DataFileSections.PlayerInventory;
+                    case "Rooms:" -> currentSection = DataFileSections.Rooms;
+                    case "Puzzles:" -> currentSection = DataFileSections.Puzzles;
+                    case "Monsters:" -> currentSection = DataFileSections.Monsters;
+                    case "Artifacts:" -> currentSection = DataFileSections.Artifacts;
+                    default -> {
                         line = line.trim();
                         if (line.isEmpty()) {
                             continue;
@@ -197,6 +186,7 @@ public class GameStateManager {
                                 }
                             }
                         }
+                    }
                 }
             }
         } catch (IOException ie) {

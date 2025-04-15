@@ -1,7 +1,5 @@
 package Models;
 
-import Exceptions.GameException;
-
 import java.util.*;
 
 /*
@@ -20,7 +18,7 @@ public class Player extends Character {
 
    public Player(String name, int baseHp, int baseStrength, int baseDefense) {
       super(name, baseHp, baseStrength, baseDefense);
-      this.inventoryList = new HashMap<String, Artifact>();
+      this.inventoryList = new HashMap<>();
    }
    public void clearInventory() {
        inventoryList.clear();
@@ -31,9 +29,13 @@ public class Player extends Character {
    }
 
    public boolean addToInventory(Artifact a) {
-      String artifactType = a.getType();
-      inventoryList.put(artifactType, a);
-      return true;
+      try {
+         String artifactType = a.getType();
+         inventoryList.put(artifactType, a);
+         return true;
+      } catch (Exception ignored) {
+      }
+      return false;
    }
 
    public void removeArtifactEffects(Artifact a) {

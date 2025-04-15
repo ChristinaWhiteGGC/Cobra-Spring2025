@@ -16,7 +16,7 @@ public class GameController {
 
     private final GameView view;
 
-    private GameStateManager gsm;
+    private final GameStateManager gsm;
 
     public GameController(GameView view, GameStateManager gsm) {
         this.view = view;
@@ -25,7 +25,7 @@ public class GameController {
         this.artifactList = gsm.getArtifacts();
     }
 
-    public void initialize() throws Exception {
+    public void initialize() {
         // Map puzzles to their initial rooms
         String playerName = "";
         while (playerName == null || playerName.trim().isEmpty()) {
@@ -84,41 +84,39 @@ public class GameController {
                 }
                 try {
                     switch (command[0].toUpperCase()) {
-                        case "N":
-                        case "E":
-                        case "S":
-                        case "W":
+                        case "N", "E", "S", "W" -> {
                             isMovingRooms = true;
-                            nextRoomIndex = player.getRoom().getExit(command[0]);
+                            nextRoomIndex = player.getRoom().getExit(command[0].toUpperCase());
                             if (nextRoomIndex == 0) {
                                 view.outputString("You can't go this way.");
                             }
-                            break;
-                        case "HELP":
+                        }
+                        case "HELP" -> {
                             if (command.length == 1) {
                                 view.printHelpList();
                             } else {
                                 view.printDetailedHelp(command[1]);
                             }
-                            break;
-                        case "EXIT", "X":
+                        }
+                        case "EXIT", "X" -> {
                             view.outputString("Thanks for playing Pyramid Plunder!");
                             System.exit(0);
-                        case "SAVE":
+                        }
+                        case "SAVE" -> {
                             isMovingRooms = false;
                             if (GameStateManager.save(command[1], roomsList, artifactList, player)) {
                                 view.outputString("Successfully saved game data to: " + command[1]);
                             }
-                            break;
-                        case "LOAD":
+                        }
+                        case "LOAD" -> {
                             isMovingRooms = false;
                             if (GameStateManager.load(command[1], roomsList, artifactList, player)) {
                                 view.outputString("Welcome back to the game " + player.getName() + "!");
                                 view.outputString("You can continue where you left off");
                             }
-                            break;
-                        default:
-                            view.outputString("Invalid input received. Please enter a valid command. Enter 'help' to see list of valid commands.");
+                        }
+                        default ->
+                                view.outputString("Invalid input received. Please enter a valid command. Enter 'help' to see list of valid commands.");
                     }
                 } catch (Exception e) {
                     view.outputString(e.getMessage());

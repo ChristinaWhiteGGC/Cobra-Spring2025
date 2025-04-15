@@ -1,8 +1,5 @@
 package Models;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,34 +16,34 @@ Ints n,e,s, and w for directional navigation
  */
 public class Room {
     // The ID of the room
-    private int roomId;
+    private final int roomId;
 
     // Flags whether we have visited this room before, or not
     private boolean isVisited;
 
     // The name of the room
-    private String name;
+    private final String name;
 
     // The description of the room
-    private String description;
+    private final String description;
 
     // Models.Room ID of room located to the north of this room, 0 if it does not exist
-    private int n;
+    private final int n;
 
     // Models.Room ID of room located to the east of this room, 0 if it does not exist
-    private int e;
+    private final int e;
 
     // Models.Room ID of room located to the south of this room, 0 if it does not exist
-    private int s;
+    private final int s;
 
     // Models.Room ID of room located to the west of this room, 0 if it does not exist
-    private int w;
+    private final int w;
 
 
     // The item configured to this room
-    private ArrayList<Artifact> artifactList = new ArrayList<Artifact>();
+    private final ArrayList<Artifact> artifactList = new ArrayList<>();
 
-    private String[] initialArtifactIds;
+    private final String[] initialArtifactIds;
 
 
     // Getter for name
@@ -59,12 +56,10 @@ public class Room {
         return description;
     }
 
-    // Getter for roomId
     public int getRoomId() {
         return roomId;
     }
 
-    // Getter for isVisisted
     public boolean getIsVisited() {
         return isVisited;
     }
@@ -87,19 +82,13 @@ public class Room {
     // getExit method returns roomId from the read rooms from the data file, for the direction passed in
     // Returns 0 if the player cannot go that way (Invalid direction input, or there is not an adjacent room in that direction
     public int getExit(String direction) {
-        switch (direction) {
-            case "N":
-                return n;
-            case "E":
-                return e;
-            case "S":
-                return s;
-            case "W":
-                return w;
-            default:
-                // Invalid direction received
-                return 0;
-        }
+        return switch (direction) {
+            case "N" -> n;
+            case "E" -> e;
+            case "S" -> s;
+            case "W" -> w;
+            default -> 0;
+        };
     }
 
     // Sets the isVisited flag to be used to determine if the player has visited this room before
@@ -120,19 +109,11 @@ public class Room {
         artifactList.remove(i);
     }
 
-    public void clearLoot() {
-        artifactList.clear();
-    }
-
     public ArrayList<Artifact> getArtifacts() {
         return artifactList;
     }
 
-    public boolean doesRoomHaveArtifact() {
-        return !artifactList.isEmpty();
-    }
-
-    public static Map<Integer,Room> loadRooms(ArrayList<String> readLines) throws IOException {
+    public static Map<Integer,Room> loadRooms(ArrayList<String> readLines) {
         Map<Integer,Room> roomsList = new HashMap<>();
         int i = 0;
         for (String line : readLines) {
