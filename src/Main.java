@@ -1,8 +1,17 @@
+import Controllers.GameController;
+import Models.GameStateManager;
+import Models.Room;
+import Views.GameView;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("This is William ");
+        try {
+            GameStateManager gsm = new GameStateManager();
+            GameView view = new GameView();
+            GameController gc = new GameController(view, gsm);
+            gc.initialize();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
-    // Christina was here
-    // Teresa's daughter is the mother of my daughter, who am I to Teresa?
-    // This is the main class, work in progress!!
 }

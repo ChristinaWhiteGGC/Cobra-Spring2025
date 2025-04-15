@@ -1,4 +1,4 @@
-package test;
+package Models;
 public class Weapon extends Artifact {
     private int strBoost;
 

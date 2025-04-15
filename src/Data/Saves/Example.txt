@@ -1,0 +1,5 @@
+Player:
+ Christina~100~20~10
+Player Inventory:
+Rooms:
+1~false~

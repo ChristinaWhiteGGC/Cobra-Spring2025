@@ -1,4 +1,4 @@
-package test;
+package Models;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -54,6 +54,10 @@ public abstract class Artifact {
     }
 
     public boolean pickup(Player player) {
+        Artifact existing = player.getArtifactByType(type);
+        if (existing != null) {
+            return false;
+        }
         return player.addToInventory(this);
     }
 
@@ -70,6 +74,7 @@ public abstract class Artifact {
         player.getInventory().remove(existing);
         player.getInventory().add(this);
         applyEffects(player);
+        room.removeLoot(this);
         room.addLoot(existing);
         return "Swapped " + existing.getName() + " for " + name + ".";
     }
