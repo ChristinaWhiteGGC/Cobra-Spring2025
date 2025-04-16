@@ -1,4 +1,0 @@
-A1|armor|Bronze Helmet|A sturdy helm.|4
-A2|armor|Scale Armor|Heavy chest armor.|8
-W1|weapon|Dagger|A sharp blade.|2
-C1|consumable|Healing Potion|A glowing vial.|20
