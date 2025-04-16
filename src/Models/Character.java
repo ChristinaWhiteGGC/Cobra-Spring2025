@@ -5,11 +5,14 @@ public abstract class Character {
     protected String name;
 
     protected Room currentRoom;
+    protected int priorRoomId;
+
     protected int health;
 
     protected int defense;
 
     protected int strength;
+
 
     public void setDef(int defense) {
         this.defense = defense;
@@ -54,8 +57,15 @@ public abstract class Character {
 
     // Setter for currentRoom
     public void setRoom(Room room) {
+        if(this.currentRoom != null) {
+            priorRoomId = currentRoom.getRoomId();
+        }
         this.currentRoom = room;
     }
+    public int getPriorRoom(){
+        return this.priorRoomId;
+    }
+
 
     // Getter for currentRoom
     public Room getRoom() {

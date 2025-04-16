@@ -88,12 +88,12 @@ public class GameView {
     }
 
     public void printDetailedHelp(String command) {
-        switch (command) {
-            case "N" -> outputString("to go to the room to the North");
-            case "E" -> outputString("to go to the room to the East");
-            case "S" -> outputString("to go to the room to the South");
-            case "W" -> outputString("to go to the room to the West");
-            case "BACK" -> outputString("to go to the last visited room");
+        switch (command.toUpperCase()) {
+            case "N" -> outputString("Directional input to go to the room to the North");
+            case "E" -> outputString("Directional input to go to the room to the East");
+            case "S" -> outputString("Directional input to go to the room to the South");
+            case "W" -> outputString("Directional input to go to the room to the West");
+            case "BACK" -> outputString("Directional input to go to the last visited room");
             case "MAP" -> outputString("Displays a map of the game showing explored locations.");
             case "LOCATION" -> outputString("Provides the player’s current location and a room description.");
             case "EXPLORE" -> outputString("Provides a detailed description of the current room.");

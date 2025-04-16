@@ -16,6 +16,7 @@ public class Player extends Character {
    // Hashmap of currently equipped artifacts by type
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
+
    public Player(String name, int baseHp, int baseStrength, int baseDefense) {
       super(name, baseHp, baseStrength, baseDefense);
       this.inventoryList = new HashMap<>();
@@ -37,6 +38,7 @@ public class Player extends Character {
       }
       return false;
    }
+
 
    public void removeArtifactEffects(Artifact a) {
       artifactEffects.remove(a.getName());

@@ -64,7 +64,6 @@ public class Room {
         return isVisited;
     }
 
-
     // This constructs the room instance from passed in parameters
     public Room(int roomId, String description, String name, boolean isVisited, int n, int e, int s, int w, String[] itemNames) {
         this.roomId = roomId;

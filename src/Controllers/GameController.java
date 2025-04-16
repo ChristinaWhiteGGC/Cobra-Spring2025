@@ -91,6 +91,19 @@ public class GameController {
                                 view.outputString("You can't go this way.");
                             }
                         }
+                        case "BACK" -> {
+                            isMovingRooms = true;
+                            nextRoomIndex = player.getPriorRoom();
+                        }
+                        case "LOCATION" -> {
+                            isMovingRooms= false;
+                            view.outputString("You are currently in: " + player.getRoom().getName());
+                            view.outputString(player.getRoom().getDescription() + "\n");
+                        }
+                        case "EXPLORE" -> {
+                            isMovingRooms= false;
+                            view.outputString("Detailed description of your current room: \n"+ player.getRoom().getDescription() + "\n");
+                        }
                         case "HELP" -> {
                             if (command.length == 1) {
                                 view.printHelpList();
