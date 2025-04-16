@@ -9,8 +9,8 @@ M1|magic|Crook of Osiris|Owned by the Egyptian god of the afterlife, now in poss
 M2|magic|Amulet|Said to have belonged to a pharaoh of old.|MAG2|Enables player to automatically solve 3 puzzles
 C1|consumable|Buff Tonic|Tastes bitter but grants improvement to a desired stat.|HP5|+5 STR, or DEF. Usable every 5 new/unvisited rooms.
 C2|consumable|Ancient Brew|Who knows what it’s made of, but it sure does invigorate the consumer.|HPFULL|+5 STR, or DEF. Usable every 5 new/unvisited rooms.
-K1|key|Key 1|KEY|Key 1
-K2|key|Key 2|KEY|Key 2
-K3|key|Key 3|KEY|Key 3
-K4|key|Key 4|KEY|Key 4
-K5|key|Key 5|KEY|Key 5
+K1|key|Key 1|Key 1|KEY|Key 1
+K2|key|Key 2|Key 2|KEY|Key 2
+K3|key|Key 3|Key 3|KEY|Key 3
+K4|key|Key 4|Key 4|KEY|Key 4
+K5|key|Key 5|Key 5|KEY|Key 5

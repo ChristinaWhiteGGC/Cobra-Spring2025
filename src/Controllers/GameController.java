@@ -166,6 +166,15 @@ public class GameController {
                                 view.outputString(a.getName() + " - " + a.getTextEffect());
                             });
                         }
+                        case "LISTEN" -> {
+                            isMovingRooms = false;
+                            Monster m = player.getRoom().getMonster();
+                            if (m != null) {
+                                view.outputString("You detect movement from " + m.getName());
+                            } else {
+                                view.outputString("You don't detect anything out of the ordinary.");
+                            }
+                        }
                         case "EXIT", "X" -> {
                             view.outputString("Thanks for playing Pyramid Plunder!");
                             System.exit(0);

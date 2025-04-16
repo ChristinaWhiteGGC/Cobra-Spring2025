@@ -49,6 +49,10 @@ public class Room {
     private final String[] initialArtifactIds;
     private final String[] initialLootIds;
 
+    private boolean roomHasMonster;
+
+    private Monster monster;
+
 
     // Getter for name
     public String getName() {
@@ -70,7 +74,7 @@ public class Room {
 
 
     // This constructs the room instance from passed in parameters
-    public Room(int roomId, String description, String name, boolean isVisited, int n, int e, int s, int w, String[] itemIDs, int lockConditions, String[] lootIDs) {
+    public Room(int roomId, String description, String name, boolean isVisited, int n, int e, int s, int w, String[] itemIDs, int lockConditions, String[] lootIDs, boolean roomHasMonster) {
         this.roomId = roomId;
         this.description = description;
         this.name = name;
@@ -82,6 +86,7 @@ public class Room {
         this.initialArtifactIds = itemIDs;
         this.initialLootIds = lootIDs;
         this.lockConditions = lockConditions;
+        this.roomHasMonster = roomHasMonster;
     }
 
 
@@ -113,6 +118,17 @@ public class Room {
     // Sets the isVisited flag to be used to determine if the player has visited this room before
     public void setVisited() {
         isVisited = true;
+    }
+
+    public boolean getHasMonster() {
+        return roomHasMonster;
+    }
+
+    public Monster getMonster() {
+        return monster;
+    }
+    public void setMonster(Monster m) {
+        monster = m;
     }
 
     public String[] getInitialArtifactIds() {
@@ -168,8 +184,9 @@ public class Room {
             int w = Integer.parseInt(sections[7]);
             int lockConditions = Integer.parseInt(sections[8]);
             String[] items = sections[9].split(",");
-            String[] loot = sections[9].split(",");
-            Room room = new Room(roomId, description, name, isVisited, n, e, s, w, items, lockConditions, loot);
+            String[] loot = sections[10].split(",");
+            boolean roomHasMonster = Boolean.parseBoolean(sections[11]);
+            Room room = new Room(roomId, description, name, isVisited, n, e, s, w, items, lockConditions, loot, roomHasMonster);
             // create new room instance from data just read
             roomsList.put(roomId, room);
         }
