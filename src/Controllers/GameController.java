@@ -95,10 +95,14 @@ public class GameController {
                             isMovingRooms = true;
                             nextRoomIndex = player.getPriorRoom();
                         }
-                        case "LOCATION" -> {
+                        case "LOCATION", "WHEREAMI" -> {
                             isMovingRooms= false;
                             view.outputString("You are currently in: " + player.getRoom().getName());
                             view.outputString(player.getRoom().getDescription() + "\n");
+                        }
+                        case "MAP" -> {
+                            isMovingRooms = false;
+                            view.showMap();
                         }
                         case "EXPLORE" -> {
                             isMovingRooms= false;

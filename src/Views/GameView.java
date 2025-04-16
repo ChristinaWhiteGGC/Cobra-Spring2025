@@ -42,11 +42,6 @@ public class GameView {
         return command.split(" ");
     }
 
-    public void showMap(String playerRoom, Room currentRoom) {
-        // TODO: Map showing the different floors
-        return;
-    }
-
     public void printHelpList() {
         outputString("The navigation commands are:");
         outputString("N");
@@ -55,7 +50,7 @@ public class GameView {
         outputString("W");
         outputString("BACK");
         outputString("MAP");
-        outputString("LOCATION");
+        outputString("LOCATION OR WHEREAMI");
         outputString("\nExploration & Interaction Commands:");
         outputString("EXPLORE");
         outputString("SEARCH");
@@ -95,7 +90,7 @@ public class GameView {
             case "W" -> outputString("Directional input to go to the room to the West");
             case "BACK" -> outputString("Directional input to go to the last visited room");
             case "MAP" -> outputString("Displays a map of the game showing explored locations.");
-            case "LOCATION" -> outputString("Provides the player’s current location and a room description.");
+            case "LOCATION", "WHEREAMI" -> outputString("Provides the player’s current location and a room description.");
             case "EXPLORE" -> outputString("Provides a detailed description of the current room.");
             case "SEARCH" -> outputString("Searches the room for hidden objects, loot, or clues.");
             case "INTERACT" -> outputString("Engages with objects, puzzles, or mechanisms.");
@@ -132,5 +127,36 @@ public class GameView {
     public void outputString(String message) {
         System.out.println(message);
     }
+    public void showMap() {
+        String map = """
+                       
+                                          [ R30 ]    
+                       Floor 3
+                               
+                                 [ R26 ]--[ R25]--[ R24 ]
+                                    |                |
+                                 [ R27 ]           [ R23 ]
+                                     |                |
+                                 [ R28 ]--[ R29 ]  [ R22 ]
+                                         
+                       Floor 2
+                       
+                       [ R04 ]           [ R01 ]           [ R07 ]
+                          |		            |	               |
+                       [ R03 ]-----------[ R02 ]--[ R05 ]--[ R06 ]
+                           		                       |
+                       [ R12 ]--[ R11 ]--[ R10 ]--[ R09 ]--[ R08 ]
+                             		        |                      
+                       [ R20 ]--[ R21 ]  [ R13 ]--[ R14 ]--[ R15 ]
+                          |                 |                 |                              \s
+                       [ R19 ]--[ R18 ]--[ R17 ]           [ R13 ]
+                       
+                       Floor 1
+                                       
+                 
+                """;
 
+        // Display the map
+        System.out.printf(map);
+    }
 }
