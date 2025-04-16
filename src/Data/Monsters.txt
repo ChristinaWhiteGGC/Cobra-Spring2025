@@ -1,0 +1,7 @@
+MonsterName~Description~Attacks~Health~Location
+Mummy~Wrapped in decayed linen, the Mummy lurches toward players with hollow eyes glowing in the dim torchlight. It lets out a low, guttural moan before attacking.~Mauls the player (deals 10 damage)~40 hp~-1
+Giant Scorpion~Skittering across the stone floor, the Giant Scorpion raises its venomous tail, preparing to strike. Its sharp pincers snap menacingly at intruders~Pincer (deals 10 damage)||Poison Sting (deals 5 damage and poisons the player dealing them 15 damage per turn)~50 hp~-1
+Sphinx~First floor boss monster (Designed to be easy to handle despite its large amount of health since its strongest attack has a trick to protect the player from it)~Bites (deals 20 damage)||Crushes the player (deals 100 damage to the player in three turns unless distracted by a thrown or dropped shiny item)||Stone Swipe (deals 25 damage)~200 hp~17
+Anubis Statue~A strong monster that appears on the second floor~Casts a curse upon the player (deals 75 damage after two turns)||Scepter  attack (deals 30 damage)~150 hp~22||23||24||25||26
+Ammit~Second boss monster~Bites (deals 30 damage)||Tail Swipe (deals 20 damage)||Eats the player’s soul (takes four turns and kills the player)~300 hp~27
+The Pharaoh Ramses~The final boss~Fires a spell at the player (deals 20 damage)||Swipes at player with a skeleton arm (deals 30 damage)||Curse the player (takes 3 turns to deal 100 damage)~500 hp~30
