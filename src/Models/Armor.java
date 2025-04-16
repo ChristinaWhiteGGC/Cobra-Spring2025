@@ -1,4 +1,4 @@
-package test;
+package Models;
 
 public class Armor extends Artifact {
     private int defBoost;

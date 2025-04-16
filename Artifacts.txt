@@ -1,3 +1,4 @@
+
 A1|armor|Bronze Helmet|A sturdy helm.|4
 A2|armor|Scale Armor|Heavy chest armor.|8
 A3|armor|Golden Helm|A shiny helmet.|12
@@ -7,3 +8,4 @@ W3|weapon|Golden Spear|A spear of legend.|8
 C1|consumable|Healing Potion|A glowing vial.|20
 C2|consumable|Strength Tonic|Boosts your strength.|10
 C3|consumable|Antidote|Cures poison.|0
+

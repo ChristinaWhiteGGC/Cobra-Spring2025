@@ -1,0 +1,116 @@
+User Manual:
+
+This is a basic text adventure game called Pyramid Plunder. Pyramid Plunder is set in an ancient
+pyramid where players must explore rooms, solve puzzles, interact with artifacts, and fight monsters.
+
+-Exploration: Players navigate through various rooms within the pyramid, discovering hidden paths, treasures, and challenges.
+-Puzzle Solving: Players must solve riddles, logic puzzles, and interactive challenges to progress.
+-Combat Mechanics: Players engage in combat with enemies such as mummies and scorpions using a turn-based combat system.
+-Inventory System: Players collect and manage items, weapons, armor, and consumables.
+-Navigation System: Players use directional commands (N, E, S, W) to move between rooms, with restricted movement based on locked doors and puzzles.
+
+The player will start in room one and then be prompted for further commands.
+
+The navigation commands are :
+
+N - to go to the room to the North
+E - to go to the room to the East
+S - to go to the room to the South
+W - to go to the room to the West
+BACK - to go to the last visited room
+MAP - Displays a map of the game showing explored locations.
+LOCATION - Provides the player’s current location and a room description.
+
+If there is not a room in the direction chosen OR if the room is locked, the player will be notified
+that they can't go that way.
+
+The default map of rooms with connections looks like this:
+Note: Once a player has visited every room on a floor, the game will print out the map for
+that floor so that the player can more easily navigate to the next floor.
+
+
+                   [ R30 ]
+
+Floor 3
+
+          [ R26 ]--[ R25]--[ R24 ]
+             |                |
+          [ R27 ]          [ R23 ]
+              |                 |
+          [ R28 ]--[ R29 ] [ R22 ]
+
+
+Floor 2
+
+[ R04 ]           [ R01 ]           [ R07 ]
+   |		     |	               |
+[ R03 ]-----------[ R02 ]--[ R05 ]--[ R06 ]
+    		                       |
+[ R12 ]--[ R11 ]--[ R10 ]--[ R09 ]--[ R08 ]
+      		     |
+[ R20 ]--[ R21 ]  [ R13 ]--[ R14 ]--[ R15 ]
+   |                 |                 |
+[ R19 ]--[ R18 ]--[ R17 ]           [ R13 ]
+
+Floor 1
+
+
+Exploration & Interaction Commands:
+
+EXPLORE – Provides a detailed description of the current room.
+SEARCH – Searches the room for hidden objects, loot, or clues.
+INTERACT – Engages with objects, puzzles, or mechanisms.
+LISTEN – Detects subtle auditory cues like enemy movements or hidden dangers.
+STEALTH – Attempts to move undetected through an area, avoiding enemies or traps.
+UNLOCK DOOR - Attempts to open a locked passage; success will depend on if the player has collected the required number of keys.
+
+Combat Commands:
+
+FIGHT – Initiates combat with an enemy.
+BLOCK – Defends against an enemy’s attack, reducing damage.
+FLEE – Attempts to escape combat; success depends on the enemy.
+STATS – Displays the player’s current health, strength, and defense.
+
+Puzzle Commands:
+
+SOLVE – Attempts to solve a puzzle by entering an answer or interacting with objects.
+IGNORE – Skips a puzzle if allowed (may block progress or rewards).
+HINT – (For applicable puzzles) Provides a hint at the cost of a small penalty.
+
+Item & Inventory Commands:
+
+PICKUP – Adds an item to the player's inventory, provided they don’t already have one of that type.
+SWAP – Exchanges an equipped item for a newly found one.
+IGNORE – Leaves an item behind instead of picking it up.
+SEE <item> – Revisits a previously ignored item to pick it up, swap, or leave it.
+INVENTORY – Displays all currently held items and their effects.
+USE <item> – Uses a consumable item if available and not on cool-down.
+
+General Commands:
+
+HELP – Displays a categorized list of all available commands.
+HELP <command> – Provides details on a specific command.
+EXIT – Ends the game session.
+
+
+Some rooms have items and puzzles in them. The player may use the "Explore"
+command to get a list of items in the room; if the room has no items,
+the player will be told the room doesn't have any items. If the room does have items,
+the player may pick up the item and place it in their inventory using
+the "Pickup + <item-name>" command. Once the item is picked up the player may
+then get a description of the item using the "Inspect + <item-name>" command.
+To see a list of items the player has, the player may use the "Inventory" command.
+If the player wishes to remove an item from the inventory, the player may do so using
+the "Drop + <item-name>" command
+
+If a room contains a puzzle, the puzzle will be displayed to the player immediately
+when the player enters that room. The player will be prompted to enter the answer and
+will have a specified number of attempts to answer the puzzle. If the player enters an
+incorrect answer, the game will subtract 1 attempt from the allowed attempts and the
+player will be allowed to answer again until all remaining attempts are used or the
+player enters the correct answer. If the player is unable to solve the puzzle correctly
+within the allowed number of attempts, the game will notify the player they have failed
+to solve the puzzle. The player will then be allowed to continue navigating through the game,
+but as soon as the player re-enters the room with the unsolved puzzle, the player will be
+required to attempt the puzzle again. If the player solves the puzzle correctly, the puzzle
+will be removed from the game.

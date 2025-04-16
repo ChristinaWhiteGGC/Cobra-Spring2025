@@ -1,3 +1,16 @@
+import Controllers.GameController;
+import Models.GameStateManager;
+import Views.GameView;
+
 public class Main {
-// This is the main class, work in progress!!
+    public static void main(String[] args) {
+        try {
+            GameStateManager gsm = new GameStateManager();
+            GameView view = new GameView();
+            GameController gc = new GameController(view, gsm);
+            gc.initialize();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
 }

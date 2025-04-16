@@ -1,4 +1,4 @@
-package test;
+package Models;
 
 // Subclass of Artifact representing consumable items.
 // Consumables can be used to apply effects (e.g., heal HP) with a cooldown.
