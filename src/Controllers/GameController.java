@@ -1,6 +1,8 @@
 package Controllers;
 
 import Models.*;
+
+import java.util.Arrays;
 import java.util.Map;
 
 import Views.GameView;
@@ -38,6 +40,7 @@ public class GameController {
         // Instantiates a player and sets the room to the first room in the list
         player = new Player(playerName, 100, 0, 0);
         gsm.resetGame(player);
+        view.printGameTitle();
         view.outputString("Welcome to Pyramid Plunder " + playerName + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
         startGame();
     }
@@ -85,10 +88,17 @@ public class GameController {
                 try {
                     switch (command[0].toUpperCase()) {
                         case "N", "E", "S", "W" -> {
-                            isMovingRooms = true;
-                            nextRoomIndex = player.getRoom().getExit(command[0].toUpperCase());
-                            if (nextRoomIndex == 0) {
-                                view.outputString("You can't go this way.");
+                            int roomIndex = player.getRoom().getExit(command[0].toUpperCase());
+                            if (nextRoomIndex != 0 && getRoom(roomIndex).canNavigateTo(player)) {
+                                isMovingRooms = true;
+                                nextRoomIndex = roomIndex;
+                            } else {
+                                isMovingRooms = false;
+                                if (nextRoomIndex == 0) {
+                                    view.outputString("You can't go this way.");
+                                } else {
+                                    view.outputString("Insufficient numbers of keys obtained to go here.");
+                                }
                             }
                         }
                         case "BACK" -> {
@@ -104,6 +114,12 @@ public class GameController {
                             isMovingRooms = false;
                             view.showMap();
                         }
+                        case "STATS" -> {
+                            isMovingRooms = false;
+                            view.outputString("Health: " + player.getHp());
+                            view.outputString("Defense: " + player.getDef());
+                            view.outputString("Strength: " + player.getStr());
+                        }
                         case "EXPLORE" -> {
                             isMovingRooms= false;
                             view.outputString("Detailed description of your current room: \n"+ player.getRoom().getDescription() + "\n");
@@ -114,6 +130,41 @@ public class GameController {
                             } else {
                                 view.printDetailedHelp(command[1]);
                             }
+                        }
+                       case "SEARCH" -> {
+                            isMovingRooms = false;
+                            player.getRoom().getArtifacts().forEach((Artifact a) -> {
+                                view.outputString(a.getName());
+                                });
+                        }
+                        case "PICKUP" -> {
+                            isMovingRooms = false;
+                            // Check if player entered a filename after "SAVE"
+                            if (command.length < 2 || command[1].isEmpty()) {
+                                view.outputString("Please enter the name of the item you'd like to pickup.");
+                            }
+                            final Artifact[] foundArtifact = new Artifact[1];
+                            StringBuilder itemName = new StringBuilder();
+                            for (int i = 1; i < command.length; i++) {
+                                itemName.append(command[i]).append(" ");
+                            }
+                            player.getRoom().getArtifacts().forEach((Artifact a) -> {
+                                if (a.getName().equalsIgnoreCase(itemName.toString().trim())) {
+                                    foundArtifact[0] = a;
+                                }
+                            });
+                            if (foundArtifact[0] == null) {
+                                view.outputString("This item is not located in the room.");
+                            } else {
+                                foundArtifact[0].pickup(player);
+                                view.outputString(foundArtifact[0].getName() + " has been added to your inventory.");
+                            }
+                        }
+                        case "INVENTORY" -> {
+                            isMovingRooms = false;
+                            player.getInventory().forEach((Artifact a) -> {
+                                view.outputString(a.getName() + " - " + a.getTextEffect());
+                            });
                         }
                         case "EXIT", "X" -> {
                             view.outputString("Thanks for playing Pyramid Plunder!");

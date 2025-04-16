@@ -1,4 +1,5 @@
 package Models;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -68,7 +69,14 @@ public class GameStateManager {
     private static void mapArtifactsToRooms(Map<Integer, Room> roomsList, Map<String, Artifact> artifactList) {
         for (Room r : roomsList.values()) {
             String[] artifactIds = r.getInitialArtifactIds();
+            String[] lootIds = r.getInitialLootIds();
             for (String id : artifactIds) {
+                Artifact artifact = artifactList.get(id);
+                if (artifact != null) {
+                    r.addArtifact(artifact);
+                }
+            }
+            for (String id : lootIds) {
                 Artifact artifact = artifactList.get(id);
                 if (artifact != null) {
                     r.addLoot(artifact);

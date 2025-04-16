@@ -11,13 +11,15 @@ public abstract class Artifact {
     private String name;
     private String description;
     protected String effect;
+    protected String textEffect;
 
-    public Artifact(String id, String type, String name, String description, String effect) {
+    public Artifact(String id, String type, String name, String description, String effect, String textEffect) {
         this.id = id;
         this.type = type;
         this.name = name;
         this.description = description;
         this.effect = effect;
+        this.textEffect = textEffect;
     }
 
     public static Map<String, Artifact> loadArtifacts(String filePath) throws IOException {
@@ -31,19 +33,22 @@ public abstract class Artifact {
                 String type = parts[1];
                 String name = parts[2];
                 String description = parts[3];
-                int effectValue = Integer.parseInt(parts[4]);
+                String effectValue = parts[4];
+                String textEffect = parts[5];
 
                 Artifact artifact;
                 switch (type.toLowerCase()) {
                     case "armor":
-                        artifact = new Armor(id, name, description, effectValue);
+                        artifact = new Armor(id, name, description, effectValue, textEffect);
                         break;
                     case "weapon":
-                        artifact = new Weapon(id, name, description, effectValue);
+                        artifact = new Weapon(id, name, description, effectValue, textEffect);
                         break;
                     case "consumable":
-                        artifact = new Consumable(id, name, description, effectValue);
+                        artifact = new Consumable(id, name, description, effectValue, textEffect);
                         break;
+                    case "key":
+                        artifact = new Key(id, name, description, effectValue, textEffect);
                     default:
                         continue;
                 }
@@ -58,7 +63,9 @@ public abstract class Artifact {
         if (existing != null) {
             return false;
         }
-        return player.addToInventory(this);
+        player.addToInventory(this);
+        applyEffects(player);
+        return true;
     }
 
     public String ignore() {
@@ -71,11 +78,12 @@ public abstract class Artifact {
             return "No " + type + " to swap with. Use 'Pickup' instead.";
         }
         player.removeArtifactEffects(existing);
+        existing.removeEffects(player);
         player.getInventory().remove(existing);
         player.getInventory().add(this);
         applyEffects(player);
-        room.removeLoot(this);
-        room.addLoot(existing);
+        room.removeArtifact(this);
+        room.addArtifact(existing);
         return "Swapped " + existing.getName() + " for " + name + ".";
     }
 
@@ -94,4 +102,6 @@ public abstract class Artifact {
     public String getType() { return type; }
     public String getName() { return name; }
     public String getEffect() { return effect; }
+
+    public String getTextEffect() { return textEffect; }
 }

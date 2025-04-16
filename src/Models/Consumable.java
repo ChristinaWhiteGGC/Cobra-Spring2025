@@ -11,9 +11,12 @@ public class Consumable extends Artifact {
     private static final int COOLDOWN_ROOMS = 5;
 
     // Constructor to initialize a consumable artifact.
-    public Consumable(String id, String name, String description, int healValue) {
-        super(id, "consumable", name, description, "Heals " + healValue + " HP");
-        this.healValue = healValue;
+    public Consumable(String id, String name, String description, String effect, String textEffect) {
+        super(id, "consumable", name, description, effect, textEffect);
+        String effectValue = effect.replace("HP", "");
+        if (!effectValue.equals("FULL")) {
+            this.healValue = Integer.parseInt(effect.replace("HP", ""));
+        }
         this.roomsUntilUsable = 0;
     }
 
@@ -33,12 +36,25 @@ public class Consumable extends Artifact {
     @Override
     public void applyEffects(Player player) {
         // No effect on equip
+        if (this.getEffect().equals("HPFULL")) {
+            player.setHp(player.getBaseHealth());
+        } else if (this.getEffect().startsWith("HP")) {
+            player.setHp(player.getHp() + Integer.parseInt(this.getEffect().replace("HP", "")));
+        } else if (this.getEffect().startsWith("DEF")) {
+            player.setDef(player.getDef() + Integer.parseInt(this.getEffect().replace("DEF", "")));
+        } else if (this.getEffect().startsWith("STR")) {
+            player.setStr(player.getStr() + Integer.parseInt(this.getEffect().replace("STR", "")));
+        }
     }
 
     // Consumables don’t have persistent effects to remove.
     @Override
     public void removeEffects(Player player) {
-        // No persistent effects
+        if (this.getEffect().startsWith("DEF")) {
+            player.setDef(player.getDef() - Integer.parseInt(this.getEffect().replace("DEF", "")));
+        } else if (this.getEffect().startsWith("STR")) {
+            player.setStr(player.getStr() - Integer.parseInt(this.getEffect().replace("STR", "")));
+        }
     }
 
     // Decrements the cooldown when the player visits a new room.

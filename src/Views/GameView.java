@@ -68,7 +68,7 @@ public class GameView {
         outputString("IGNORE");
         outputString("HINT");
         outputString("\nItem & Inventory Commands:");
-        outputString("PICKUP");
+        outputString("PICKUP <item>");
         outputString("SWAP");
         outputString("IGNORE");
         outputString("SEE <item>");
@@ -110,7 +110,7 @@ public class GameView {
                 outputString("Leaves an item behind instead of picking it up.");
             }
             case "HINT" -> outputString("(For applicable puzzles) Provides a hint at the cost of a small penalty.\n");
-            case "PICKUP" ->
+            case "PICKUP <item>" ->
                     outputString("Adds an item to the player's inventory, provided they don’t already have one of that type.");
             case "SWAP" -> outputString("Exchanges an equipped item for a newly found one.");
             case "SEE" -> outputString("Revisits a previously ignored item to pick it up, swap, or leave it.");
@@ -126,6 +126,23 @@ public class GameView {
     // General output function
     public void outputString(String message) {
         System.out.println(message);
+    }
+    public void printGameTitle() {
+        System.out.println("           /\\");
+        System.out.println("          /  \\");
+        System.out.println("         /    \\");
+        System.out.println("        /      \\");
+        System.out.println("       /        \\");
+        System.out.println("      /  PYRAMID \\");
+        System.out.println("     /    PLUNDER \\");
+        System.out.println("    /______________\\");
+        System.out.println("    | []  ||  [] [] |");
+        System.out.println("    |     ||        |");
+        System.out.println("    | []  ||  [] [] |");
+        System.out.println("    |     ||        |");
+        System.out.println("    | []  ||  [] [] |");
+        System.out.println("    |     ||        |");
+        System.out.println("    |____/||\\______|");
     }
     public void showMap() {
         String map = """
