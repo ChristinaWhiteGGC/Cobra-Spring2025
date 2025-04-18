@@ -2,8 +2,8 @@ package Controllers;
 
 import Models.*;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import Views.GameView;
 
@@ -73,6 +73,24 @@ public class GameController {
 
             // Ensure that the above if condition will now function properly and not be skipped
             isEntranceToGame = false;
+
+            //This will try to get the monster that is currently in the room
+            Monster monster = getMonsterInRoom(player.getRoom().getRoomId());
+            if (monster != null){
+                Scanner sc = new Scanner(System.in);
+                view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
+                System.out.println("Enter fight or flee: ");
+                String choice  = sc.nextLine();
+                if (choice.equalsIgnoreCase("fight")){
+                    fightMonster(monster);
+                } else if (choice.equalsIgnoreCase("flee")) {
+                    view.outputString("You flee from " + monster.getName() + ".");
+                    continue;
+                }else {
+                    System.out.println("Invalid choice: Fight or flee");
+                    continue;
+                }
+            }
 
             /* the do-while loop asks the user for directional input
                 and validates that it is a direction they can go, if they input an invalid
@@ -225,5 +243,41 @@ public class GameController {
 
     public Room getRoom(int roomIndex) {
         return roomsList.get(roomIndex);
+    }
+
+    private Monster getMonsterInRoom(int roomIndex) {
+        try {
+            // Implement logic to get the monster in the room based on roomIndex
+            Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
+            // </>his could involve checking the monster's locations
+            for (Monster monster : monstersList.values()) {
+                for (String location : monster.getLocations()) {
+                    if (Integer.parseInt(location) == roomIndex) {
+                        return monster;
+                    }
+                }
+            }
+        }catch (IOException ioe){
+            ioe.printStackTrace();
+        }
+        return null;
+    }
+
+    private void fightMonster(Monster monster) {
+    // Implement the logic for fighting the monster
+    view.outputString("You engage in a fight with " + monster.getName() + "!");
+    // Example fight logic (simplified)
+    while (monster.getHealth() > 0 && player.getHp() > 0) {
+        monster.takeDamage(player.getStr());
+        player.takeDamage(monster.getAttack().get(0).getDamage());
+        // Assuming the monster has at least one attack
+        view.outputString("Monster health: " + monster.getHealth() + ", Player health: " + player.getHp());
+    }
+    if (monster.getHealth() <= 0) {
+        view.outputString("You defeated the " + monster.getName() + "!");
+        monster.setDefeated(true);
+    } else {
+        view.outputString("You were defeated by the " + monster.getName() + ".");
+        }
     }
 }

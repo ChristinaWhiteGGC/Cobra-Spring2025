@@ -72,4 +72,12 @@ public abstract class Character {
         return this.currentRoom;
     }
 
+    public void takeDamage(int damage){
+        health -= damage;
+        if (health < 0){
+            health = 0;
+        }
+        System.out.println(name + " has taken " + damage + " damage. " + name + " now has " + health + " health.");
+    }
+
 }
