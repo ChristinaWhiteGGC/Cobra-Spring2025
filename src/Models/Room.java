@@ -53,6 +53,7 @@ public class Room {
 
     private Monster monster;
 
+    private Puzzle puzzle;
 
     // Getter for name
     public String getName() {
