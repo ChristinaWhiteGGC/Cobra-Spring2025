@@ -21,6 +21,7 @@ public class GameStateManager {
     private final Map<Integer, Room> roomsList = new HashMap<>();
     private final Map<String, Artifact> artifactsList = new HashMap<>();
     private final Map<String, Monster> monstersList = new HashMap<>();
+    private final Map<String, Puzzle> puzzlesList = new HashMap<>();
 
     public void resetGame(Player player) {
         try {
@@ -28,6 +29,7 @@ public class GameStateManager {
             roomsList.clear();
             artifactsList.clear();
             monstersList.clear();
+            puzzlesList.clear();
 
             Map<Integer, Room> readRooms = Room.loadRooms(readFile("src", "Data", "Rooms.txt"));
             for (Room r : readRooms.values()) {
@@ -44,10 +46,15 @@ public class GameStateManager {
                 monstersList.put(m.getName(), m);
             }
 
+            Map<String, Puzzle> readPuzzles = Puzzle.loadPuzzles(readFile("src", "Data", "Puzzles.txt").toString());
+            for (Puzzle p : readPuzzles.values()) {
+                puzzlesList.put(p.getName(), p);
+            }
+
             // TODO: Remap monsters, and puzzles to rooms from data files.
             mapArtifactsToRooms(roomsList, artifactsList);
             mapMonstersToRooms(roomsList, monstersList);
-            mapPuzzlesToRooms(roomsList);
+            mapPuzzlesToRooms(roomsList, puzzlesList);
 
             // TODO: Verify what starting health is and set it here
             player.setHp(100);
@@ -60,7 +67,7 @@ public class GameStateManager {
     }
 
 
-    private static void mapPuzzlesToRooms(Map<Integer, Room> roomsList/* TODO: Add Puzzles list here */) {
+    private static void mapPuzzlesToRooms(Map<Integer, Room> roomsList, Map<String, Puzzle> puzzlesList) {
         // TODO: Map puzzles to rooms when puzzles are complete
         return;
     }
