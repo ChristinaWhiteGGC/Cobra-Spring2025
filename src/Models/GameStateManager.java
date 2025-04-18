@@ -46,7 +46,7 @@ public class GameStateManager {
                 monstersList.put(m.getName(), m);
             }
 
-            Map<String, Puzzle> readPuzzles = Puzzle.loadPuzzles(readFile("src", "Data", "Puzzles.txt").toString());
+            Map<String, Puzzle> readPuzzles = Puzzle.loadPuzzles("src/Data/Puzzles.txt");
             for (Puzzle p : readPuzzles.values()) {
                 puzzlesList.put(p.getName(), p);
             }
