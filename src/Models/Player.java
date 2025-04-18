@@ -64,5 +64,18 @@ public class Player extends Character {
    public int getBaseHealth() {
       return this.baseHealth;
    }
+
+   @Override
+   public void takeDamage(int damage) {
+      int effectiveDamage = damage - baseDefense;
+      if (health < 0){
+         health = 0;
+      }
+      health -= effectiveDamage;
+      if (health < 0){
+         health = 0;
+      }
+      System.out.println(name + " has taken " + damage + " damage. " + name + " now has " + health + " health.");
+   }
 }
 
