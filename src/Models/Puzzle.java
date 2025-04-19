@@ -13,6 +13,8 @@ public class Puzzle {
     private List<String> rightAnswers;
     private List<String> hints;
 
+    private boolean isSolved;
+
 
     public Puzzle(String type, String name, String description) {
         this.type = type;
@@ -21,11 +23,21 @@ public class Puzzle {
     }
 
     public boolean solve(String answer) {
-        return rightAnswer.equals(answer);
+        isSolved = rightAnswer.equals(answer);
+        return isSolved;
     }
 
     public boolean solve(String answer, int index) {
-        return rightAnswers.get(index).equals(answer);
+        isSolved = rightAnswers.get(index).equals(answer);
+        return isSolved;
+    }
+
+    public boolean getIsSolved() {
+        return isSolved;
+    }
+
+    public void setIsSolved(boolean value) {
+        isSolved = value;
     }
 
     public boolean solve(Boolean check) {

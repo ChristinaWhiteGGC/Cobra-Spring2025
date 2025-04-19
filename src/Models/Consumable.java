@@ -2,13 +2,13 @@ package Models;
 
 // Subclass of Artifact for consumable items, now without magical effects.
 public class Consumable extends Artifact {
-    private int healValue;        // Retained for flavor text, not used.
+    private String healValue; // Retained for flavor text, not used.
     private int roomsUntilUsable; // Retained for consistency.
     private static final int COOLDOWN_ROOMS = 5;
 
-    public Consumable(String id, String name, String description, int healValue) {
-        super(id, "consumable", name, description, "Grants " + healValue + " stat");
-        this.healValue = healValue;
+    public Consumable(String id, String name, String description, String healValueText) {
+        super(id, "consumable", name, description, "Grants " + healValueText + " stat", "Grants " + healValueText + " stat");
+        this.healValue = healValueText;
         this.roomsUntilUsable = 0;
     }
 

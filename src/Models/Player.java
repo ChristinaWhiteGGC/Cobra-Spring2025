@@ -20,6 +20,8 @@ public class Player extends Character {
    private final int baseStrength = 20;
    private final int baseDefense = 0;
 
+   private boolean isResurrectable = false;
+
    public Player(String name, int baseHp, int baseStrength, int baseDefense) {
       super(name, baseHp, baseStrength, baseDefense);
       this.inventoryList = new HashMap<>();
@@ -76,6 +78,10 @@ public class Player extends Character {
          health = 0;
       }
       System.out.println(name + " has taken " + damage + " damage. " + name + " now has " + health + " health.");
+   }
+
+   public void setResurrectable(boolean value) {
+      this.isResurrectable = value;
    }
 }
 

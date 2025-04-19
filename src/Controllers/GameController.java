@@ -107,16 +107,20 @@ public class GameController {
                     switch (command[0].toUpperCase()) {
                         case "N", "E", "S", "W" -> {
                             int roomIndex = player.getRoom().getExit(command[0].toUpperCase());
-                            if (nextRoomIndex != 0 && getRoom(roomIndex).canNavigateTo(player)) {
-                                isMovingRooms = true;
-                                nextRoomIndex = roomIndex;
-                            } else {
-                                isMovingRooms = false;
-                                if (nextRoomIndex == 0) {
-                                    view.outputString("You can't go this way.");
+                            if (getRoom(roomIndex) != null) {
+                                if (nextRoomIndex != 0 && getRoom(roomIndex).canNavigateTo(player)) {
+                                    isMovingRooms = true;
+                                    nextRoomIndex = roomIndex;
                                 } else {
-                                    view.outputString("Insufficient numbers of keys obtained to go here.");
+                                    isMovingRooms = false;
+                                    if (nextRoomIndex == 0) {
+                                        view.outputString("You can't go this way.");
+                                    } else {
+                                        view.outputString("Insufficient numbers of keys obtained to go here.");
+                                    }
                                 }
+                            } else {
+                                view.outputString("There is no room in this direction. Please choose another.");
                             }
                         }
                         case "BACK" -> {
