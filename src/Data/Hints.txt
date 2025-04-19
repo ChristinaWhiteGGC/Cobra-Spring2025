@@ -1,0 +1,7 @@
+VAGUE|SEMI|DIRECT
+Find the correct weight.|Combine weights to get the right sum of weight.|Choose 3 of the 5 weights you think will add up to the correct sum of weight to balance the scale. If it's too low or high of weight, then switch a weight out to see how it changes.
+The scarabs seem to like the dark.|Light could get them to run away into the darkness.|A torch could make light to scare them away.
+Light the torches in the correct order.|Put the torch's number you think is lit first to last.|Type "1, 2, 3" to light 1 then 2 then 3. If it's wrong try another order.
+Reflection|It refracts light that hits it.|You see yourself in this object.
+Pick the colored tile you think is right.|This might be simpler than you think.|There seems to always be a more common color.
+

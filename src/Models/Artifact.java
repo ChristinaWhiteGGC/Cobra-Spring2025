@@ -11,13 +11,15 @@ public abstract class Artifact {
     private String name;
     private String description;
     protected String effect;
+    protected String textEffect;
 
-    public Artifact(String id, String type, String name, String description, String effect) {
+    public Artifact(String id, String type, String name, String description, String effect, String textEffect) {
         this.id = id;
         this.type = type;
         this.name = name;
         this.description = description;
         this.effect = effect;
+        this.textEffect = textEffect;
     }
 
     public static Map<String, Artifact> loadArtifacts(String filePath) throws IOException {
@@ -32,6 +34,9 @@ public abstract class Artifact {
                 String name = parts[2];
                 String description = parts[3];
                 String effectValue = parts[4];
+
+                String textEffect = parts[5];
+
 
                 Artifact artifact;
                 switch (type.toLowerCase()) {
@@ -51,6 +56,8 @@ public abstract class Artifact {
                         int uses = magicParts.length > 1 ? Integer.parseInt(magicParts[1]) : 1;
                         artifact = new Magic(id, name, description, effectType, uses);
                         break;
+                    case "key":
+                        artifact = new Key(id, name, description, effectValue, textEffect);
                     default:
                         continue;
                 }
@@ -64,7 +71,9 @@ public abstract class Artifact {
         if (player.getArtifactByType(type) != null) {
             return false;
         }
-        return player.addToInventory(this);
+        player.addToInventory(this);
+        applyEffects(player);
+        return true;
     }
 
     public String ignore() {
@@ -77,6 +86,7 @@ public abstract class Artifact {
             return "No " + type + " to swap with. Use 'Pickup' instead.";
         }
         player.removeArtifactEffects(existing);
+        existing.removeEffects(player);
         player.getInventory().remove(existing);
         player.getInventory().add(this);
         applyEffects(player);
@@ -99,4 +109,6 @@ public abstract class Artifact {
     public String getType() { return type; }
     public String getName() { return name; }
     public String getEffect() { return effect; }
+
+    public String getTextEffect() { return textEffect; }
 }

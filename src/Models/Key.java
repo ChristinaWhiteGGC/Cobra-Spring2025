@@ -1,8 +1,8 @@
 package Models;
 
 public class Key extends Artifact {
-    public Key(String id, String type, String name, String description, String effect) {
-        super(id, type, name, description, effect);
+    public Key(String id, String name, String description, String effect, String textEffect) {
+        super(id, "key", name, description, effect, textEffect);
     }
 
     @Override

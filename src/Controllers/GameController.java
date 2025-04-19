@@ -1,7 +1,9 @@
 package Controllers;
 
 import Models.*;
-import java.util.Map;
+
+import java.io.IOException;
+import java.util.*;
 
 import Views.GameView;
 
@@ -38,6 +40,7 @@ public class GameController {
         // Instantiates a player and sets the room to the first room in the list
         player = new Player(playerName, 100, 0, 0);
         gsm.resetGame(player);
+        view.printGameTitle();
         view.outputString("Welcome to Pyramid Plunder " + playerName + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
         startGame();
     }
@@ -71,6 +74,24 @@ public class GameController {
             // Ensure that the above if condition will now function properly and not be skipped
             isEntranceToGame = false;
 
+            //This will try to get the monster that is currently in the room
+            Monster monster = getMonsterInRoom(player.getRoom().getRoomId());
+            if (monster != null){
+                Scanner sc = new Scanner(System.in);
+                view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
+                System.out.println("Enter fight or flee: ");
+                String choice  = sc.nextLine();
+                if (choice.equalsIgnoreCase("fight")){
+                    fightMonster(monster);
+                } else if (choice.equalsIgnoreCase("flee")) {
+                    view.outputString("You flee from " + monster.getName() + ".");
+                    continue;
+                }else {
+                    System.out.println("Invalid choice: Fight or flee");
+                    continue;
+                }
+            }
+
             /* the do-while loop asks the user for directional input
                 and validates that it is a direction they can go, if they input an invalid
                 direction then it repeats the request for them to input a valid direction
@@ -85,10 +106,17 @@ public class GameController {
                 try {
                     switch (command[0].toUpperCase()) {
                         case "N", "E", "S", "W" -> {
-                            isMovingRooms = true;
-                            nextRoomIndex = player.getRoom().getExit(command[0].toUpperCase());
-                            if (nextRoomIndex == 0) {
-                                view.outputString("You can't go this way.");
+                            int roomIndex = player.getRoom().getExit(command[0].toUpperCase());
+                            if (nextRoomIndex != 0 && getRoom(roomIndex).canNavigateTo(player)) {
+                                isMovingRooms = true;
+                                nextRoomIndex = roomIndex;
+                            } else {
+                                isMovingRooms = false;
+                                if (nextRoomIndex == 0) {
+                                    view.outputString("You can't go this way.");
+                                } else {
+                                    view.outputString("Insufficient numbers of keys obtained to go here.");
+                                }
                             }
                         }
                         case "BACK" -> {
@@ -104,6 +132,12 @@ public class GameController {
                             isMovingRooms = false;
                             view.showMap();
                         }
+                        case "STATS" -> {
+                            isMovingRooms = false;
+                            view.outputString("Health: " + player.getHp());
+                            view.outputString("Defense: " + player.getDef());
+                            view.outputString("Strength: " + player.getStr());
+                        }
                         case "EXPLORE" -> {
                             isMovingRooms= false;
                             view.outputString("Detailed description of your current room: \n"+ player.getRoom().getDescription() + "\n");
@@ -113,6 +147,54 @@ public class GameController {
                                 view.printHelpList();
                             } else {
                                 view.printDetailedHelp(command[1]);
+                            }
+                        }
+                       case "SEARCH" -> {
+                            isMovingRooms = false;
+                            if (!player.getRoom().getArtifacts().isEmpty()) {
+                                player.getRoom().getArtifacts().forEach((Artifact a) -> {
+                                    view.outputString(a.getName());
+                                });
+                            } else {
+                                view.outputString("There are no artifacts in this room.");
+                            }
+                        }
+                        case "PICKUP" -> {
+                            isMovingRooms = false;
+                            // Check if player entered a filename after "SAVE"
+                            if (command.length < 2 || command[1].isEmpty()) {
+                                view.outputString("Please enter the name of the item you'd like to pickup.");
+                            }
+                            final Artifact[] foundArtifact = new Artifact[1];
+                            StringBuilder itemName = new StringBuilder();
+                            for (int i = 1; i < command.length; i++) {
+                                itemName.append(command[i]).append(" ");
+                            }
+                            player.getRoom().getArtifacts().forEach((Artifact a) -> {
+                                if (a.getName().equalsIgnoreCase(itemName.toString().trim())) {
+                                    foundArtifact[0] = a;
+                                }
+                            });
+                            if (foundArtifact[0] == null) {
+                                view.outputString("This item is not located in the room.");
+                            } else {
+                                foundArtifact[0].pickup(player);
+                                view.outputString(foundArtifact[0].getName() + " has been added to your inventory.");
+                            }
+                        }
+                        case "INVENTORY" -> {
+                            isMovingRooms = false;
+                            player.getInventory().forEach((Artifact a) -> {
+                                view.outputString(a.getName() + " - " + a.getTextEffect());
+                            });
+                        }
+                        case "LISTEN" -> {
+                            isMovingRooms = false;
+                            Monster m = player.getRoom().getMonster();
+                            if (m != null) {
+                                view.outputString("You detect movement from " + m.getName());
+                            } else {
+                                view.outputString("You don't detect anything out of the ordinary.");
                             }
                         }
                         case "EXIT", "X" -> {
@@ -165,5 +247,41 @@ public class GameController {
 
     public Room getRoom(int roomIndex) {
         return roomsList.get(roomIndex);
+    }
+
+    private Monster getMonsterInRoom(int roomIndex) {
+        try {
+            // Implement logic to get the monster in the room based on roomIndex
+            Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
+            // </>his could involve checking the monster's locations
+            for (Monster monster : monstersList.values()) {
+                for (String location : monster.getLocations()) {
+                    if (Integer.parseInt(location) == roomIndex) {
+                        return monster;
+                    }
+                }
+            }
+        }catch (IOException ioe){
+            ioe.printStackTrace();
+        }
+        return null;
+    }
+
+    private void fightMonster(Monster monster) {
+    // Implement the logic for fighting the monster
+    view.outputString("You engage in a fight with " + monster.getName() + "!");
+    // Example fight logic (simplified)
+    while (monster.getHealth() > 0 && player.getHp() > 0) {
+        monster.takeDamage(player.getStr());
+        player.takeDamage(monster.getAttack().get(0).getDamage());
+        // Assuming the monster has at least one attack
+        view.outputString("Monster health: " + monster.getHealth() + ", Player health: " + player.getHp());
+    }
+    if (monster.getHealth() <= 0) {
+        view.outputString("You defeated the " + monster.getName() + "!");
+        monster.setDefeated(true);
+    } else {
+        view.outputString("You were defeated by the " + monster.getName() + ".");
+        }
     }
 }

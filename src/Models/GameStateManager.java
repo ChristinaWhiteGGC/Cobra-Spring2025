@@ -1,12 +1,10 @@
 package Models;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 enum DataFileSections {
     None,
@@ -22,12 +20,16 @@ public class GameStateManager {
 
     private final Map<Integer, Room> roomsList = new HashMap<>();
     private final Map<String, Artifact> artifactsList = new HashMap<>();
+    private final Map<String, Monster> monstersList = new HashMap<>();
+    private final Map<String, Puzzle> puzzlesList = new HashMap<>();
 
     public void resetGame(Player player) {
         try {
             // First clear everything, then read the data files and parse
             roomsList.clear();
             artifactsList.clear();
+            monstersList.clear();
+            puzzlesList.clear();
 
             Map<Integer, Room> readRooms = Room.loadRooms(readFile("src", "Data", "Rooms.txt"));
             for (Room r : readRooms.values()) {
@@ -39,10 +41,20 @@ public class GameStateManager {
                 artifactsList.put(a.getId(), a);
             }
 
+            Map<String, Monster> readMonsters = Monster.loadMonsters(readFile("src", "Data", "Monsters.txt"));
+            for (Monster m : readMonsters.values()) {
+                monstersList.put(m.getName(), m);
+            }
+
+            Map<String, Puzzle> readPuzzles = Puzzle.loadPuzzles("src/Data/Puzzles.txt");
+            for (Puzzle p : readPuzzles.values()) {
+                puzzlesList.put(p.getName(), p);
+            }
+
             // TODO: Remap monsters, and puzzles to rooms from data files.
             mapArtifactsToRooms(roomsList, artifactsList);
-            mapMonstersToRooms(roomsList);
-            mapPuzzlesToRooms(roomsList);
+            mapMonstersToRooms(roomsList, monstersList);
+            mapPuzzlesToRooms(roomsList, puzzlesList);
 
             // TODO: Verify what starting health is and set it here
             player.setHp(100);
@@ -55,20 +67,57 @@ public class GameStateManager {
     }
 
 
-    private static void mapPuzzlesToRooms(Map<Integer, Room> roomsList/* TODO: Add Puzzles list here */) {
+    private static void mapPuzzlesToRooms(Map<Integer, Room> roomsList, Map<String, Puzzle> puzzlesList) {
         // TODO: Map puzzles to rooms when puzzles are complete
         return;
     }
 
-    private static void mapMonstersToRooms(Map<Integer, Room> roomsList/* TODO: Add Monsters list here */) {
-        // TODO: Map monsters to rooms
-        return;
+    private static void mapMonstersToRooms(Map<Integer, Room> roomsList, Map<String, Monster> monstersList) {
+        Map<String, Monster> staticMonsters = new HashMap<>();
+        Map<String, Monster> randomMonsters = new HashMap<>();
+
+        monstersList.forEach((String key, Monster m) -> {
+            for (String location : m.getLocations()) {
+                if (location.equals("-1")) {
+                    randomMonsters.put(key, m);
+                } else {
+                    staticMonsters.put(key, m);
+                }
+            }
+        });
+
+        // Do static monsters first, so we know which rooms can take random monsters
+        staticMonsters.forEach((String key, Monster m) -> {
+            for (String location : m.getLocations()) {
+                roomsList.get(Integer.parseInt(location)).setMonster(m);
+            }
+        });
+
+        Random random = new Random();
+        for (Room r : roomsList.values()) {
+            if (r.getHasMonster() && r.getMonster() == null) {
+                int randomNumber = random.nextInt(randomMonsters.values().size() + 1);
+                Monster[] monsters = randomMonsters.values().toArray(new Monster[0]);
+                if (randomNumber == randomMonsters.size()) {
+                    r.setMonster(monsters[randomNumber - 1]);
+                } else {
+                    r.setMonster(monsters[randomNumber]);
+                }
+            }
+        }
     }
 
     private static void mapArtifactsToRooms(Map<Integer, Room> roomsList, Map<String, Artifact> artifactList) {
         for (Room r : roomsList.values()) {
             String[] artifactIds = r.getInitialArtifactIds();
+            String[] lootIds = r.getInitialLootIds();
             for (String id : artifactIds) {
+                Artifact artifact = artifactList.get(id);
+                if (artifact != null) {
+                    r.addArtifact(artifact);
+                }
+            }
+            for (String id : lootIds) {
                 Artifact artifact = artifactList.get(id);
                 if (artifact != null) {
                     r.addLoot(artifact);

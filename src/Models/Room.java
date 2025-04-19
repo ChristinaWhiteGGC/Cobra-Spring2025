@@ -39,12 +39,21 @@ public class Room {
     // Models.Room ID of room located to the west of this room, 0 if it does not exist
     private final int w;
 
+    private final int lockConditions;
+
 
     // The item configured to this room
     private final ArrayList<Artifact> artifactList = new ArrayList<>();
+    private final ArrayList<Artifact> lootList = new ArrayList<>();
 
     private final String[] initialArtifactIds;
+    private final String[] initialLootIds;
 
+    private boolean roomHasMonster;
+
+    private Monster monster;
+
+    private Puzzle puzzle;
 
     // Getter for name
     public String getName() {
@@ -64,8 +73,9 @@ public class Room {
         return isVisited;
     }
 
+
     // This constructs the room instance from passed in parameters
-    public Room(int roomId, String description, String name, boolean isVisited, int n, int e, int s, int w, String[] itemNames) {
+    public Room(int roomId, String description, String name, boolean isVisited, int n, int e, int s, int w, String[] itemIDs, int lockConditions, String[] lootIDs, boolean roomHasMonster) {
         this.roomId = roomId;
         this.description = description;
         this.name = name;
@@ -74,7 +84,10 @@ public class Room {
         this.e = e;
         this.s = s;
         this.w = w;
-        this.initialArtifactIds = itemNames;
+        this.initialArtifactIds = itemIDs;
+        this.initialLootIds = lootIDs;
+        this.lockConditions = lockConditions;
+        this.roomHasMonster = roomHasMonster;
     }
 
 
@@ -90,26 +103,65 @@ public class Room {
         };
     }
 
+    public boolean canNavigateTo(Player player) {
+        int numberOfKeysObtained = 0;
+        for (Artifact a : player.getInventory()) {
+            if (a.getType().equals("key")) {
+                numberOfKeysObtained++;
+            }
+        }
+        if (numberOfKeysObtained >= lockConditions) {
+            return true;
+        }
+        return false;
+    }
+
     // Sets the isVisited flag to be used to determine if the player has visited this room before
     public void setVisited() {
         isVisited = true;
+    }
+
+    public boolean getHasMonster() {
+        return roomHasMonster;
+    }
+
+    public Monster getMonster() {
+        return monster;
+    }
+    public void setMonster(Monster m) {
+        monster = m;
     }
 
     public String[] getInitialArtifactIds() {
         return initialArtifactIds;
     }
 
-    // Adds the artifact to the room instance
-    public void addLoot(Artifact a) {
-        artifactList.add(a);
+    public String[] getInitialLootIds() {
+        return initialLootIds;
     }
 
-    public void removeLoot(Artifact i) {
+    // Adds the artifact to the room instance
+    public void addLoot(Artifact a) {
+        lootList.add(a);
+    }
+    public void addArtifact(Artifact a) {
+        artifactList.add(a);
+    }
+    public void removeArtifact(Artifact i) {
         artifactList.remove(i);
+    }
+    public void removeLoot(Artifact i) {
+        lootList.remove(i);
     }
 
     public ArrayList<Artifact> getArtifacts() {
         return artifactList;
+    }
+
+
+    // TODO: To be called when monster is defeated and/or puzzle is solved
+    public ArrayList<Artifact> getLoot() {
+        return lootList;
     }
 
     public static Map<Integer,Room> loadRooms(ArrayList<String> readLines) {
@@ -131,8 +183,11 @@ public class Room {
             int e = Integer.parseInt(sections[5]);
             int s = Integer.parseInt(sections[6]);
             int w = Integer.parseInt(sections[7]);
-            String[] items = sections[8].split(",");
-            Room room = new Room(roomId, description, name, isVisited, n, e, s, w, items);
+            int lockConditions = Integer.parseInt(sections[8]);
+            String[] items = sections[9].split(",");
+            String[] loot = sections[10].split(",");
+            boolean roomHasMonster = Boolean.parseBoolean(sections[11]);
+            Room room = new Room(roomId, description, name, isVisited, n, e, s, w, items, lockConditions, loot, roomHasMonster);
             // create new room instance from data just read
             roomsList.put(roomId, room);
         }

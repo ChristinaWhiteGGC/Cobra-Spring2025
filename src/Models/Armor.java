@@ -4,9 +4,9 @@ package Models;
 public class Armor extends Artifact {
     private int defBoost; // Retained for flavor text, not used.
 
-    public Armor(String id, String name, String description, int defBoost) {
-        super(id, "armor", name, description, "+" + defBoost + " DEF");
-        this.defBoost = defBoost;
+    public Armor(String id, String name, String description, String effect, String textEffect) {
+        super(id, "armor", name, description, effect, textEffect);
+        this.defBoost = Integer.parseInt(effect.replace("DEF", ""));
     }
 
     @Override
