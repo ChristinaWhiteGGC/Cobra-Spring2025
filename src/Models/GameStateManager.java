@@ -98,7 +98,11 @@ public class GameStateManager {
             if (r.getHasMonster() && r.getMonster() == null) {
                 int randomNumber = random.nextInt(randomMonsters.values().size() + 1);
                 Monster[] monsters = randomMonsters.values().toArray(new Monster[0]);
-                r.setMonster(monsters[randomNumber - 1]);
+                if (randomNumber == randomMonsters.size()) {
+                    r.setMonster(monsters[randomNumber - 1]);
+                } else {
+                    r.setMonster(monsters[randomNumber]);
+                }
             }
         }
     }
