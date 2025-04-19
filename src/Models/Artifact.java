@@ -34,18 +34,27 @@ public abstract class Artifact {
                 String name = parts[2];
                 String description = parts[3];
                 String effectValue = parts[4];
+
                 String textEffect = parts[5];
+
 
                 Artifact artifact;
                 switch (type.toLowerCase()) {
                     case "armor":
-                        artifact = new Armor(id, name, description, effectValue, textEffect);
+                        artifact = new Armor(id, name, description, Integer.parseInt(effectValue));
                         break;
                     case "weapon":
-                        artifact = new Weapon(id, name, description, effectValue, textEffect);
+                        artifact = new Weapon(id, name, description, Integer.parseInt(effectValue));
                         break;
                     case "consumable":
-                        artifact = new Consumable(id, name, description, effectValue, textEffect);
+                        artifact = new Consumable(id, name, description, Integer.parseInt(effectValue));
+                        break;
+                    case "magic":
+                        // Parse effectValue as effectType|uses for Magic artifacts
+                        String[] magicParts = effectValue.split(",");
+                        String effectType = magicParts[0];
+                        int uses = magicParts.length > 1 ? Integer.parseInt(magicParts[1]) : 1;
+                        artifact = new Magic(id, name, description, effectType, uses);
                         break;
                     case "key":
                         artifact = new Key(id, name, description, effectValue, textEffect);
@@ -59,8 +68,7 @@ public abstract class Artifact {
     }
 
     public boolean pickup(Player player) {
-        Artifact existing = player.getArtifactByType(type);
-        if (existing != null) {
+        if (player.getArtifactByType(type) != null) {
             return false;
         }
         player.addToInventory(this);
@@ -82,8 +90,7 @@ public abstract class Artifact {
         player.getInventory().remove(existing);
         player.getInventory().add(this);
         applyEffects(player);
-        room.removeArtifact(this);
-        room.addArtifact(existing);
+        room.addLoot(existing);
         return "Swapped " + existing.getName() + " for " + name + ".";
     }
 
@@ -92,7 +99,7 @@ public abstract class Artifact {
     }
 
     public String useItem(Player player) {
-        return "This artifact cannot be used.";
+        return name + " has no effect when used.";
     }
 
     public abstract void applyEffects(Player player);

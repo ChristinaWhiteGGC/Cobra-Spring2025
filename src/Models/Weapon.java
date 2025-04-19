@@ -1,6 +1,8 @@
 package Models;
+
+// Subclass of Artifact for weapon items, now without magical STR boosts.
 public class Weapon extends Artifact {
-    private final int strBoost;
+    private int strBoost; // Retained for flavor text, not used.
 
     public Weapon(String id, String name, String description, String effect, String textEffect) {
         super(id, "weapon", name, description, effect, textEffect);
@@ -9,11 +11,11 @@ public class Weapon extends Artifact {
 
     @Override
     public void applyEffects(Player player) {
-        player.setStr(player.getStr() + strBoost);
+        // No effect (non-magical)
     }
 
     @Override
     public void removeEffects(Player player) {
-        player.setStr(player.getStr() - strBoost);
+        // No effect
     }
 }

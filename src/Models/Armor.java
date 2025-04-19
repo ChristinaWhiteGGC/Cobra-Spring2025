@@ -1,7 +1,8 @@
 package Models;
 
+// Subclass of Artifact for armor items, now without magical DEF boosts.
 public class Armor extends Artifact {
-    private int defBoost;
+    private int defBoost; // Retained for flavor text, not used.
 
     public Armor(String id, String name, String description, String effect, String textEffect) {
         super(id, "armor", name, description, effect, textEffect);
@@ -10,11 +11,11 @@ public class Armor extends Artifact {
 
     @Override
     public void applyEffects(Player player) {
-        player.setDef(player.getDef() + defBoost);
+        // No effect (non-magical)
     }
 
     @Override
     public void removeEffects(Player player) {
-        player.setDef(player.getDef() - defBoost);
+        // No effect
     }
 }

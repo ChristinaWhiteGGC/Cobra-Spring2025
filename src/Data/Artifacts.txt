@@ -1,3 +1,4 @@
+
 A1|armor|Bronze Helmet|A righteous crown for the most fearsome of warriors|DEF4|Adds +4 to player defense
 A2|armor|Scale Armor|Chest armor to protect against sharp weapons.|DEF8|Adds +8 to player defense
 A3|armor|Greaves|Shin protectors for when the enemy tries to get crafty.|DEF2|Adds +2 to player defense
