@@ -151,9 +151,13 @@ public class GameController {
                         }
                        case "SEARCH" -> {
                             isMovingRooms = false;
-                            player.getRoom().getArtifacts().forEach((Artifact a) -> {
-                                view.outputString(a.getName());
+                            if (!player.getRoom().getArtifacts().isEmpty()) {
+                                player.getRoom().getArtifacts().forEach((Artifact a) -> {
+                                    view.outputString(a.getName());
                                 });
+                            } else {
+                                view.outputString("There are no artifacts in this room.");
+                            }
                         }
                         case "PICKUP" -> {
                             isMovingRooms = false;
