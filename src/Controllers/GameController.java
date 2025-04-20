@@ -94,6 +94,7 @@ public class GameController {
                 } else if (choice.equalsIgnoreCase("flee")) {
                     view.outputString("You flee from " + monster.getName() + ".");
                     nextRoomIndex = player.getPriorRoom();
+                    player.setRoom(getRoom(nextRoomIndex));
                     isMovingRooms = true;
                 } else {
                     System.out.println("Invalid choice: Fight or flee");
@@ -125,8 +126,10 @@ public class GameController {
                                     int currentFloor = player.getRoom().getFloorNumber();
                                     boolean hasVisitedAllRoomsOnFloor = true;
                                     for (Room room : roomsList.values()) {
-                                        if (!room.getIsVisited() && room.getFloorNumber() == currentFloor) {
-                                            hasVisitedAllRoomsOnFloor = false;
+                                        if (room.getFloorNumber() == currentFloor) {
+                                            if (!room.getIsVisited()) {
+                                                hasVisitedAllRoomsOnFloor = false;
+                                            }
                                         }
                                     }
                                     if (hasVisitedAllRoomsOnFloor) {
