@@ -77,9 +77,10 @@ public class GameController {
             // Ensure that the above if condition will now function properly and not be skipped
             isEntranceToGame = false;
 
-            //This will try to get the monster that is currently in the room
+            //This will try to get the monster currently in the room
+
             Monster monster = GameStateManager.getMonsterInRoom(player.getRoom().getRoomId());
-            if (monster != null && (!monster.isDefeated())){
+            if (monster != null && monster.isDefeated() == false){
 
                 Scanner sc = new Scanner(System.in);
                 view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
@@ -568,7 +569,7 @@ public class GameController {
         try {
             // Implement logic to get the monster in the room based on roomIndex
             Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
-            // </>his could involve checking the monster's locations
+            // this could involve checking the monster's locations
             for (Monster monster : monstersList.values()) {
                 for (String location : monster.getLocations()) {
                     if (Integer.parseInt(location) == roomIndex) {
@@ -584,6 +585,9 @@ public class GameController {
 
     private int fightMonster(Monster monster) {
         Scanner sc = new Scanner(System.in);
+      
+        boolean isFlee = false;
+        // Implement the logic for fighting the monster
 
         view.outputString("You engage in a fight with " + monster.getName() + "!");
         while (monster.getHealth() > 0 && player.getHp() > 0) {
@@ -599,15 +603,17 @@ public class GameController {
                 String itemName = sc.nextLine();
                 if (player.getInventory().contains(itemName)){
                     //implement use item logic ONLY if item is consumable
-
+                    player.getArtifactByType("Consumable");
                 }
                 else {
                     System.out.println("Item is not in inventory.");
                 }
             } else if (choice.equalsIgnoreCase("flee")) {
-              
                 //implement flee function
-                return player.getPriorRoom();
+
+                player.setRoom(getRoom(player.getPriorRoom()));
+                isFlee = true;
+                break;
 
             }else {
                 System.out.println("Invalid response. Enter fight, block, use item, or flee.");
@@ -626,6 +632,7 @@ public class GameController {
                 player.addToInventory(a);
             }
         } else {
+            player.setHp(0);
             view.outputString("You were defeated by the " + monster.getName() + ".");
             System.out.println("Game over");
             System.exit(0);
