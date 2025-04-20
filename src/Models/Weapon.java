@@ -11,11 +11,15 @@ public class Weapon extends Artifact {
 
     @Override
     public void applyEffects(Player player) {
-        // No effect (non-magical)
+        if (this.getEffect().startsWith("STR")) {
+            player.setStr(Integer.parseInt(this.getEffect().replace("STR", "")));
+        }
     }
 
     @Override
     public void removeEffects(Player player) {
-        // No effect
+        if (this.getEffect().startsWith("STR")) {
+            player.setStr(Integer.parseInt(this.getEffect().replace("STR", "")));
+        }
     }
 }

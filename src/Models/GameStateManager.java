@@ -120,14 +120,47 @@ public class GameStateManager {
         for (Room r : roomsList.values()) {
             String[] artifactIds = r.getInitialArtifactIds();
             String[] lootIds = r.getInitialLootIds();
+            Artifact artifact;
             for (String id : artifactIds) {
-                Artifact artifact = artifactList.get(id);
+                if (id.equals("0")) {
+                    Random random = new Random();
+                    while (true) {
+                        int index = random.nextInt(artifactList.size());
+                        artifact = (Artifact) artifactList.values().toArray()[index];
+                        if (!artifact.getType().equals("key") && !artifact.getType().equals("object")) {
+                            break;
+                        }
+                    }
+                } else if (id.equals("W0")) {
+                    Random random = new Random();
+                    while (true) {
+                        int index = random.nextInt(artifactList.size());
+                        artifact = (Artifact) artifactList.values().toArray()[index];
+                        if (artifact.getType().equals("weapon")) {
+                            break;
+                        }
+                    }
+                }else {
+                    artifact = artifactList.get(id);
+                }
+
                 if (artifact != null) {
                     r.addArtifact(artifact);
                 }
             }
             for (String id : lootIds) {
-                Artifact artifact = artifactList.get(id);
+                if (id.equals("0")) {
+                    Random random = new Random();
+                    while (true) {
+                        int index = random.nextInt(artifactList.size());
+                        artifact = (Artifact) artifactList.values().toArray()[index];
+                        if (!artifact.getType().equals("key") && !artifact.getType().equals("object")) {
+                            break;
+                        }
+                    }
+                } else {
+                    artifact = artifactList.get(id);
+                }
                 if (artifact != null) {
                     r.addLoot(artifact);
                 }

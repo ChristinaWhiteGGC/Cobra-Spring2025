@@ -13,13 +13,40 @@ public abstract class Character {
 
     protected int strength;
 
+    private int baseHealth;
+    private int baseStrength;
+    private int baseDefense;
+
+    public void setBaseStrength(int str) {
+        this.baseStrength = str;
+    }
+
+    public int getBaseStrength() {
+        return baseStrength;
+    }
+
+    public void setBaseDefense(int def) {
+        this.baseDefense = def;
+    }
+
+    public int getBaseDefense() {
+        return baseDefense;
+    }
+
+    public void setBaseHealth(int hp) {
+        this.baseHealth = hp;
+    }
+
+    public int getBaseHealth() {
+        return baseHealth;
+    }
 
     public void setDef(int defense) {
         this.defense = defense;
     }
 
     public int getDef() {
-        return defense;
+        return baseDefense + defense;
     }
 
     public void setHp(int health) {
@@ -35,7 +62,7 @@ public abstract class Character {
     }
 
     public int getStr() {
-        return strength;
+        return strength + baseStrength;
     }
 
     public Character(String name, int baseHp, int baseStrength, int baseDefense) {

@@ -91,11 +91,11 @@ public class GameController {
                     if (nextRoom != -1) {
                         isMovingRooms = true;
                         nextRoomIndex = nextRoom;
-                        continue;
                     }
                 } else if (choice.equalsIgnoreCase("flee")) {
                     view.outputString("You flee from " + monster.getName() + ".");
                     nextRoomIndex = player.getPriorRoom();
+                    player.setRoom(getRoom(nextRoomIndex));
                     isMovingRooms = true;
                 } else {
                     System.out.println("Invalid choice: Fight or flee");
@@ -124,6 +124,18 @@ public class GameController {
                                     isMovingRooms = true;
                                     nextRoomIndex = roomIndex;
                                     hasMovedRooms = true;
+                                    int currentFloor = player.getRoom().getFloorNumber();
+                                    boolean hasVisitedAllRoomsOnFloor = true;
+                                    for (Room room : roomsList.values()) {
+                                        if (room.getFloorNumber() == currentFloor) {
+                                            if (!room.getIsVisited()) {
+                                                hasVisitedAllRoomsOnFloor = false;
+                                            }
+                                        }
+                                    }
+                                    if (hasVisitedAllRoomsOnFloor) {
+                                        view.outputString("You have visited all rooms on the floor.");
+                                    }
                                 } else {
                                     if (nextRoomIndex == 0) {
                                             view.outputString("You can't go this way.");
@@ -135,13 +147,18 @@ public class GameController {
                                 view.outputString("There is no room in this direction. Please choose another.");
                             }
                         }
+                        case "ROOM" -> {
+                            int roomIndex = Integer.parseInt(command[1]);
+                            nextRoomIndex = roomIndex;
+                            isMovingRooms = true;
+                        }
                         case "BACK" -> {
                             isMovingRooms = true;
                             nextRoomIndex = player.getPriorRoom();
                         }
                         case "LOCATION", "WHEREAMI" -> {
                             isMovingRooms = false;
-                            view.outputString("You are currently in: " + player.getRoom().getName());
+                            view.outputString("You are currently in room #: " + player.getRoom().getID() + " " + player.getRoom().getName());
                             view.outputString(player.getRoom().getDescription() + "\n");
                         }
                         case "MAP" -> {
@@ -170,12 +187,17 @@ public class GameController {
                             if (!player.getRoom().getArtifacts().isEmpty()) {
                                 view.outputString("You look around the room and notice the following item(s):");
                                 player.getRoom().getArtifacts().forEach((Artifact a) -> {
-                                    view.outputString("Item found: " + a.getName());
-                                    view.outputString("Type: " + a.getType());
-                                    view.outputString("Description: " + a.getDescription());
-                                    view.outputString("Effect: "+ a.getTextEffect());
-                                    view.outputString("Options: PICKUP " + a.getName() + " | IGNORE " + a.getName() + " | SWAP " + a.getName());
-
+                                    if (!a.getType().equals("key") && !a.getType().equals("object")) {
+                                        view.outputString("Item found: " + a.getName());
+                                        view.outputString("Type: " + a.getType());
+                                        view.outputString("Description: " + a.getDescription());
+                                        view.outputString("Effect: " + a.getTextEffect());
+                                        view.outputString("Options: PICKUP " + a.getName() + " | IGNORE " + a.getName() + " | SWAP " + a.getName());
+                                    }  else if(a.getType().equals("object")) {
+                                        view.outputString("Item found: " + a.getName());
+                                        view.outputString("Description: " + a.getDescription());
+                                        view.outputString("Options: PICKUP " + a.getName());
+                                    }
                                 });
                             } else {
                                 view.outputString("There are no items in this room.");
@@ -209,12 +231,17 @@ public class GameController {
                                 view.outputString("This item is not located in the room.");
                             } else {
                                 Artifact existing = player.getArtifactByType(foundArtifact.getType());
-                                if (existing != null) {
-                                    view.outputString("You already have a " + foundArtifact.getType() + " equipped.");
-                                    view.outputString("Use the 'SWAP " + foundArtifact.getName() + "' command to replace it.");
+                                if (!foundArtifact.getType().equals("object")) {
+                                    if (existing != null) {
+                                        view.outputString("You already have a " + foundArtifact.getType() + " equipped.");
+                                        view.outputString("Use the 'SWAP " + foundArtifact.getName() + "' command to replace it.");
+                                    } else {
+                                        foundArtifact.pickup(player);
+                                        view.outputString(foundArtifact.getName() + " has been added to your inventory.");
+                                    }
                                 } else {
                                     foundArtifact.pickup(player);
-                                    view.outputString(foundArtifact.getName() + " has been added to your inventory.");
+                                    view.outputString(foundArtifact.getTextEffect());
                                 }
                             }
                         }
@@ -296,8 +323,12 @@ public class GameController {
 
                             // Perform the swap
                             player.getRoom().getArtifacts().add(playerItem);
-                            player.removeFromInventory(playerItem);                      // Remove current item
+                            player.removeFromInventory(playerItem);
+                            playerItem.removeEffects(player);
+
+                            // Remove current item
                             player.addToInventory(itemInRoom);
+                            itemInRoom.applyEffects(player);
                             player.getRoom().getArtifacts().remove(itemInRoom);            // Remove room item
 
                             view.outputString("You swapped your " + playerItem.getName() +
@@ -554,8 +585,10 @@ public class GameController {
 
     private int fightMonster(Monster monster) {
         Scanner sc = new Scanner(System.in);
+      
         boolean isFlee = false;
         // Implement the logic for fighting the monster
+
         view.outputString("You engage in a fight with " + monster.getName() + "!");
         while (monster.getHealth() > 0 && player.getHp() > 0) {
             System.out.println("Enter fight, block, use item, or flee:  ");
@@ -577,9 +610,11 @@ public class GameController {
                 }
             } else if (choice.equalsIgnoreCase("flee")) {
                 //implement flee function
+
                 player.setRoom(getRoom(player.getPriorRoom()));
                 isFlee = true;
                 break;
+
             }else {
                 System.out.println("Invalid response. Enter fight, block, use item, or flee.");
                 continue;
@@ -596,8 +631,6 @@ public class GameController {
                 view.outputString("You received the following loot: " + a.getName());
                 player.addToInventory(a);
             }
-        } else if (isFlee) {
-            return player.getPriorRoom();
         } else {
             player.setHp(0);
             view.outputString("You were defeated by the " + monster.getName() + ".");

@@ -8,9 +8,9 @@ public class GameView {
         System.out.println("Welcome to the " + room.getName() + ".");
         if (room.getIsVisited()) {
             System.out.println("You have visited this room.");
-            room.setVisited();
         } else {
             System.out.println(room.getDescription());
+            room.setVisited();
         }
     }
 

@@ -17,10 +17,6 @@ public class Player extends Character {
    // Hashmap of currently equipped artifacts by type
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
-   private final int baseHealth = 100;
-   private final int baseStrength = 1;
-   private final int baseDefense = 1;
-
    private final ArrayList<Artifact> keys = new ArrayList<>();
 
    private boolean isResurrectable = false;
@@ -28,6 +24,9 @@ public class Player extends Character {
    public Player(String name, int baseHp, int baseStrength, int baseDefense) {
       super(name, baseHp, baseStrength, baseDefense);
       this.inventoryList = new HashMap<>();
+      this.setBaseHealth(100);
+      this.setBaseStrength(1);
+      this.setBaseDefense(1);
    }
 
    public void clearInventory() {
@@ -84,21 +83,17 @@ public class Player extends Character {
 
    @Override
    public int getDef() {
-      return this.baseDefense + this.defense;
+      return this.getBaseDefense() + this.defense;
    }
 
    @Override
    public int getStr() {
-      return this.baseStrength + this.strength;
-   }
-
-   public int getBaseHealth() {
-      return this.baseHealth;
+      return this.getBaseStrength() + this.strength;
    }
 
    @Override
    public void takeDamage(int damage) {
-      int effectiveDamage = damage - baseDefense;
+      int effectiveDamage = damage - this.getBaseDefense();
       if (health < 0){
          health = 0;
       }
