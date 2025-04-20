@@ -103,9 +103,19 @@ public class Monster{
             ArrayList<Attack> attacks = parseAttacks(attacksDescription);
 
             Monster monster = new Monster(name, description, attacks, health, locations, false, false);
+            monster.assignRandomLocation();
             monstersList.put(name, monster);
         }
         return monstersList;
+    }
+
+    public void assignRandomLocation(){
+        for (int j = 0; j < locations.length; j++) {
+            if (locations[j] == "-1") {
+                Random random = new Random();
+                locations[j] = String.valueOf(random.nextInt(18) + 1);
+            }
+        }
     }
 
     public static ArrayList<Attack> parseAttacks(String attacksDescription) {
