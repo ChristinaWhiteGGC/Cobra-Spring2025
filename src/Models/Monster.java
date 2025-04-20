@@ -158,19 +158,38 @@ public class Monster{
     public void executeAttack(Player player) {
         Attack attack = chooseAttack();
         System.out.println(player.getName() + " uses " + attack.getName());
-        if (attack instanceof ImmediateAttack) {
-            ((ImmediateAttack) attack).execute(player);
-        } else if (attack instanceof DelayedAttack) {
-            DelayedAttack delayedAttack = (DelayedAttack) attack;
-            if (delayedAttack.delayIsReady()) {
-                delayedAttack.execute(player);
-            } else {
-                delayedAttack.decrementDelay();
+
+        if (isPlayerBlocking) {
+            System.out.println("Player is blocking the attack!");
+            if (attack instanceof ImmediateAttack) {
+                ((ImmediateAttack) attack).execute(player, true); // Pass true to indicate blocking
+            } else if (attack instanceof DelayedAttack) {
+                DelayedAttack delayedAttack = (DelayedAttack) attack;
+                if (delayedAttack.delayIsReady()) {
+                    delayedAttack.execute(player, true); // Pass true to indicate blocking
+                } else {
+                    delayedAttack.decrementDelay();
+                }
+            } else if (attack instanceof ConditionalAttack) {
+                ((ConditionalAttack) attack).execute(player, true); // Pass true to indicate blocking
             }
-        } else if (attack instanceof ConditionalAttack) {
-            ((ConditionalAttack) attack).execute(player);
+        } else {
+            if (attack instanceof ImmediateAttack) {
+                ((ImmediateAttack) attack).execute(player, false); // Pass false to indicate not blocking
+            } else if (attack instanceof DelayedAttack) {
+                DelayedAttack delayedAttack = (DelayedAttack) attack;
+                if (delayedAttack.delayIsReady()) {
+                    delayedAttack.execute(player, false); // Pass false to indicate not blocking
+                } else {
+                    delayedAttack.decrementDelay();
+                }
+            } else if (attack instanceof ConditionalAttack) {
+                ((ConditionalAttack) attack).execute(player, false); // Pass false to indicate not blocking
+            }
         }
     }
+
+
 
     public void takeDamage(int damage){
         if (isPlayerBlocking){

@@ -24,20 +24,24 @@ public abstract class Attack {
         this.damage = damage;
     }
 
-    public abstract void execute(Player player);
+    public abstract void execute(Player player, boolean isBlocking);
 }
 
 class ImmediateAttack extends Attack {
-    public ImmediateAttack(String name, int damage) {
+
+    public ImmediateAttack(String name, int damage){
         super(name, damage);
     }
-
-    @Override
-    public void execute(Player player) {
-        System.out.println(name + " deals " + damage + " damage.");
-        player.takeDamage(damage);
+    public void execute(Player player, boolean isBlocking) {
+        int damage = getDamage();
+        if (isBlocking) {
+            damage /= 2; // Reduce damage by half if the player is blocking
+            System.out.println("The attack is blocked! Damage is reduced.");
+        }
+        player.setHp(player.getHp() - damage);
     }
 }
+
 
 class DelayedAttack extends Attack {
     private int delayTurns;
@@ -50,14 +54,21 @@ class DelayedAttack extends Attack {
     }
 
     @Override
-    public void execute(Player player) {
+    public void execute(Player player, boolean isBlocking) {
         if (remainingDelayTurn > 0) {
             System.out.println(name + " will be used after " + remainingDelayTurn + " turns.");
             decrementDelay();
         } else {
-            player.takeDamage(damage);
-            System.out.println(player.getName() + " takes " + damage + " damage.");
-            remainingDelayTurn = delayTurns; // Reset delay for future use
+            if (isBlocking) {
+                player.takeDamage(damage/2);
+                System.out.println(player.getName() + " takes " + damage + " damage.");
+                remainingDelayTurn = delayTurns; // Reset delay for future use
+            }
+            else {
+                player.takeDamage(damage);
+                System.out.println(player.getName() + " takes " + damage + " damage.");
+                remainingDelayTurn = delayTurns; // Reset delay for future use
+            }
         }
     }
 
@@ -83,7 +94,7 @@ class ConditionalAttack extends Attack {
     }
 
     @Override
-    public void execute(Player player) {
+    public void execute(Player player, boolean isBlocking) {
         System.out.println(name + " deals " + damage + " damage unless " + condition + ".");
         // Implement condition logic here (for simplicity, we'll assume the condition is met)
         player.takeDamage(damage);

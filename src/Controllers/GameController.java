@@ -342,6 +342,7 @@ public class GameController {
                 String itemName = sc.nextLine();
                 if (player.getInventory().contains(itemName)){
                     //implement use item logic ONLY if item is consumable
+
                 }
                 else {
                     System.out.println("Item is not in inventory.");
