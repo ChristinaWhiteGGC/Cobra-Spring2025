@@ -136,6 +136,11 @@ public class GameController {
                                 view.outputString("There is no room in this direction. Please choose another.");
                             }
                         }
+                        case "ROOM" -> {
+                            int roomIndex = Integer.parseInt(command[1]);
+                            nextRoomIndex = roomIndex;
+                            isMovingRooms = true;
+                        }
                         case "BACK" -> {
                             isMovingRooms = true;
                             nextRoomIndex = player.getPriorRoom();
