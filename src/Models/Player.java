@@ -16,9 +16,9 @@ public class Player extends Character {
    // Hashmap of currently equipped artifacts by type
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
-   private final int baseHealth = 500;
-   private final int baseStrength = 20;
-   private final int baseDefense = 0;
+   private final int baseHealth = 100;
+   private final int baseStrength = 1;
+   private final int baseDefense = 1;
 
    private boolean isResurrectable = false;
 
@@ -45,12 +45,27 @@ public class Player extends Character {
       return false;
    }
 
+   public boolean removeFromInventory(Artifact a) {
+      try {
+         String artifactType = a.getType();
+         inventoryList.remove(artifactType);
+         return true;
+      } catch (Exception ignored) {
+      }
+      return false;
+   }
+
    public void removeArtifactEffects(Artifact a) {
       artifactEffects.remove(a.getName());
    }
 
    public Artifact getArtifactByType(String type) {
-      return equippedArtifacts.get(type);
+      for (Artifact a : getInventory()) {
+         if (a.getType().equalsIgnoreCase(type)) {
+            return a;
+         }
+      }
+      return null;
    }
 
    @Override
