@@ -90,13 +90,11 @@ public class GameController {
                     if (nextRoom != -1) {
                         isMovingRooms = true;
                         nextRoomIndex = nextRoom;
-                        continue;
                     }
                 } else if (choice.equalsIgnoreCase("flee")) {
                     view.outputString("You flee from " + monster.getName() + ".");
                     nextRoomIndex = player.getPriorRoom();
                     isMovingRooms = true;
-                    continue;
                 } else {
                     System.out.println("Invalid choice: Fight or flee");
                     continue;
@@ -124,6 +122,16 @@ public class GameController {
                                     isMovingRooms = true;
                                     nextRoomIndex = roomIndex;
                                     hasMovedRooms = true;
+                                    int currentFloor = player.getRoom().getFloorNumber();
+                                    boolean hasVisitedAllRoomsOnFloor = true;
+                                    for (Room room : roomsList.values()) {
+                                        if (!room.getIsVisited() && room.getFloorNumber() == currentFloor) {
+                                            hasVisitedAllRoomsOnFloor = false;
+                                        }
+                                    }
+                                    if (hasVisitedAllRoomsOnFloor) {
+                                        view.outputString("You have visited all rooms on the floor.");
+                                    }
                                 } else {
                                     isMovingRooms = false;
                                     if (nextRoomIndex == 0) {
@@ -665,7 +673,7 @@ public class GameController {
             } else if (choice.equalsIgnoreCase("flee")) {
 
                 //implement flee function
-                player.setRoom(getRoom(player.getPriorRoom()));
+                return player.getPriorRoom();
 
             }else {
                 System.out.println("Invalid response. Enter fight, block, use item, or flee.");
