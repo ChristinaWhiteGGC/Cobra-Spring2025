@@ -104,16 +104,14 @@ public class Room {
     }
 
     public boolean canNavigateTo(Player player) {
-        int numberOfKeysObtained = 0;
-        for (Artifact a : player.getInventory()) {
-            if (a.getType().equals("key")) {
-                numberOfKeysObtained++;
-            }
-        }
-        if (numberOfKeysObtained >= lockConditions) {
+        if (player.getKeys().size() >= lockConditions) {
             return true;
         }
         return false;
+    }
+
+    public int getLockConditions() {
+        return lockConditions;
     }
 
     public void setPuzzle(Puzzle p) {

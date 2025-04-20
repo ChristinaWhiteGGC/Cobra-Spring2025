@@ -66,10 +66,12 @@ public class GameStateManager {
         }
     }
 
-
     private static void mapPuzzlesToRooms(Map<Integer, Room> roomsList, Map<String, Puzzle> puzzlesList) {
-        // TODO: Map puzzles to rooms when puzzles are complete
-        return;
+        puzzlesList.forEach((String key, Puzzle p) -> {
+            for (int roomID : p.getRoomNumbers()) {
+                roomsList.get(roomID).setPuzzle(p);
+            }
+        });
     }
 
     private static void mapMonstersToRooms(Map<Integer, Room> roomsList, Map<String, Monster> monstersList) {

@@ -1,5 +1,6 @@
 package Models;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 /*
@@ -16,9 +17,11 @@ public class Player extends Character {
    // Hashmap of currently equipped artifacts by type
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
-   private final int baseHealth = 500;
-   private final int baseStrength = 20;
-   private final int baseDefense = 0;
+   private final int baseHealth = 100;
+   private final int baseStrength = 1;
+   private final int baseDefense = 1;
+
+   private final ArrayList<Artifact> keys = new ArrayList<>();
 
    private boolean isResurrectable = false;
 
@@ -34,11 +37,32 @@ public class Player extends Character {
    public Collection<Artifact> getInventory() {
       return inventoryList.values();
    }
+   public ArrayList<Artifact> getKeys() {
+      return keys;
+   }
 
    public boolean addToInventory(Artifact a) {
       try {
+         if (a.getType().equals("key")) {
+          this.keys.add(a);
+         } else {
+            String artifactType = a.getType();
+            inventoryList.put(artifactType, a);
+         }
+         return true;
+      } catch (Exception ignored) {
+      }
+      return false;
+   }
+
+   public boolean removeFromInventory(Artifact a) {
+      try {
          String artifactType = a.getType();
-         inventoryList.put(artifactType, a);
+         if (artifactType.equals("key")) {
+            this.keys.add(a);
+         } else {
+            inventoryList.remove(artifactType);
+         }
          return true;
       } catch (Exception ignored) {
       }
@@ -50,7 +74,12 @@ public class Player extends Character {
    }
 
    public Artifact getArtifactByType(String type) {
-      return equippedArtifacts.get(type);
+      for (Artifact a : getInventory()) {
+         if (a.getType().equalsIgnoreCase(type)) {
+            return a;
+         }
+      }
+      return null;
    }
 
    @Override

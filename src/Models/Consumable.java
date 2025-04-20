@@ -5,11 +5,14 @@ public class Consumable extends Artifact {
     private String healValue; // Retained for flavor text, not used.
     private int roomsUntilUsable; // Retained for consistency.
     private static final int COOLDOWN_ROOMS = 5;
+    // effectCode = "HP10" or "DEF5" or "STR3", based on healValueText
 
-    public Consumable(String id, String name, String description, String healValueText) {
-        super(id, "consumable", name, description, "Grants " + healValueText + " stat", "Grants " + healValueText + " stat");
+    public Consumable(String id, String name, String description, String healValueText, String textEffect) {
+        super(id, "consumable", name, description,  healValueText, "Grants " + healValueText + " stat");
         this.healValue = healValueText;
         this.roomsUntilUsable = 0;
+        this.textEffect = textEffect;
+
     }
 
     @Override
@@ -39,9 +42,17 @@ public class Consumable extends Artifact {
             player.setStr(player.getStr() - Integer.parseInt(this.getEffect().replace("STR", "")));
         }
     }
+    public boolean isUsable() {
+        return roomsUntilUsable <= 0;
+    }
+    public void setCooldown() {
+        this.roomsUntilUsable = COOLDOWN_ROOMS;
+    }
 
     public void decrementCooldown() {
-        // No effect
+        if (roomsUntilUsable > 0) {
+            roomsUntilUsable--;
+        }
     }
 
     public int getRoomsUntilUsable() { return roomsUntilUsable; }
