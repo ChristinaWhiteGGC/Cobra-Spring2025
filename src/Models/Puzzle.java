@@ -10,6 +10,7 @@ public abstract class Puzzle {
     protected List<String> descriptions;
     protected List<String> hints;
     protected List<Integer> roomNumbers;
+    protected boolean isSolved;
 
     public Puzzle(String name, List<String> descriptions) {
         this.name = name;
@@ -33,6 +34,12 @@ public abstract class Puzzle {
     }
     public List<Integer> getRoomNumbers() {
         return roomNumbers;
+    }
+    public void setIsSolved(boolean isSolved) {
+        this.isSolved = isSolved;
+    }
+    public boolean getIsSolved() {
+        return isSolved;
     }
 
 
