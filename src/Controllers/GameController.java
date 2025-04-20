@@ -135,6 +135,11 @@ public class GameController {
                                 view.outputString("There is no room in this direction. Please choose another.");
                             }
                         }
+                        case "ROOM" -> {
+                            int roomIndex = Integer.parseInt(command[1]);
+                            nextRoomIndex = roomIndex;
+                            isMovingRooms = true;
+                        }
                         case "BACK" -> {
                             isMovingRooms = true;
                             nextRoomIndex = player.getPriorRoom();
@@ -568,7 +573,7 @@ public class GameController {
 
     private int fightMonster(Monster monster) {
         Scanner sc = new Scanner(System.in);
-      
+
         view.outputString("You engage in a fight with " + monster.getName() + "!");
         while (monster.getHealth() > 0 && player.getHp() > 0) {
             System.out.println("Enter fight, block, use item, or flee:  ");
@@ -609,8 +614,6 @@ public class GameController {
                 view.outputString("You received the following loot: " + a.getName());
                 player.addToInventory(a);
             }
-        } else if (isFlee) {
-            return player.getPriorRoom();
         } else {
             view.outputString("You were defeated by the " + monster.getName() + ".");
             System.out.println("Game over");

@@ -20,6 +20,7 @@ public class Room {
 
     // Flags whether we have visited this room before, or not
     private boolean isVisited;
+    public ArrayList<Room> roomsVisitedList;
 
     // The name of the room
     private final String name;

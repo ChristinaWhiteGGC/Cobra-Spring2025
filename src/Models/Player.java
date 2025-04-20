@@ -18,8 +18,8 @@ public class Player extends Character {
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
    private final int baseHealth = 100;
-   private final int baseStrength = 1;
-   private final int baseDefense = 1;
+   private final int baseStrength = 1000;
+   private final int baseDefense = 1000;
 
    private final ArrayList<Artifact> keys = new ArrayList<>();
 
@@ -94,6 +94,12 @@ public class Player extends Character {
 
    public int getBaseHealth() {
       return this.baseHealth;
+   }
+   public int getBaseDefense() {
+      return this.baseDefense;
+   }
+   public int getBaseStrength() {
+      return this.baseStrength;
    }
 
    @Override

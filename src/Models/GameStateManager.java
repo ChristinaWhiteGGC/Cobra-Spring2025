@@ -142,7 +142,18 @@ public class GameStateManager {
                 }
             }
             for (String id : lootIds) {
-                artifact = artifactList.get(id);
+                if (id.equals("0")) {
+                    Random random = new Random();
+                    while (true) {
+                        int index = random.nextInt(artifactList.size());
+                        artifact = (Artifact) artifactList.values().toArray()[index];
+                        if (!artifact.getType().equals("key") && !artifact.getType().equals("object")) {
+                            break;
+                        }
+                    }
+                } else {
+                    artifact = artifactList.get(id);
+                }
                 if (artifact != null) {
                     r.addLoot(artifact);
                 }
