@@ -97,7 +97,6 @@ public class GameController {
                     view.outputString("You flee from " + monster.getName() + ".");
                     nextRoomIndex = player.getPriorRoom();
                     isMovingRooms = true;
-                    continue;
                 } else {
                     System.out.println("Invalid choice: Fight or flee");
                     continue;
@@ -539,7 +538,7 @@ public class GameController {
         try {
             // Implement logic to get the monster in the room based on roomIndex
             Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
-            // </>his could involve checking the monster's locations
+            // this could involve checking the monster's locations
             for (Monster monster : monstersList.values()) {
                 for (String location : monster.getLocations()) {
                     if (Integer.parseInt(location) == roomIndex) {

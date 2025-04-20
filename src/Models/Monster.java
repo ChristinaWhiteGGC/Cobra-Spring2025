@@ -190,6 +190,7 @@ public class Monster{
             health -= damage/2;
         }
         else {
+            damage = damage * 10;
             health -= damage;
         }
         if (health < 0){
