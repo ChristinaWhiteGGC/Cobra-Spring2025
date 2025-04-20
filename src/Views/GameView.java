@@ -42,6 +42,11 @@ public class GameView {
         return command.split(" ");
     }
 
+    public String getAnswer() {
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
+    }
+
     public void printHelpList() {
         outputString("The navigation commands are:");
         outputString("N");

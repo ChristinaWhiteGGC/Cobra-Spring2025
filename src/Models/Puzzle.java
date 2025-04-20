@@ -160,6 +160,19 @@ public abstract class Puzzle {
         public String getCurrentDescription() {
             return descriptions.get(index);
         }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public boolean isComplete() {
+            return index >= rightAnswers.size();
+        }
+
+        public String getCurrentPrompt() {
+            if (index >= rightAnswers.size()) return null;
+            return rightAnswers.get(index);
+        }
     }
 
     public static class MultiPuzzle extends Puzzle {
