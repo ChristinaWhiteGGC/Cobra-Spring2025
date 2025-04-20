@@ -183,10 +183,14 @@ public class Room {
         return lootList;
     }
 
-    public void playerGetsLoot() {
+    public void playerGetsLoot(Player p) {
         for (Artifact a : lootList) {
-            this.addArtifact(a);
-            this.removeArtifact(a);
+            if (!a.getType().equals("key")) {
+                this.addArtifact(a);
+                this.removeArtifact(a);
+            } else {
+                p.addToInventory(a);
+            }
         }
     }
 
