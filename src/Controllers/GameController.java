@@ -594,14 +594,14 @@ public class GameController {
             System.out.println("Enter fight, block, use item, or flee:  ");
             String choice = sc.nextLine();
             if (choice.equalsIgnoreCase("fight")){
-            monster.takeDamage(player.getStr());
+                monster.takeDamage(player.getStr());
             } else if (choice.equalsIgnoreCase("block")) {
                 monster.setPlayerBlocking(true);
             } else if (choice.contains("use")) {
                 //implement item usage
                 System.out.println("Enter name of item: ");
                 String itemName = sc.nextLine();
-                if (player.getInventory().contains(itemName)){
+                if (player.getInventoryArtifactByName(itemName) != null) {
                     //implement use item logic ONLY if item is consumable
                     player.getArtifactByType("Consumable");
                 }
