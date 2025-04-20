@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Artifact {
-    private String id;
-    private String type;
-    private String name;
-    private String description;
-    protected String effect;
-    protected String textEffect;
+    private final String id;
+    private final String type;
+    protected final String name;
+    private final String description;
+    protected final String effect;
+    protected final String textEffect;
 
     public Artifact(String id, String type, String name, String description, String effect, String textEffect) {
         this.id = id;
@@ -41,13 +41,13 @@ public abstract class Artifact {
                 Artifact artifact;
                 switch (type.toLowerCase()) {
                     case "armor":
-                        artifact = new Armor(id, name, description, Integer.parseInt(effectValue));
+                        artifact = new Armor(id, name, description, effectValue, textEffect);
                         break;
                     case "weapon":
-                        artifact = new Weapon(id, name, description, Integer.parseInt(effectValue));
+                        artifact = new Weapon(id, name, description, effectValue, textEffect);
                         break;
                     case "consumable":
-                        artifact = new Consumable(id, name, description, Integer.parseInt(effectValue));
+                        artifact = new Consumable(id, name, description, effectValue);
                         break;
                     case "magic":
                         // Parse effectValue as effectType|uses for Magic artifacts
@@ -58,6 +58,7 @@ public abstract class Artifact {
                         break;
                     case "key":
                         artifact = new Key(id, name, description, effectValue, textEffect);
+                        break;
                     default:
                         continue;
                 }
