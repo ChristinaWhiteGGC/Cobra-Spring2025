@@ -75,10 +75,15 @@ public abstract class Puzzle {
                     puzzle = new MultiPuzzle(name, descriptions, rightAnswers);
                 }
             }
-            String[] locations = parts[4].split(",");
+            String[] locations;
+            if (parts.length == 5) {
+                locations = parts[4].split(",");
+            } else {
+                locations = parts[3].split(",");
+            }
             List<Integer> roomNumbers = new ArrayList<>();
             for (String location : locations) {
-                roomNumbers.add(Integer.parseInt(location));
+                roomNumbers.add(Integer.parseInt(location.trim()));
             }
             assert puzzle != null;
             puzzle.setRoomNumbers(roomNumbers);
