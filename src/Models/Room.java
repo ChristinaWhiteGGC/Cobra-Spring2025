@@ -18,6 +18,8 @@ public class Room {
     // The ID of the room
     private final int roomId;
 
+    private final int floorNumber;
+
     // Flags whether we have visited this room before, or not
     private boolean isVisited;
     public ArrayList<Room> roomsVisitedList;
@@ -76,7 +78,7 @@ public class Room {
 
 
     // This constructs the room instance from passed in parameters
-    public Room(int roomId, String description, String name, boolean isVisited, int n, int e, int s, int w, String[] itemIDs, int lockConditions, String[] lootIDs, boolean roomHasMonster) {
+    public Room(int roomId, int floorNumber, String description, String name, boolean isVisited, int n, int e, int s, int w, String[] itemIDs, int lockConditions, String[] lootIDs, boolean roomHasMonster) {
         this.roomId = roomId;
         this.description = description;
         this.name = name;
@@ -89,6 +91,7 @@ public class Room {
         this.initialLootIds = lootIDs;
         this.lockConditions = lockConditions;
         this.roomHasMonster = roomHasMonster;
+        this.floorNumber = floorNumber;
     }
 
 
@@ -110,6 +113,11 @@ public class Room {
         }
         return false;
     }
+
+    public int getFloorNumber() {
+        return floorNumber;
+    }
+
 
     public int getID(){
         return roomId;
@@ -175,9 +183,10 @@ public class Room {
         return lootList;
     }
 
-    public void playerGetsLoot(Player player) {
+    public void playerGetsLoot() {
         for (Artifact a : lootList) {
-            player.addToInventory(a);
+            this.addArtifact(a);
+            this.removeArtifact(a);
         }
     }
 
@@ -193,18 +202,19 @@ public class Room {
             // splits each line into an array of sections parsed using delimiter '~'
             String[] sections = line.split("~");
             int roomId = Integer.parseInt(sections[0]);
-            boolean isVisited = Boolean.parseBoolean(sections[1]);
-            String name = sections[2];
-            String description = sections[3].replace("\\n", "\n");
-            int n = Integer.parseInt(sections[4]);
-            int e = Integer.parseInt(sections[5]);
-            int s = Integer.parseInt(sections[6]);
-            int w = Integer.parseInt(sections[7]);
-            int lockConditions = Integer.parseInt(sections[8]);
-            String[] items = sections[9].split(",");
-            String[] loot = sections[10].split(",");
-            boolean roomHasMonster = Boolean.parseBoolean(sections[11]);
-            Room room = new Room(roomId, description, name, isVisited, n, e, s, w, items, lockConditions, loot, roomHasMonster);
+            int floorNumber = Integer.parseInt(sections[1]);
+            boolean isVisited = Boolean.parseBoolean(sections[2]);
+            String name = sections[3];
+            String description = sections[4].replace("\\n", "\n");
+            int n = Integer.parseInt(sections[5]);
+            int e = Integer.parseInt(sections[6]);
+            int s = Integer.parseInt(sections[7]);
+            int w = Integer.parseInt(sections[8]);
+            int lockConditions = Integer.parseInt(sections[9]);
+            String[] items = sections[10].split(",");
+            String[] loot = sections[11].split(",");
+            boolean roomHasMonster = Boolean.parseBoolean(sections[12]);
+            Room room = new Room(roomId, floorNumber, description, name, isVisited, n, e, s, w, items, lockConditions, loot, roomHasMonster);
             // create new room instance from data just read
             roomsList.put(roomId, room);
         }
