@@ -162,6 +162,9 @@ public class GameController {
                             } else {
                                 view.outputString("There are no artifacts in this room.");
                             }
+                            if (player.getRoom().getPuzzle() != null && !player.getRoom().getPuzzle().getIsSolved()) {
+                                view.outputString("Puzzle: " + player.getRoom().getPuzzle().getName());
+                            }
                         }
                         case "PICKUP" -> {
                             isMovingRooms = false;
@@ -203,7 +206,7 @@ public class GameController {
                         }
                         case "INTERACT" -> {
                             isMovingRooms = false;
-                            String target = command[1].trim();
+                            String target = String.join(" ", Arrays.copyOfRange(command, 1, command.length)).trim();
                             while (target.isEmpty()) {
                                 view.outputString("You haven't specified a target.");
                                 command = view.getRoomInput();
@@ -213,39 +216,87 @@ public class GameController {
                                     view.outputString(a.getName() + " - " + a.getTextEffect());
                                 }
                             }
-                            if (target.equalsIgnoreCase(player.getRoom().getMonster().getName())) {
+                            if (player.getRoom().getMonster() != null && target.equalsIgnoreCase(player.getRoom().getMonster().getName())) {
                                 view.outputString("A" + player.getRoom().getMonster().getName() + " is in this room.");
                             }
-                            if (target.equalsIgnoreCase(player.getRoom().getPuzzle().getName())) {
+                            if (player.getRoom().getPuzzle() != null && target.equalsIgnoreCase(player.getRoom().getPuzzle().getName())) {
                                 view.outputString("This is a puzzle!");
                                 view.outputString("Would you like to solve or ignore?");
                                 command = view.getRoomInput();
                                 if (command[0].equalsIgnoreCase("ignore")) {
-                                    int roomNum = player.getPriorRoom();
-                                    player.setRoom(roomsList.get(roomNum));
-                                } else if (command[0].equalsIgnoreCase("solve")) {
+                                    view.outputString("WARNING: Ignoring a puzzle can deny progress and stop rewards! Are you sure? (Y/N)");
+                                    String answer = view.getAnswer();
+                                    if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
+                                        int roomNum = player.getPriorRoom();
+                                        player.setRoom(roomsList.get(roomNum));
+                                        view.outputString("You've ignored the puzzle and backtracked.");
+                                    }
+                                } else if (command[0].equalsIgnoreCase("solve") && !player.getRoom().getPuzzle().getIsSolved()) {
                                     Puzzle puzzle = player.getRoom().getPuzzle();
-                                    if (puzzle != null) {
-                                        if (puzzle instanceof Puzzle.StandardPuzzle standardPuzzle) {
-                                            String answer = view.getAnswer();
-                                            if (standardPuzzle.solve(answer)) {
-                                                standardPuzzle.setIsSolved(true);
-                                                view.outputString("You solved the puzzle!");
-                                            }
-                                        } else if (puzzle instanceof Puzzle.BooleanPuzzle boolPuzzle) {
+                                    view.outputString(puzzle.getName());
+                                    view.outputString(puzzle.getDescriptions().getFirst());
+                                    String answer;
+                                    switch (puzzle) {
+                                        case Puzzle.StandardPuzzle standardPuzzle -> {
+                                            int i = 0;
+                                            int attempts = 0;
+                                            do {
+                                                answer = view.getAnswer();
+                                                if (answer.equalsIgnoreCase("hint")) {
+                                                    if (i < attempts && i < puzzle.getHints().size()) {
+                                                        view.outputString("Hint " + (i + 1) + ": " + puzzle.getHints().get(i));
+                                                        i++;
+                                                    } else if (i >= puzzle.getHints().size()) {
+                                                        view.outputString("All hints have been given.");
+                                                    } else if (attempts == 0) {
+                                                        view.outputString("Try first before hints.");
+                                                    } else {
+                                                        view.outputString("Try again first before another hint.");
+                                                    }
+                                                }
+                                                if (standardPuzzle.solve(answer)) {
+                                                    standardPuzzle.setIsSolved(true);
+                                                    view.outputString("Correct! You solved the puzzle.");
+                                                    break;
+                                                } else if (!answer.equalsIgnoreCase("hint")){
+                                                    player.setHp(player.getHp() - 5);
+                                                    attempts++;
+                                                    view.outputString("Wrong! You took 5 damage!");
+                                                }
+                                                if (player.getHp() <= 0) {
+                                                    view.outputString("GAME OVER!");
+                                                    view.outputString("Would you like to restart? (Y/N)");
+                                                    answer = view.getAnswer();
+                                                    if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
+                                                        gsm.resetGame(player);
+                                                        view.printGameTitle();
+                                                        view.outputString("Welcome to Pyramid Plunder " + player.getName() + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
+                                                        startGame();
+                                                    } else if (answer.equalsIgnoreCase("n") || answer.equalsIgnoreCase("no")) {
+                                                        System.exit(0);
+                                                    } else {
+                                                        view.outputString("Invalid Input.");
+                                                    }
+                                                }
+                                            } while (player.getHp() > 0 && !standardPuzzle.solve(answer));
+                                        }
+                                        case Puzzle.BooleanPuzzle boolPuzzle -> {
                                             String condition = boolPuzzle.getCondition();
                                             if (condition.equalsIgnoreCase("light")) {
                                                 if (boolPuzzle.solve(roomsList.get(6).getPuzzle().getIsSolved())) {
                                                     boolPuzzle.setIsSolved(true);
-                                                    view.outputString("The scarabs have left because of the light.");
+                                                    view.outputString("The conditions have been met. Puzzle solved.");
                                                 } else {
-                                                    view.outputString("Mechanical scarabs move throughout the room.");
+                                                    view.outputString("You have not met the conditions.");
+                                                    player.setHp(player.getHp() - 5);
+                                                    view.outputString("You took 5 damage!");
                                                 }
                                             }
-                                        } else if (puzzle instanceof Puzzle.SequencePuzzle seqPuzzle) {
+                                        }
+                                        case Puzzle.SequencePuzzle seqPuzzle -> {
                                             while (!seqPuzzle.isComplete() && player.getHp() > 0) {
                                                 view.outputString(seqPuzzle.getCurrentDescription());
-                                                String answer = view.getAnswer();
+                                                answer = view.getAnswer();
                                                 if (seqPuzzle.solve(answer)) {
                                                     view.outputString("Correct! Solved Riddle " + seqPuzzle.getIndex());
                                                 } else {
@@ -260,18 +311,26 @@ public class GameController {
                                                     break;
                                                 }
                                             }
-                                        } else if (puzzle instanceof Puzzle.MultiPuzzle multiPuzzle) {
-                                            String answer = view.getAnswer();
+                                        }
+                                        case Puzzle.MultiPuzzle multiPuzzle -> {
+                                            answer = view.getAnswer();
                                             List<String> sections = List.of(answer.split(" "));
                                             if (multiPuzzle.solve(sections)) {
+                                                view.outputString("Correct!");
                                                 multiPuzzle.setIsSolved(true);
                                                 view.outputString("You solved the puzzle!");
+                                            } else {
+                                                view.outputString("Wrong!");
+                                                player.setHp(player.getHp() - 5);
+                                                view.outputString("You took 5 damage!");
                                             }
-                                        } else {
-                                            view.outputString("Invalid Puzzle.");
+                                        }
+                                        default -> {
                                         }
                                     }
                                 }
+                            } else {
+                                view.outputString("Invalid Puzzle.");
                             }
                         }
                         case "EXIT", "X" -> {

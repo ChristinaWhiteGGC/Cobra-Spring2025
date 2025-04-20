@@ -4,4 +4,13 @@ The scarabs seem to like the dark.|Light could get them to run away into the dar
 Light the torches in the correct order.|Put the torch's number you think is lit first to last.|Type "1, 2, 3" to light 1 then 2 then 3. If it's wrong try another order.
 Reflection|It refracts light that hits it.|You see yourself in this object.
 Pick the colored tile you think is right.|This might be simpler than you think.|There seems to always be a more common color.
+The statue is scanning for movement.|It's best to proceed very cautiously.|It would be a good idea to sneak past the statue.
+The day turns to darkness during this.|It is not night yet the sun is blocked.|The event of the moon obscuring the sun.
+Egyptian God|Guide to the Underworld|Dog Man
+Many paths yet nowhere to go.|Dead ends in every path.|The paths will trick you as there's only one exit.
+Small rocks|Grains of " "|Desert
+Sounds of the cave.|I called and I called back to me.|Repeated sounds.
+Only one path.|Choose carefully for 2 out of 3 are dangerous.|Try searching for an answer.
+You must be worthy.|Your strength will let you pass.|Your stats will determine your character.
+The modern people spend so much time typing on these.|Whether foot or shoe these markings will carve your path.|From the olden Jester to the modern Comedian, their gift to you is this.
 
