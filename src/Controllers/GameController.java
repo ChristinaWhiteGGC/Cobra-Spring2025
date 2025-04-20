@@ -418,8 +418,9 @@ public class GameController {
                                                 if (standardPuzzle.solve(answer)) {
                                                     standardPuzzle.setIsSolved(true);
                                                     view.outputString("Correct! You solved the puzzle.");
+                                                    List<Artifact> loot = player.getRoom().getLoot();
                                                     player.getRoom().playerGetsLoot(player);
-                                                    break;
+                                                    view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                 } else if (!answer.equalsIgnoreCase("hint")){
                                                     player.setHp(player.getHp() - 5);
                                                     attempts++;
@@ -448,6 +449,9 @@ public class GameController {
                                                 if (boolPuzzle.solve(roomsList.get(6).getPuzzle().getIsSolved())) {
                                                     boolPuzzle.setIsSolved(true);
                                                     view.outputString("The conditions have been met. Puzzle solved.");
+                                                    List<Artifact> loot = player.getRoom().getLoot();
+                                                    player.getRoom().playerGetsLoot(player);
+                                                    view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                 } else {
                                                     view.outputString("You have not met the conditions.");
                                                     player.setHp(player.getHp() - 5);
@@ -470,7 +474,9 @@ public class GameController {
                                                 if (seqPuzzle.isComplete()) {
                                                     seqPuzzle.setIsSolved(true);
                                                     view.outputString("You solved all riddles!");
+                                                    List<Artifact> loot = player.getRoom().getLoot();
                                                     player.getRoom().playerGetsLoot(player);
+                                                    view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                     break;
                                                 }
                                             }
@@ -501,6 +507,9 @@ public class GameController {
                                                         view.outputString("Correct!");
                                                         multiPuzzle.setIsSolved(true);
                                                         view.outputString("You solved the puzzle!");
+                                                        List<Artifact> loot = player.getRoom().getLoot();
+                                                        player.getRoom().playerGetsLoot(player);
+                                                        view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                     } else if (!answer.equalsIgnoreCase("hint")) {
                                                         if (sumOfWeight < 100) {
                                                             view.outputString("Not enough weight.");
@@ -552,8 +561,6 @@ public class GameController {
                                         }
                                     }
                                 }
-                            } else {
-                                view.outputString("Invalid Puzzle.");
                             }
                         }
                         case "EXIT", "X" -> {
