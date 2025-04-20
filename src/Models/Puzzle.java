@@ -1,76 +1,40 @@
 package Models;
 
+import java.util.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
 
-public class Puzzle {
-    private final String type;
-    private final String name;
-    private final String description;
-    private String rightAnswer;
-    private List<String> rightAnswers;
-    private List<String> hints;
+public abstract class Puzzle {
+    protected String name;
+    protected List<String> descriptions;
+    protected List<String> hints;
+    protected List<Integer> roomNumbers;
 
-
-    public Puzzle(String type, String name, String description) {
-        this.type = type;
+    public Puzzle(String name, List<String> descriptions) {
         this.name = name;
-        this.description = description;
-    }
-
-    public boolean solve(String answer) {
-        return rightAnswer.equals(answer);
-    }
-
-    public boolean solve(String answer, int index) {
-        return rightAnswers.get(index).equals(answer);
-    }
-
-    public boolean solve(Boolean check) {
-        return check;
-    }
-
-    public void setRightAnswer(String rightAnswer) {
-        this.rightAnswer = rightAnswer;
-    }
-
-    public void setRightAnswers(List<String> rightAnswers) {
-        this.rightAnswers = rightAnswers;
-    }
-
-    public void addRightAnswer(String answer) {
-        this.rightAnswers.add(answer);
-    }
-
-    public void setHints(List<String> hints) {
-        this.hints = hints;
-    }
-
-    public String getType() {
-        return type;
+        this.descriptions = descriptions;
     }
 
     public String getName() {
         return name;
     }
-
-    public String getDescription() {
-        return description;
+    public List<String> getDescriptions() {
+        return descriptions;
     }
-
-    public String getRightAnswer() {
-        return rightAnswer;
+    public void setHints(List<String> hints) {
+        this.hints = hints;
     }
-
-    public List<String> getRightAnswers() {
-        return rightAnswers;
-    }
-
     public List<String> getHints() {
         return hints;
     }
+    public void setRoomNumbers(List<Integer> roomNumbers) {
+        this.roomNumbers = roomNumbers;
+    }
+    public List<Integer> getRoomNumbers() {
+        return roomNumbers;
+    }
+
 
     public static Map<String, Puzzle> loadPuzzles(String filePath) throws IOException {
         Map<String, Puzzle> puzzleList = new LinkedHashMap<>();
@@ -82,12 +46,35 @@ public class Puzzle {
             String[] parts = line.split("\\|");
             String type = parts[0];
             String name = parts[1];
-            String description = parts[2];
-            Puzzle puzzle = new Puzzle(type, name, description);
+            List<String> descriptions = List.of(parts[2].split(";"));
+            Puzzle puzzle = null;
+
             switch (type) {
-                case "STND" -> puzzle.setRightAnswer(parts[3]);
-                case "SEQ", "MULTI" -> puzzle.setRightAnswers(Arrays.asList(parts[3].split(",")));
+                case "STND" -> {
+                    String rightAnswer = parts[3];
+                    puzzle = new StandardPuzzle(name, descriptions, rightAnswer);
+                }
+                case "BOOL" -> {
+                    String condition = parts[3];
+                    puzzle = new BooleanPuzzle(name, descriptions, condition);
+                }
+                case "SEQ" -> {
+                    String[] answers = parts[3].split(";");
+                    List<String> rightAnswers = new ArrayList<>(Arrays.asList(answers));
+                    puzzle = new SequencePuzzle(name, descriptions, rightAnswers);
+                }
+                case "MULTI" -> {
+                    List<String> rightAnswers = List.of(parts[3].split(" "));
+                    puzzle = new MultiPuzzle(name, descriptions, rightAnswers);
+                }
             }
+            String[] locations = parts[4].split(",");
+            List<Integer> roomNumbers = new ArrayList<>();
+            for (String location : locations) {
+                roomNumbers.add(Integer.parseInt(location));
+            }
+            assert puzzle != null;
+            puzzle.setRoomNumbers(roomNumbers);
             puzzleList.put(name, puzzle);
         }
         br.close();
@@ -106,4 +93,74 @@ public class Puzzle {
         br.close();
         return puzzleList;
     }
+
+    public static class StandardPuzzle extends Puzzle {
+        private final String rightAnswer;
+
+        public StandardPuzzle(String name, List<String> descriptions, String rightAnswer) {
+            super(name, descriptions);
+            this.rightAnswer = rightAnswer;
+        }
+
+        public boolean solve(String input) {
+            return rightAnswer.equalsIgnoreCase(input);
+        }
+    }
+
+    public static class BooleanPuzzle extends Puzzle {
+        private final String condition;
+
+        public BooleanPuzzle(String name, List<String> descriptions, String condition) {
+            super(name, descriptions);
+            this.condition = condition;
+        }
+
+        public String getCondition() {
+            return condition;
+        }
+
+        public boolean solve(boolean check) {
+            return check;
+        }
+    }
+
+    public static class SequencePuzzle extends Puzzle {
+        private final List<String> rightAnswers;
+        private int index = 0;
+
+        public SequencePuzzle(String name, List<String> descriptions, List<String> rightAnswers) {
+            super(name, descriptions);
+            this.rightAnswers = rightAnswers;
+        }
+
+        public boolean solve(String input) {
+            if (index >= rightAnswers.size()) {
+                return true;
+            }
+
+            if (rightAnswers.get(index).equalsIgnoreCase(input)) {
+                index++;
+                return true;
+            }
+            return false;
+        }
+
+        public String getCurrentDescription() {
+            return descriptions.get(index);
+        }
+    }
+
+    public static class MultiPuzzle extends Puzzle {
+        private final List<String> rightAnswers;
+
+        public MultiPuzzle(String name, List<String> descriptions, List<String> rightAnswers) {
+            super(name, descriptions);
+            this.rightAnswers = rightAnswers;
+    }
+    public boolean solve(List<String> inputs) {
+            return inputs.equals(rightAnswers);
+    }
+}
+
+
 }
