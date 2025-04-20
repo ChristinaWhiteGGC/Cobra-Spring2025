@@ -1,15 +1,15 @@
 TYPE|TITLE|DESCRIPTION|ANSWER(S)|ROOM(S)
 MULTI|Balancing Scale|Find the correct combination of 3 out of the 5 weights to balance the scale. The exact weights for each are unknown.|W(1), W(2), W(3), W(4), W(5)|4
-BOOL|Scarab Distraction|A swarm of mechanical scarabs guard the second key. Find a way to distract them.|5
-MULTI|Light the Torches|There are 3 torches. 1, 2, 3. Enter the numbers in an order to light the torches in the believed order.|7
+BOOL|Scarab Distraction|A swarm of mechanical scarabs guard the second key. Find a way to distract them.|light|7
+MULTI|Light the Torches|There are 3 torches. 1, 2, 3. Enter the numbers in an order to light the torches in the believed order.|1, 2, 3|6
 STND|Riddle of Light Reflection|"I am not a light, yet I can brighten a room. Bend me, and I will guide your path. But without me, all remains in gloom. What am I?"|Mirror|9
-SEQ|Arrow Trap|A booby-trapped floor blocks the next room. Search the room to reveal colored tiles. Choose your path carefully.|12
-BOOL|Guardian Sneaking|A guardian statue scans this room for movement. Proceed cautiously to get to the next room.|14
+SEQ|Arrow Trap|A booby-trapped floor blocks the next room. Search the room to reveal colored tiles. Choose your path carefully.|Red, Green, Blue, Yellow, White|12
+BOOL|Guardian Sneaking|A guardian statue scans this room for movement. Proceed cautiously to get to the next room.|stealth|14
 STND|Riddle of the Obelisk|"Born of the sun, yet I bring the night. With a single gaze, I take away sight. Who am I?"|Solar Eclipse|15
 STND|Guardian's Riddle|"I am the guide of souls, yet I have no feet to walk. I weigh the hearts of mortals, yet I hold no scale. Who am I?"|Anubis|1, 18
 STND|Riddle of Unknown Paths|"I have paths without feet and walls without stone. Those who enter may never go home. With choices ahead, which way will you go? Only the wise shall pass and know."|Maze|22
 STND|The Sands of Truth|"I flow without water, I move without feet. I whisper secrets, yet I never speak. I can hide all, yet I reveal fate. What am I?"|Sand|23
 STND|Riddle of Illusions|"I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?"|Echo|1, 18
-STND|Pit Crossing|The room ahead only has 4 inches of walking space. Search to find possible paths, but choose carefully for only one is safe.|6, 24
-BOOL|Judgement of the Worthy|"The judgement begins. They will judge your worthiness to proceed."|26
+STND|Pit Crossing|The room ahead only has 4 inches of walking space. Search to find possible paths, but choose carefully for only one is safe.|5, 24
+BOOL|Judgement of the Worthy|"The judgement begins. They will judge your worthiness to proceed."|stats|26
 SEQ|Riddles of Trilogy|I have keys but open no locks. I have space but no room. You can enter, but you can't go outside. What am I?"; "The more you take, the more you leave behind. What am I?"; "I can be cracked, made, told, and played. What am I?"|Keyboard, Footsteps, Joke|28
