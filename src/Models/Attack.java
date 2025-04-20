@@ -72,10 +72,6 @@ class DelayedAttack extends Attack {
         }
     }
 
-    public boolean delayIsReady() {
-        return remainingDelayTurn == 0; // Check remaining delay turns
-    }
-
     public void decrementDelay() {
         if (remainingDelayTurn > 0) {
             System.out.println("remaining turns: " + remainingDelayTurn);
@@ -98,5 +94,40 @@ class ConditionalAttack extends Attack {
         System.out.println(name + " deals " + damage + " damage unless " + condition + ".");
         // Implement condition logic here (for simplicity, we'll assume the condition is met)
         player.takeDamage(damage);
+    }
+}
+
+class DelayedConditionalAttack extends Attack{
+    private int delayTurns;
+    private int remainingDelayTurn;
+    private String condition;
+
+    public DelayedConditionalAttack(String name, int damage, int delayTurns, String condition) {
+        super(name, damage);
+        this.delayTurns = delayTurns;
+        this.remainingDelayTurn = delayTurns;
+        this.condition = condition;
+    }
+
+    public boolean isFinished() {
+        return remainingDelayTurn == 0;
+    }
+    public void decrementDelay() {}
+
+    @Override
+    public void execute(Player player, boolean isBlocking) {
+        if (remainingDelayTurn > 0) {
+            System.out.println(name + " will be used after " + remainingDelayTurn + " turns unless " + condition + ".");
+            remainingDelayTurn--;
+        } else {
+            if (isBlocking) {
+                player.takeDamage(damage / 2);
+                System.out.println(player.getName() + " takes " + damage / 2 + " damage.");
+            } else {
+                player.takeDamage(damage);
+                System.out.println(player.getName() + " takes " + damage + " damage.");
+            }
+            remainingDelayTurn = delayTurns;
+        }
     }
 }

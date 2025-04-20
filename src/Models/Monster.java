@@ -1,9 +1,6 @@
 package Models;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class Monster{
     private String name;
@@ -111,45 +108,65 @@ public class Monster{
 
     public void assignRandomLocation(){
         for (int j = 0; j < locations.length; j++) {
-            if (locations[j] == "-1") {
+            if (Objects.equals(locations[j], "-1")) {
                 Random random = new Random();
                 locations[j] = String.valueOf(random.nextInt(18) + 1);
             }
         }
     }
 
+    public static Attack parseAttack(String attackDescription) {
+        try {
+            if (attackDescription.contains("deals") && attackDescription.contains("damage")) {
+                String name = attackDescription.substring(0, attackDescription.indexOf(" (")).trim();
+                int damage = Integer.parseInt(attackDescription.substring(attackDescription.indexOf("deals ") + 6, attackDescription.indexOf(" damage")).trim());
+
+                if (attackDescription.contains("after") && attackDescription.contains("unless")) {
+                    int delayTurns = Integer.parseInt(attackDescription.substring(attackDescription.indexOf("after ") + 6, attackDescription.indexOf(" turns")).trim());
+                    String condition = attackDescription.substring(attackDescription.indexOf("unless") + 7).trim();
+                    return new DelayedConditionalAttack(name, damage, delayTurns, condition);
+                } else if (attackDescription.contains("after")) {
+                    int delayTurns = Integer.parseInt(attackDescription.substring(attackDescription.indexOf("after ") + 6, attackDescription.indexOf(" turns")).trim());
+                    return new DelayedAttack(name, damage, delayTurns);
+                } else if (attackDescription.contains("unless")) {
+                    String condition = attackDescription.substring(attackDescription.indexOf("unless") + 7).trim();
+                    return new ConditionalAttack(name, damage, condition);
+                } else {
+                    return new ImmediateAttack(name, damage);
+                }
+            } else if (attackDescription.contains("kills the player after")) {
+                String name = attackDescription.substring(0, attackDescription.indexOf(" (")).trim();
+                int delayTurns = Integer.parseInt(attackDescription.substring(attackDescription.indexOf("after ") + 6, attackDescription.indexOf(" turns")).trim());
+                return new DelayedAttack(name, Integer.MAX_VALUE, delayTurns);
+            }
+        } catch (Exception e) {
+            System.err.println("Error parsing attack: " + attackDescription);
+        }
+        return null;
+    }
+
     public static ArrayList<Attack> parseAttacks(String attacksDescription) {
         ArrayList<Attack> attacks = new ArrayList<>();
+        if (attacksDescription == null || attacksDescription.trim().isEmpty()) {
+            return attacks;
+        }
         String[] attackDescriptions = attacksDescription.split("\\|\\|");
-
         for (String attackDescription : attackDescriptions) {
-            Attack attack = parseAttack(attackDescription);
-            if (attack != null) {
-                attacks.add(attack);
+            if (attackDescription != null && !attackDescription.trim().isEmpty()) {
+                Attack attack = parseAttack(attackDescription.trim());
+                if (attack != null) {
+                    attacks.add(attack);
+                }
             }
         }
         return attacks;
     }
 
-    public static Attack parseAttack(String attackDescription) {
-        if (attackDescription.contains("deals") && attackDescription.contains("damage")) {
-            String name = attackDescription.substring(0, attackDescription.indexOf(" ("));
-            int damage = Integer.parseInt(attackDescription.substring(attackDescription.indexOf("deals ") + 6, attackDescription.indexOf(" damage")));
-            if (attackDescription.contains("after")) {
-                int delayTurns = Integer.parseInt(attackDescription.substring(attackDescription.indexOf("after ") + 6, attackDescription.indexOf(" turns")));
-                return new DelayedAttack(name, damage, delayTurns);
-            } else if (attackDescription.contains("unless")) {
-                String condition = attackDescription.substring(attackDescription.indexOf("unless") + 7);
-                return new ConditionalAttack(name, damage, condition);
-            } else {
-                return new ImmediateAttack(name, damage);
-            }
-        }
-        return null;
-    }
-
 
     public Attack chooseAttack(){
+        if (attack == null || attack.isEmpty()) {
+            return null;
+        }
         Random random = new Random();
         int index = random.nextInt(attack.size());
         return attack.get(index);
@@ -157,39 +174,16 @@ public class Monster{
 
     public void executeAttack(Player player) {
         Attack attack = chooseAttack();
-        System.out.println(player.getName() + " uses " + attack.getName());
-
+        if (attack == null) return;
+        
+        System.out.println(getName() + " uses " + attack.getName());
         if (isPlayerBlocking) {
             System.out.println("Player is blocking the attack!");
-            if (attack instanceof ImmediateAttack) {
-                ((ImmediateAttack) attack).execute(player, true); // Pass true to indicate blocking
-            } else if (attack instanceof DelayedAttack) {
-                DelayedAttack delayedAttack = (DelayedAttack) attack;
-                if (delayedAttack.delayIsReady()) {
-                    delayedAttack.execute(player, true); // Pass true to indicate blocking
-                } else {
-                    delayedAttack.decrementDelay();
-                }
-            } else if (attack instanceof ConditionalAttack) {
-                ((ConditionalAttack) attack).execute(player, true); // Pass true to indicate blocking
-            }
-        } else {
-            if (attack instanceof ImmediateAttack) {
-                ((ImmediateAttack) attack).execute(player, false); // Pass false to indicate not blocking
-            } else if (attack instanceof DelayedAttack) {
-                DelayedAttack delayedAttack = (DelayedAttack) attack;
-                if (delayedAttack.delayIsReady()) {
-                    delayedAttack.execute(player, false); // Pass false to indicate not blocking
-                } else {
-                    delayedAttack.decrementDelay();
-                }
-            } else if (attack instanceof ConditionalAttack) {
-                ((ConditionalAttack) attack).execute(player, false); // Pass false to indicate not blocking
-            }
         }
+        
+        // Execute the attack directly - let the specific attack implementation handle its own logic
+        attack.execute(player, isPlayerBlocking);
     }
-
-
 
     public void takeDamage(int damage){
         if (isPlayerBlocking){

@@ -78,32 +78,39 @@ public class GameStateManager {
         Map<String, Monster> staticMonsters = new HashMap<>();
         Map<String, Monster> randomMonsters = new HashMap<>();
 
+        // Separate static and random monsters
         monstersList.forEach((String key, Monster m) -> {
+            boolean isRandom = false;
             for (String location : m.getLocations()) {
                 if (location.equals("-1")) {
-                    randomMonsters.put(key, m);
-                } else {
-                    staticMonsters.put(key, m);
+                    isRandom = true;
+                    break;
+                }
+            }
+            if (isRandom) {
+                randomMonsters.put(key, m);
+            } else {
+                staticMonsters.put(key, m);
+            }
+        });
+
+        // Place static monsters in their designated rooms
+        staticMonsters.forEach((String key, Monster m) -> {
+            for (String location : m.getLocations()) {
+                Room room = roomsList.get(Integer.parseInt(location));
+                if (room != null) {
+                    room.setMonster(m);
                 }
             }
         });
 
-        // Do static monsters first, so we know which rooms can take random monsters
-        staticMonsters.forEach((String key, Monster m) -> {
-            for (String location : m.getLocations()) {
-                roomsList.get(Integer.parseInt(location)).setMonster(m);
-            }
-        });
-
-        Random random = new Random();
-        for (Room r : roomsList.values()) {
-            if (r.getHasMonster() && r.getMonster() == null) {
-                int randomNumber = random.nextInt(randomMonsters.values().size() + 1);
-                Monster[] monsters = randomMonsters.values().toArray(new Monster[0]);
-                if (randomNumber == randomMonsters.size()) {
-                    r.setMonster(monsters[randomNumber - 1]);
-                } else {
-                    r.setMonster(monsters[randomNumber]);
+        // Place random monsters only in rooms that don't have static monsters
+        if (!randomMonsters.isEmpty()) {
+            Random random = new Random();
+            for (Room r : roomsList.values()) {
+                if (r.getHasMonster() && r.getMonster() == null) {
+                    Monster[] monsters = randomMonsters.values().toArray(new Monster[0]);
+                    r.setMonster(monsters[random.nextInt(monsters.length)]);
                 }
             }
         }
