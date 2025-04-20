@@ -116,6 +116,14 @@ public class Room {
         return false;
     }
 
+    public void setPuzzle(Puzzle p) {
+        this.puzzle = p;
+    }
+
+    public Puzzle getPuzzle() {
+        return this.puzzle;
+    }
+
     // Sets the isVisited flag to be used to determine if the player has visited this room before
     public void setVisited() {
         isVisited = true;

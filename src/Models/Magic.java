@@ -8,7 +8,7 @@ public class Magic extends Artifact {
 
     // Constructor to initialize a magic artifact.
     public Magic(String id, String name, String description, String effectType, int uses) {
-        super(id, "magic", name, description, effectType.equals("resurrection") ? "Resurrects once" : "Solves 3 puzzles");
+        super(id, "magic", name, description, effectType.equals("resurrection") ? "Resurrects once" : "Solves 3 puzzles", effectType.equals("resurrection") ? "Resurrects once" : "Solves 3 puzzles");
         this.effectType = effectType;
         this.uses = uses;
         this.used = false;
@@ -36,10 +36,10 @@ public class Magic extends Artifact {
     public String useItem(Player player) {
         if (effectType.equals("puzzle-solve")) {
             if (uses > 0) {
-                Room currentRoom = player.getGame().getCurrentRoom();
+                Room currentRoom = player.getRoom();
                 Puzzle puzzle = currentRoom.getPuzzle();
-                if (puzzle != null && !puzzle.isSolved()) {
-                    puzzle.setSolved(true);
+                if (puzzle != null && !puzzle.getIsSolved()) {
+                    puzzle.setIsSolved(true);
                     uses--;
                     return name + " solved the puzzle! " + uses + " uses left.";
                 }
@@ -54,7 +54,7 @@ public class Magic extends Artifact {
     public boolean triggerResurrection(Player player) {
         if (effectType.equals("resurrection") && !used) {
             used = true;
-            player.setHp(player.getMaxHp() / 2); // Resurrect at half health
+            player.setHp(player.getBaseHealth() / 2); // Resurrect at half health
             player.setResurrectable(false);
             return true;
         }
