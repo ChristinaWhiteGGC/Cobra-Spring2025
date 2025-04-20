@@ -40,23 +40,46 @@ class ImmediateAttack extends Attack {
 }
 
 class DelayedAttack extends Attack {
-    private int delayTurns;
+    private final int delayTurns;
+    private int remainingDelayTurn;
 
     public DelayedAttack(String name, int damage, int delayTurns) {
         super(name, damage);
         this.delayTurns = delayTurns;
+        this.remainingDelayTurn = delayTurns;
+    }
+
+    public int getRemainingDelayTurn() {
+        return remainingDelayTurn;
+    }
+
+    public void setRemainingDelayTurn(int remainingDelayTurn) {
+        this.remainingDelayTurn = remainingDelayTurn;
     }
 
     @Override
     public void execute(Player player) {
         System.out.println(name + " will deal " + damage + " damage after " + delayTurns + " turns.");
-        // Delay damage by specified turns (simulated with a thread sleep for simplicity)
-        try {
-            Thread.sleep(delayTurns * 1000); // 1 second per turn for simplicity
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (remainingDelayTurn > 0){
+            System.out.println(name + " will be used after " + remainingDelayTurn + " turns.");
+            remainingDelayTurn--;
         }
-        player.takeDamage(damage);
+        else{
+            player.takeDamage(damage);
+            System.out.println(remainingDelayTurn);
+            System.out.println(player + " takes " + damage + " damage.");
+            remainingDelayTurn = delayTurns;
+        }
+    }
+
+    public boolean delayIsReady(){
+        return delayTurns == 0;
+    }
+
+    public void decrementDelay(){
+        if (remainingDelayTurn > 0) {
+            remainingDelayTurn--;
+        }
     }
 }
 
