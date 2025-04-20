@@ -40,48 +40,39 @@ class ImmediateAttack extends Attack {
 }
 
 class DelayedAttack extends Attack {
-    private final int delayTurns;
+    private int delayTurns;
     private int remainingDelayTurn;
 
     public DelayedAttack(String name, int damage, int delayTurns) {
         super(name, damage);
         this.delayTurns = delayTurns;
-        this.remainingDelayTurn = delayTurns;
-    }
-
-    public int getRemainingDelayTurn() {
-        return remainingDelayTurn;
-    }
-
-    public void setRemainingDelayTurn(int remainingDelayTurn) {
-        this.remainingDelayTurn = remainingDelayTurn;
+        this.remainingDelayTurn = delayTurns; // Initialize remainingDelayTurn
     }
 
     @Override
     public void execute(Player player) {
-        System.out.println(name + " will deal " + damage + " damage after " + delayTurns + " turns.");
-        if (remainingDelayTurn > 0){
-            System.out.println(name + " will be used after " + remainingDelayTurn + " turns.");
-            remainingDelayTurn--;
-        }
-        else{
-            player.takeDamage(damage);
-            System.out.println(remainingDelayTurn);
-            System.out.println(player + " takes " + damage + " damage.");
-            remainingDelayTurn = delayTurns;
-        }
-    }
-
-    public boolean delayIsReady(){
-        return delayTurns == 0;
-    }
-
-    public void decrementDelay(){
         if (remainingDelayTurn > 0) {
+            System.out.println(name + " will be used after " + remainingDelayTurn + " turns.");
+            decrementDelay();
+        } else {
+            player.takeDamage(damage);
+            System.out.println(player.getName() + " takes " + damage + " damage.");
+            remainingDelayTurn = delayTurns; // Reset delay for future use
+        }
+    }
+
+    public boolean delayIsReady() {
+        return remainingDelayTurn == 0; // Check remaining delay turns
+    }
+
+    public void decrementDelay() {
+        if (remainingDelayTurn > 0) {
+            System.out.println("remaining turns: " + remainingDelayTurn);
             remainingDelayTurn--;
         }
     }
 }
+
 
 class ConditionalAttack extends Attack {
     private String condition;

@@ -76,7 +76,7 @@ public class GameController {
 
             //This will try to get the monster that is currently in the room
             Monster monster = GameStateManager.getMonsterInRoom(player.getRoom().getRoomId());
-            if (monster != null){
+            if (monster != null && (!monster.isDefeated())){
                 Scanner sc = new Scanner(System.in);
                 view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
                 System.out.println("Enter fight or flee: ");
@@ -349,7 +349,7 @@ public class GameController {
                 }
             } else if (choice.equalsIgnoreCase("flee")) {
                 //implement flee function
-                break;
+                player.setRoom(getRoom(player.getPriorRoom()));
             }else {
                 System.out.println("Invalid response. Enter fight, block, use item, or flee.");
                 continue;

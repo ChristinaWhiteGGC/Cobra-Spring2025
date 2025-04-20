@@ -100,19 +100,25 @@ public class Monster{
             String[] locations = sections[4].split("\\|\\|");
 
             // Parse attacks
-            ArrayList<Attack> attacks = new ArrayList<>();
-            String[] attackDescriptions = attacksDescription.split("\\|");
-            for (String attackDescription : attackDescriptions) {
-                Attack attack = parseAttack(attackDescription);
-                if (attack != null) {
-                    attacks.add(attack);
-                }
-            }
+            ArrayList<Attack> attacks = parseAttacks(attacksDescription);
 
             Monster monster = new Monster(name, description, attacks, health, locations, false, false);
             monstersList.put(name, monster);
         }
         return monstersList;
+    }
+
+    public static ArrayList<Attack> parseAttacks(String attacksDescription) {
+        ArrayList<Attack> attacks = new ArrayList<>();
+        String[] attackDescriptions = attacksDescription.split("\\|\\|");
+
+        for (String attackDescription : attackDescriptions) {
+            Attack attack = parseAttack(attackDescription);
+            if (attack != null) {
+                attacks.add(attack);
+            }
+        }
+        return attacks;
     }
 
     public static Attack parseAttack(String attackDescription) {
@@ -132,6 +138,7 @@ public class Monster{
         return null;
     }
 
+
     public Attack chooseAttack(){
         Random random = new Random();
         int index = random.nextInt(attack.size());
@@ -141,7 +148,6 @@ public class Monster{
     public void executeAttack(Player player) {
         Attack attack = chooseAttack();
         System.out.println(player.getName() + " uses " + attack.getName());
-
         if (attack instanceof ImmediateAttack) {
             ((ImmediateAttack) attack).execute(player);
         } else if (attack instanceof DelayedAttack) {
@@ -149,7 +155,6 @@ public class Monster{
             if (delayedAttack.delayIsReady()) {
                 delayedAttack.execute(player);
             } else {
-                System.out.println(delayedAttack.getName() + " will be used after " + delayedAttack.getRemainingDelayTurn() + " turns.");
                 delayedAttack.decrementDelay();
             }
         } else if (attack instanceof ConditionalAttack) {
