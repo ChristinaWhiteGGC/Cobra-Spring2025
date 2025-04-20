@@ -110,6 +110,10 @@ public class Room {
         return false;
     }
 
+    public int getID(){
+        return roomId;
+    }
+
     public int getLockConditions() {
         return lockConditions;
     }
@@ -168,6 +172,12 @@ public class Room {
     // TODO: To be called when monster is defeated and/or puzzle is solved
     public ArrayList<Artifact> getLoot() {
         return lootList;
+    }
+
+    public void playerGetsLoot(Player player) {
+        for (Artifact a : lootList) {
+            player.addToInventory(a);
+        }
     }
 
     public static Map<Integer,Room> loadRooms(ArrayList<String> readLines) {

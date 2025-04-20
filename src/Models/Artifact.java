@@ -35,7 +35,7 @@ public abstract class Artifact {
                 String description = parts[3];
                 String effectValue = parts[4];
 
-                String textEffect = parts[5];
+                String textEffect = parts[5].replace("\\n", "\n");
 
 
                 Artifact artifact;
@@ -56,6 +56,9 @@ public abstract class Artifact {
                         int uses = magicParts.length > 1 ? Integer.parseInt(magicParts[1]) : 1;
                         artifact = new Magic(id, name, description, effectType, uses);
                         break;
+                    case "object":
+                        artifact = new StandardObject(id, name, description, effectValue, textEffect);
+                        break;
                     case "key":
                         artifact = new Key(id, name, description, effectValue, textEffect);
                         break;
@@ -74,6 +77,7 @@ public abstract class Artifact {
         }
         player.addToInventory(this);
         applyEffects(player);
+        player.getRoom().removeArtifact(this);
         return true;
     }
 

@@ -11,11 +11,15 @@ public class Armor extends Artifact {
 
     @Override
     public void applyEffects(Player player) {
-        // No effect (non-magical)
+        if (this.getEffect().startsWith("DEF")) {
+            player.setDef(Integer.parseInt(this.getEffect().replace("DEF", "")));
+        }
     }
 
     @Override
     public void removeEffects(Player player) {
-        // No effect
+        if (this.getEffect().startsWith("DEF")) {
+            player.setDef(Integer.parseInt(this.getEffect().replace("DEF", "")));
+        }
     }
 }

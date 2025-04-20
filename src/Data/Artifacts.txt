@@ -15,3 +15,4 @@ K2|key|Key 2|Key 2|KEY|Key 2
 K3|key|Key 3|Key 3|KEY|Key 3
 K4|key|Key 4|Key 4|KEY|Key 4
 K5|key|Key 5|Key 5|KEY|Key 5
+O1|object|Lore Scroll|You have uncovered a scroll with a secret passage.|OBJ|The secret passage says: \n"The ancients spoke of a guardian deep within the pyramid—one who does not bleed, does not sleep, and does not forgive. \nTo pass beyond this chamber, one must face this being in battle. \nOnly through combat can one prove their worth, or be doomed to wander these halls for eternity."

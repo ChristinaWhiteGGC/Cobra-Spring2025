@@ -140,7 +140,7 @@ public class GameController {
                         }
                         case "LOCATION", "WHEREAMI" -> {
                             isMovingRooms = false;
-                            view.outputString("You are currently in: " + player.getRoom().getName());
+                            view.outputString("You are currently in room #: " + player.getRoom().getID() + " " + player.getRoom().getName());
                             view.outputString(player.getRoom().getDescription() + "\n");
                         }
                         case "MAP" -> {
@@ -169,12 +169,17 @@ public class GameController {
                             if (!player.getRoom().getArtifacts().isEmpty()) {
                                 view.outputString("You look around the room and notice the following item(s):");
                                 player.getRoom().getArtifacts().forEach((Artifact a) -> {
-                                    view.outputString("Item found: " + a.getName());
-                                    view.outputString("Type: " + a.getType());
-                                    view.outputString("Description: " + a.getDescription());
-                                    view.outputString("Effect: "+ a.getTextEffect());
-                                    view.outputString("Options: PICKUP " + a.getName() + " | IGNORE " + a.getName() + " | SWAP " + a.getName());
-
+                                    if (!a.getType().equals("key") && !a.getType().equals("object")) {
+                                        view.outputString("Item found: " + a.getName());
+                                        view.outputString("Type: " + a.getType());
+                                        view.outputString("Description: " + a.getDescription());
+                                        view.outputString("Effect: " + a.getTextEffect());
+                                        view.outputString("Options: PICKUP " + a.getName() + " | IGNORE " + a.getName() + " | SWAP " + a.getName());
+                                    }  else if(a.getType().equals("object")) {
+                                        view.outputString("Item found: " + a.getName());
+                                        view.outputString("Description: " + a.getDescription());
+                                        view.outputString("Options: PICKUP " + a.getName());
+                                    }
                                 });
                             } else {
                                 view.outputString("There are no items in this room.");
@@ -208,12 +213,17 @@ public class GameController {
                                 view.outputString("This item is not located in the room.");
                             } else {
                                 Artifact existing = player.getArtifactByType(foundArtifact.getType());
-                                if (existing != null) {
-                                    view.outputString("You already have a " + foundArtifact.getType() + " equipped.");
-                                    view.outputString("Use the 'SWAP " + foundArtifact.getName() + "' command to replace it.");
+                                if (!foundArtifact.getType().equals("object")) {
+                                    if (existing != null) {
+                                        view.outputString("You already have a " + foundArtifact.getType() + " equipped.");
+                                        view.outputString("Use the 'SWAP " + foundArtifact.getName() + "' command to replace it.");
+                                    } else {
+                                        foundArtifact.pickup(player);
+                                        view.outputString(foundArtifact.getName() + " has been added to your inventory.");
+                                    }
                                 } else {
                                     foundArtifact.pickup(player);
-                                    view.outputString(foundArtifact.getName() + " has been added to your inventory.");
+                                    view.outputString(foundArtifact.getTextEffect());
                                 }
                             }
                         }
@@ -295,8 +305,12 @@ public class GameController {
 
                             // Perform the swap
                             player.getRoom().getArtifacts().add(playerItem);
-                            player.removeFromInventory(playerItem);                      // Remove current item
+                            player.removeFromInventory(playerItem);
+                            playerItem.removeEffects(player);
+
+                            // Remove current item
                             player.addToInventory(itemInRoom);
+                            itemInRoom.applyEffects(player);
                             player.getRoom().getArtifacts().remove(itemInRoom);            // Remove room item
 
                             view.outputString("You swapped your " + playerItem.getName() +
