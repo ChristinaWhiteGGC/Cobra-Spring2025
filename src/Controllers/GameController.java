@@ -75,7 +75,7 @@ public class GameController {
             isEntranceToGame = false;
 
             //This will try to get the monster that is currently in the room
-            Monster monster = getMonsterInRoom(player.getRoom().getRoomId());
+            Monster monster = GameStateManager.getMonsterInRoom(player.getRoom().getRoomId());
             if (monster != null){
                 Scanner sc = new Scanner(System.in);
                 view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
@@ -253,39 +253,44 @@ public class GameController {
         return roomsList.get(roomIndex);
     }
 
-    private Monster getMonsterInRoom(int roomIndex) {
-        try {
-            // Implement logic to get the monster in the room based on roomIndex
-            Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
-            // </>his could involve checking the monster's locations
-            for (Monster monster : monstersList.values()) {
-                for (String location : monster.getLocations()) {
-                    if (Integer.parseInt(location) == roomIndex) {
-                        return monster;
-                    }
-                }
-            }
-        }catch (IOException ioe){
-            ioe.printStackTrace();
-        }
-        return null;
-    }
-
     private void fightMonster(Monster monster) {
-    // Implement the logic for fighting the monster
-    view.outputString("You engage in a fight with " + monster.getName() + "!");
-    // Example fight logic (simplified)
-    while (monster.getHealth() > 0 && player.getHp() > 0) {
-        monster.takeDamage(player.getStr());
-        player.takeDamage(monster.getAttack().get(0).getDamage());
-        // Assuming the monster has at least one attack
-        view.outputString("Monster health: " + monster.getHealth() + ", Player health: " + player.getHp());
-    }
-    if (monster.getHealth() <= 0) {
-        view.outputString("You defeated the " + monster.getName() + "!");
-        monster.setDefeated(true);
-    } else {
-        view.outputString("You were defeated by the " + monster.getName() + ".");
+        Scanner sc = new Scanner(System.in);
+        // Implement the logic for fighting the monster
+        view.outputString("You engage in a fight with " + monster.getName() + "!");
+        while (monster.getHealth() > 0 && player.getHp() > 0) {
+            System.out.println("Enter fight, block, use item, or flee:  ");
+            String choice = sc.nextLine();
+            if (choice.equalsIgnoreCase("fight")){
+                monster.takeDamage(player.getStr());
+            } else if (choice.equalsIgnoreCase("block")) {
+                monster.setPlayerBlocking(true);
+            } else if (choice.contains("use")) {
+                //implement item usage
+                System.out.println("Enter name of item: ");
+                String itemName = sc.nextLine();
+                if (player.getInventory().contains(itemName)){
+
+                }
+                else {
+                    System.out.println("Item is not in inventory.");
+                }
+            } else if (choice.equalsIgnoreCase("flee")) {
+                //implement flee function
+                break;
+            }else {
+                System.out.println("Invalid response. Enter fight, block, use item, or flee.");
+                continue;
+            }
+            // Assuming the monster has at least one attack
+            monster.executeAttack(player);
+            view.outputString("Monster health: " + monster.getHealth() + ", Player health: " + player.getHp());
+            monster.setPlayerBlocking(false);
+        }
+        if (monster.getHealth() <= 0) {
+            view.outputString("You defeated the " + monster.getName() + "!");
+            monster.setDefeated(true);
+        } else {
+            view.outputString("You were defeated by the " + monster.getName() + ".");
         }
     }
 }

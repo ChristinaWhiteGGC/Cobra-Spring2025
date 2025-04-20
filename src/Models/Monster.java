@@ -3,6 +3,7 @@ package Models;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class Monster{
     private String name;
@@ -13,14 +14,16 @@ public class Monster{
 
     private String[] locations;
     private boolean isDefeated;
+    private boolean isPlayerBlocking;
 
-    public Monster(String name, String description, ArrayList<Attack> attack, int health, String[] locations, boolean isDefeated) {
+    public Monster(String name, String description, ArrayList<Attack> attack, int health, String[] locations, boolean isDefeated, boolean isPlayerBlocking) {
         this.name = name;
         this.description = description;
         this.attack = attack;
         this.health = health;
         this.locations = locations;
         this.isDefeated = isDefeated;
+        this.isPlayerBlocking = isPlayerBlocking;
     }
 
     public String getName() {
@@ -71,6 +74,14 @@ public class Monster{
         isDefeated = defeated;
     }
 
+    public boolean isPlayerBlocking() {
+        return isPlayerBlocking;
+    }
+
+    public void setPlayerBlocking(boolean playerBlocking) {
+        isPlayerBlocking = playerBlocking;
+    }
+
     public static Map<String, Monster> loadMonsters(ArrayList<String> readLines) {
         Map<String, Monster> monstersList = new HashMap<>();
         int i = 0;
@@ -98,7 +109,7 @@ public class Monster{
                 }
             }
 
-            Monster monster = new Monster(name, description, attacks, health, locations, false);
+            Monster monster = new Monster(name, description, attacks, health, locations, false, false);
             monstersList.put(name, monster);
         }
         return monstersList;
@@ -121,8 +132,38 @@ public class Monster{
         return null;
     }
 
+    public Attack chooseAttack(){
+        Random random = new Random();
+        int index = random.nextInt(attack.size());
+        return attack.get(index);
+    }
+
+    public void executeAttack(Player player) {
+        Attack attack = chooseAttack();
+        System.out.println(player.getName() + " uses " + attack.getName());
+
+        if (attack instanceof ImmediateAttack) {
+            ((ImmediateAttack) attack).execute(player);
+        } else if (attack instanceof DelayedAttack) {
+            DelayedAttack delayedAttack = (DelayedAttack) attack;
+            if (delayedAttack.delayIsReady()) {
+                delayedAttack.execute(player);
+            } else {
+                System.out.println(delayedAttack.getName() + " will be used after " + delayedAttack.getRemainingDelayTurn() + " turns.");
+                delayedAttack.decrementDelay();
+            }
+        } else if (attack instanceof ConditionalAttack) {
+            ((ConditionalAttack) attack).execute(player);
+        }
+    }
+
     public void takeDamage(int damage){
-        health -= damage;
+        if (isPlayerBlocking){
+            health -= damage/2;
+        }
+        else {
+            health -= damage;
+        }
         if (health < 0){
             health = 0;
         }
