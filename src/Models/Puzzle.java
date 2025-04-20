@@ -97,7 +97,7 @@ public abstract class Puzzle {
         br.readLine();
 
         int i = 0;
-        while ((line = br.readLine()) != null) {
+        while ((line = br.readLine()) != null && i < 14) {
             String[] parts = line.split("\\|");
             Puzzle puzzle = puzzles.get(i++);
             puzzle.setHints(Arrays.asList(parts));
