@@ -1,5 +1,6 @@
 package Models;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 /*
@@ -20,6 +21,8 @@ public class Player extends Character {
    private final int baseStrength = 1;
    private final int baseDefense = 1;
 
+   private final ArrayList<Artifact> keys = new ArrayList<>();
+
    private boolean isResurrectable = false;
 
    public Player(String name, int baseHp, int baseStrength, int baseDefense) {
@@ -34,11 +37,18 @@ public class Player extends Character {
    public Collection<Artifact> getInventory() {
       return inventoryList.values();
    }
+   public ArrayList<Artifact> getKeys() {
+      return keys;
+   }
 
    public boolean addToInventory(Artifact a) {
       try {
-         String artifactType = a.getType();
-         inventoryList.put(artifactType, a);
+         if (a.getType().equals("key")) {
+          this.keys.add(a);
+         } else {
+            String artifactType = a.getType();
+            inventoryList.put(artifactType, a);
+         }
          return true;
       } catch (Exception ignored) {
       }
@@ -48,7 +58,11 @@ public class Player extends Character {
    public boolean removeFromInventory(Artifact a) {
       try {
          String artifactType = a.getType();
-         inventoryList.remove(artifactType);
+         if (artifactType.equals("key")) {
+            this.keys.add(a);
+         } else {
+            inventoryList.remove(artifactType);
+         }
          return true;
       } catch (Exception ignored) {
       }
