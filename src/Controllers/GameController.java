@@ -38,7 +38,7 @@ public class GameController {
         }
 
         // Instantiates a player and sets the room to the first room in the list
-        player = new Player(playerName, 100, 0, 0);
+        player = new Player(playerName, 1000, 1000, 1000);
         gsm.resetGame(player);
         view.printGameTitle();
         view.outputString("Welcome to Pyramid Plunder " + playerName + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
@@ -313,16 +313,75 @@ public class GameController {
                                             }
                                         }
                                         case Puzzle.MultiPuzzle multiPuzzle -> {
-                                            answer = view.getAnswer();
-                                            List<String> sections = List.of(answer.split(" "));
-                                            if (multiPuzzle.solve(sections)) {
-                                                view.outputString("Correct!");
-                                                multiPuzzle.setIsSolved(true);
-                                                view.outputString("You solved the puzzle!");
-                                            } else {
-                                                view.outputString("Wrong!");
-                                                player.setHp(player.getHp() - 5);
-                                                view.outputString("You took 5 damage!");
+                                            if (target.equalsIgnoreCase("Balancing Scale")) {
+                                                multiPuzzle.generateBalancePuzzle();
+                                                view.outputString(String.valueOf(multiPuzzle.getRightAnswers()));
+                                                int i = 0;
+                                                int attempts = 0;
+                                                do {
+                                                    answer = view.getAnswer();
+                                                    if (answer.equalsIgnoreCase("hint")) {
+                                                        if (i < attempts && i < puzzle.getHints().size()) {
+                                                            view.outputString("Hint " + (i + 1) + ": " + puzzle.getHints().get(i));
+                                                            i++;
+                                                        } else if (i >= puzzle.getHints().size()) {
+                                                            view.outputString("All hints have been given.");
+                                                        } else if (attempts == 0) {
+                                                            view.outputString("Try first before hints.");
+                                                        } else {
+                                                            view.outputString("Try again first before another hint.");
+                                                        }
+                                                    }
+                                                    List<String> sections = List.of(answer.split(" "));
+                                                    int sumOfWeight = multiPuzzle.sumWeights(sections);
+                                                    if (multiPuzzle.solve(sumOfWeight)) {
+                                                        view.outputString("Correct!");
+                                                        multiPuzzle.setIsSolved(true);
+                                                        view.outputString("You solved the puzzle!");
+                                                    } else if (!answer.equalsIgnoreCase("hint")) {
+                                                        if (sumOfWeight < 100) {
+                                                            view.outputString("Not enough weight.");
+                                                        }
+                                                        if (sumOfWeight > 100) {
+                                                            view.outputString("Too much weight.");
+                                                        }
+                                                        view.outputString("Wrong! You took 5 damage!");
+                                                        player.setHp(player.getHp() - 5);
+                                                        attempts++;
+                                                    }
+                                                } while (player.getHp() > 0 && !puzzle.getIsSolved());
+                                            }
+                                            if (target.equalsIgnoreCase("Light the Torches")) {
+                                                List<String> torches = new ArrayList<>(List.of("1", "2", "3"));
+                                                view.outputString(String.valueOf(torches));
+                                                Collections.shuffle(torches);
+                                                int i = 0;
+                                                int attempts = 0;
+                                                do {
+                                                    answer = view.getAnswer();
+                                                    if (answer.equalsIgnoreCase("hint")) {
+                                                        if (i < attempts && i < puzzle.getHints().size()) {
+                                                            view.outputString("Hint " + (i + 1) + ": " + puzzle.getHints().get(i));
+                                                            i++;
+                                                        } else if (i >= puzzle.getHints().size()) {
+                                                            view.outputString("All hints have been given.");
+                                                        } else if (attempts == 0) {
+                                                            view.outputString("Try first before hints.");
+                                                        } else {
+                                                            view.outputString("Try again first before another hint.");
+                                                        }
+                                                    }
+                                                    List<String> sections = List.of(answer.split(" "));
+                                                    if (multiPuzzle.solve(torches, sections)) {
+                                                        view.outputString("Correct!");
+                                                        multiPuzzle.setIsSolved(true);
+                                                        view.outputString("You solved the puzzle!");
+                                                    } else if (!answer.equalsIgnoreCase("hint")) {
+                                                        view.outputString("Wrong! You took 5 damage!");
+                                                        player.setHp(player.getHp() - 5);
+                                                        attempts++;
+                                                    }
+                                                } while (player.getHp() > 0 && !puzzle.getIsSolved());
                                             }
                                         }
                                         default -> {
@@ -378,7 +437,6 @@ public class GameController {
             // after valid input is received current room is set to room entered by user
             player.setRoom(getRoom(nextRoomIndex));
         }
-
     }
 
     public Room getRoom(int roomIndex) {

@@ -20,24 +20,31 @@ public abstract class Puzzle {
     public String getName() {
         return name;
     }
+
     public List<String> getDescriptions() {
         return descriptions;
     }
+
     public void setHints(List<String> hints) {
         this.hints = hints;
     }
+
     public List<String> getHints() {
         return hints;
     }
+
     public void setRoomNumbers(List<Integer> roomNumbers) {
         this.roomNumbers = roomNumbers;
     }
+
     public List<Integer> getRoomNumbers() {
         return roomNumbers;
     }
+
     public void setIsSolved(boolean isSolved) {
         this.isSolved = isSolved;
     }
+
     public boolean getIsSolved() {
         return isSolved;
     }
@@ -177,15 +184,83 @@ public abstract class Puzzle {
 
     public static class MultiPuzzle extends Puzzle {
         private final List<String> rightAnswers;
+        private Map<String, Integer> textToWeight = new HashMap<>();
 
         public MultiPuzzle(String name, List<String> descriptions, List<String> rightAnswers) {
             super(name, descriptions);
             this.rightAnswers = rightAnswers;
-    }
-    public boolean solve(List<String> inputs) {
-            return inputs.equals(rightAnswers);
+        }
+
+        public List<String> getRightAnswers() {
+            return rightAnswers;
+        }
+
+        public int sumWeights(List<String> inputs) {
+            int sum = 0;
+            for (String input : inputs) {
+                Integer weight = textToWeight.get(input);
+                if (weight == null) return 0;
+                sum += weight;
+            }
+            return sum;
+        }
+
+        public boolean solve(int weight) {
+            return weight == 100;
+        }
+        public boolean solve(List<String> torches, List<String> inputs) {
+            return torches.equals(inputs);
+        }
+
+        public void generateBalancePuzzle() {
+
+            int maxWeight = 100;
+            Random random = new Random();
+            int weight1 = 100 - random.nextInt(maxWeight); //100 - 50 = 50
+            int weight2 = weight1 - random.nextInt(weight1); // 50 - 45 = 5
+            int weight3 = 100 - weight1 - weight2; // 100 - 50 - 5 = 45
+            int weight4 = random.nextInt(maxWeight);
+            int weight5 = random.nextInt(maxWeight);
+
+            if (weight3 < 0) {
+                weight3 -= weight3 * 2;
+                weight1 -= weight3;
+                weight2 -= weight3;
+            } else if (weight3 == 0) {
+                weight3 += 5;
+                weight1 -= 5;
+            }
+
+            while (true) {
+                if (weight4 == weight1 || weight4 == weight2 || weight4 == weight3) {
+                    weight4 = random.nextInt(maxWeight);
+                } else if (weight5 == weight1 || weight5 == weight2 || weight5 == weight3) {
+                    weight5 = random.nextInt(maxWeight);
+                } else {
+                    break;
+                }
+            }
+
+            List<Integer> weights = new ArrayList<>(List.of(weight1, weight2, weight3, weight4, weight5));
+            Collections.shuffle(weights);
+
+            int i = 0;
+            for (int weight : weights) {
+                textToWeight.put(rightAnswers.get(i), weight);
+                i++;
+            }
+        }
+
+        public void generateColorTiles() {
+            Random random = new Random();
+            String color1 = rightAnswers.get(random.nextInt(5));
+            String color2 = rightAnswers.get(random.nextInt(5));
+            while (color2.equals(color1)) {
+                color2 = rightAnswers.get(random.nextInt(5));
+            }
+        }
     }
 }
 
 
-}
+
