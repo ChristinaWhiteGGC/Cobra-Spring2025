@@ -85,9 +85,16 @@ public class GameController {
                 System.out.println("Enter fight or flee: ");
                 String choice = sc.nextLine();
                 if (choice.equalsIgnoreCase("fight")) {
-                    fightMonster(monster);
+                    int nextRoom = fightMonster(monster);
+                    if (nextRoom != -1) {
+                        isMovingRooms = true;
+                        nextRoomIndex = nextRoom;
+                        continue;
+                    }
                 } else if (choice.equalsIgnoreCase("flee")) {
                     view.outputString("You flee from " + monster.getName() + ".");
+                    nextRoomIndex = player.getPriorRoom();
+                    isMovingRooms = true;
                     continue;
                 } else {
                     System.out.println("Invalid choice: Fight or flee");
@@ -544,8 +551,9 @@ public class GameController {
         return null;
     }
 
-    private void fightMonster(Monster monster) {
+    private int fightMonster(Monster monster) {
         Scanner sc = new Scanner(System.in);
+        boolean isFlee = false;
         // Implement the logic for fighting the monster
         view.outputString("You engage in a fight with " + monster.getName() + "!");
         while (monster.getHealth() > 0 && player.getHp() > 0) {
@@ -566,7 +574,7 @@ public class GameController {
                     System.out.println("Item is not in inventory.");
                 }
             } else if (choice.equalsIgnoreCase("flee")) {
-                //implement flee function
+                isFlee = true;
                 break;
             }else {
                 System.out.println("Invalid response. Enter fight, block, use item, or flee.");
@@ -580,8 +588,15 @@ public class GameController {
         if (monster.getHealth() <= 0) {
             view.outputString("You defeated the " + monster.getName() + "!");
             monster.setDefeated(true);
+            for (Artifact a : player.getRoom().getLoot()) {
+                view.outputString("You received the following loot: " + a.getName());
+                player.addToInventory(a);
+            }
+        } else if (isFlee) {
+            return player.getPriorRoom();
         } else {
             view.outputString("You were defeated by the " + monster.getName() + ".");
         }
+        return -1;
     }
 }
