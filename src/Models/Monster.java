@@ -100,19 +100,35 @@ public class Monster{
             String[] locations = sections[4].split("\\|\\|");
 
             // Parse attacks
-            ArrayList<Attack> attacks = new ArrayList<>();
-            String[] attackDescriptions = attacksDescription.split("\\|");
-            for (String attackDescription : attackDescriptions) {
-                Attack attack = parseAttack(attackDescription);
-                if (attack != null) {
-                    attacks.add(attack);
-                }
-            }
+            ArrayList<Attack> attacks = parseAttacks(attacksDescription);
 
             Monster monster = new Monster(name, description, attacks, health, locations, false, false);
+            monster.assignRandomLocation();
             monstersList.put(name, monster);
         }
         return monstersList;
+    }
+
+    public void assignRandomLocation(){
+        for (int j = 0; j < locations.length; j++) {
+            if (locations[j] == "-1") {
+                Random random = new Random();
+                locations[j] = String.valueOf(random.nextInt(18) + 1);
+            }
+        }
+    }
+
+    public static ArrayList<Attack> parseAttacks(String attacksDescription) {
+        ArrayList<Attack> attacks = new ArrayList<>();
+        String[] attackDescriptions = attacksDescription.split("\\|\\|");
+
+        for (String attackDescription : attackDescriptions) {
+            Attack attack = parseAttack(attackDescription);
+            if (attack != null) {
+                attacks.add(attack);
+            }
+        }
+        return attacks;
     }
 
     public static Attack parseAttack(String attackDescription) {
@@ -132,6 +148,7 @@ public class Monster{
         return null;
     }
 
+
     public Attack chooseAttack(){
         Random random = new Random();
         int index = random.nextInt(attack.size());
@@ -142,20 +159,37 @@ public class Monster{
         Attack attack = chooseAttack();
         System.out.println(player.getName() + " uses " + attack.getName());
 
-        if (attack instanceof ImmediateAttack) {
-            ((ImmediateAttack) attack).execute(player);
-        } else if (attack instanceof DelayedAttack) {
-            DelayedAttack delayedAttack = (DelayedAttack) attack;
-            if (delayedAttack.delayIsReady()) {
-                delayedAttack.execute(player);
-            } else {
-                System.out.println(delayedAttack.getName() + " will be used after " + delayedAttack.getRemainingDelayTurn() + " turns.");
-                delayedAttack.decrementDelay();
+        if (isPlayerBlocking) {
+            System.out.println("Player is blocking the attack!");
+            if (attack instanceof ImmediateAttack) {
+                ((ImmediateAttack) attack).execute(player, true); // Pass true to indicate blocking
+            } else if (attack instanceof DelayedAttack) {
+                DelayedAttack delayedAttack = (DelayedAttack) attack;
+                if (delayedAttack.delayIsReady()) {
+                    delayedAttack.execute(player, true); // Pass true to indicate blocking
+                } else {
+                    delayedAttack.decrementDelay();
+                }
+            } else if (attack instanceof ConditionalAttack) {
+                ((ConditionalAttack) attack).execute(player, true); // Pass true to indicate blocking
             }
-        } else if (attack instanceof ConditionalAttack) {
-            ((ConditionalAttack) attack).execute(player);
+        } else {
+            if (attack instanceof ImmediateAttack) {
+                ((ImmediateAttack) attack).execute(player, false); // Pass false to indicate not blocking
+            } else if (attack instanceof DelayedAttack) {
+                DelayedAttack delayedAttack = (DelayedAttack) attack;
+                if (delayedAttack.delayIsReady()) {
+                    delayedAttack.execute(player, false); // Pass false to indicate not blocking
+                } else {
+                    delayedAttack.decrementDelay();
+                }
+            } else if (attack instanceof ConditionalAttack) {
+                ((ConditionalAttack) attack).execute(player, false); // Pass false to indicate not blocking
+            }
         }
     }
+
+
 
     public void takeDamage(int damage){
         if (isPlayerBlocking){
