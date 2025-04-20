@@ -413,6 +413,7 @@ public class GameController {
                                                 if (standardPuzzle.solve(answer)) {
                                                     standardPuzzle.setIsSolved(true);
                                                     view.outputString("Correct! You solved the puzzle.");
+                                                    player.getRoom().playerGetsLoot(player);
                                                     break;
                                                 } else if (!answer.equalsIgnoreCase("hint")){
                                                     player.setHp(player.getHp() - 5);
@@ -464,6 +465,7 @@ public class GameController {
                                                 if (seqPuzzle.isComplete()) {
                                                     seqPuzzle.setIsSolved(true);
                                                     view.outputString("You solved all riddles!");
+                                                    player.getRoom().playerGetsLoot(player);
                                                     break;
                                                 }
                                             }
@@ -532,6 +534,7 @@ public class GameController {
                                                         view.outputString("Correct!");
                                                         multiPuzzle.setIsSolved(true);
                                                         view.outputString("You solved the puzzle!");
+                                                        player.getRoom().playerGetsLoot(player);
                                                     } else if (!answer.equalsIgnoreCase("hint")) {
                                                         view.outputString("Wrong! You took 5 damage!");
                                                         player.setHp(player.getHp() - 5);
@@ -643,7 +646,6 @@ public class GameController {
                 String itemName = sc.nextLine();
                 if (player.getInventory().contains(itemName)){
                     //implement use item logic ONLY if item is consumable
-
                 }
                 else {
                     System.out.println("Item is not in inventory.");
@@ -669,8 +671,6 @@ public class GameController {
                 view.outputString("You received the following loot: " + a.getName());
                 player.addToInventory(a);
             }
-        } else if (isFlee) {
-            return player.getPriorRoom();
         } else {
             view.outputString("You were defeated by the " + monster.getName() + ".");
             System.out.println("Game over");
