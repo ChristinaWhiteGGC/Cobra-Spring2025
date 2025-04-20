@@ -107,16 +107,20 @@ public class GameController {
                     switch (command[0].toUpperCase()) {
                         case "N", "E", "S", "W" -> {
                             int roomIndex = player.getRoom().getExit(command[0].toUpperCase());
-                            if (nextRoomIndex != 0 && getRoom(roomIndex).canNavigateTo(player)) {
-                                isMovingRooms = true;
-                                nextRoomIndex = roomIndex;
-                            } else {
-                                isMovingRooms = false;
-                                if (nextRoomIndex == 0) {
-                                    view.outputString("You can't go this way.");
+                            if (getRoom(roomIndex) != null) {
+                                if (nextRoomIndex != 0 && getRoom(roomIndex).canNavigateTo(player)) {
+                                    isMovingRooms = true;
+                                    nextRoomIndex = roomIndex;
                                 } else {
-                                    view.outputString("Insufficient numbers of keys obtained to go here.");
+                                    isMovingRooms = false;
+                                    if (nextRoomIndex == 0) {
+                                        view.outputString("You can't go this way.");
+                                    } else {
+                                        view.outputString("Insufficient numbers of keys obtained to go here.");
+                                    }
                                 }
+                            } else {
+                                view.outputString("There is no room in this direction. Please choose another.");
                             }
                         }
                         case "BACK" -> {
@@ -195,6 +199,79 @@ public class GameController {
                                 view.outputString("You detect movement from " + m.getName());
                             } else {
                                 view.outputString("You don't detect anything out of the ordinary.");
+                            }
+                        }
+                        case "INTERACT" -> {
+                            isMovingRooms = false;
+                            String target = command[1].trim();
+                            while (target.isEmpty()) {
+                                view.outputString("You haven't specified a target.");
+                                command = view.getRoomInput();
+                            }
+                            for (Artifact a : player.getRoom().getArtifacts()) {
+                                if (target.equalsIgnoreCase(a.getName())) {
+                                    view.outputString(a.getName() + " - " + a.getTextEffect());
+                                }
+                            }
+                            if (target.equalsIgnoreCase(player.getRoom().getMonster().getName())) {
+                                view.outputString("A" + player.getRoom().getMonster().getName() + " is in this room.");
+                            }
+                            if (target.equalsIgnoreCase(player.getRoom().getPuzzle().getName())) {
+                                view.outputString("This is a puzzle!");
+                                view.outputString("Would you like to solve or ignore?");
+                                command = view.getRoomInput();
+                                if (command[0].equalsIgnoreCase("ignore")) {
+                                    int roomNum = player.getPriorRoom();
+                                    player.setRoom(roomsList.get(roomNum));
+                                } else if (command[0].equalsIgnoreCase("solve")) {
+                                    Puzzle puzzle = player.getRoom().getPuzzle();
+                                    if (puzzle != null) {
+                                        if (puzzle instanceof Puzzle.StandardPuzzle standardPuzzle) {
+                                            String answer = view.getAnswer();
+                                            if (standardPuzzle.solve(answer)) {
+                                                standardPuzzle.setIsSolved(true);
+                                                view.outputString("You solved the puzzle!");
+                                            }
+                                        } else if (puzzle instanceof Puzzle.BooleanPuzzle boolPuzzle) {
+                                            String condition = boolPuzzle.getCondition();
+                                            if (condition.equalsIgnoreCase("light")) {
+                                                if (boolPuzzle.solve(roomsList.get(6).getPuzzle().getIsSolved())) {
+                                                    boolPuzzle.setIsSolved(true);
+                                                    view.outputString("The scarabs have left because of the light.");
+                                                } else {
+                                                    view.outputString("Mechanical scarabs move throughout the room.");
+                                                }
+                                            }
+                                        } else if (puzzle instanceof Puzzle.SequencePuzzle seqPuzzle) {
+                                            while (!seqPuzzle.isComplete() && player.getHp() > 0) {
+                                                view.outputString(seqPuzzle.getCurrentDescription());
+                                                String answer = view.getAnswer();
+                                                if (seqPuzzle.solve(answer)) {
+                                                    view.outputString("Correct! Solved Riddle " + seqPuzzle.getIndex());
+                                                } else {
+                                                    view.outputString("Wrong!");
+                                                    player.setHp(player.getHp() - 5);
+                                                    view.outputString("You took 5 damage!");
+                                                    view.outputString("Try again.");
+                                                }
+                                                if (seqPuzzle.isComplete()) {
+                                                    seqPuzzle.setIsSolved(true);
+                                                    view.outputString("You solved all riddles!");
+                                                    break;
+                                                }
+                                            }
+                                        } else if (puzzle instanceof Puzzle.MultiPuzzle multiPuzzle) {
+                                            String answer = view.getAnswer();
+                                            List<String> sections = List.of(answer.split(" "));
+                                            if (multiPuzzle.solve(sections)) {
+                                                multiPuzzle.setIsSolved(true);
+                                                view.outputString("You solved the puzzle!");
+                                            }
+                                        } else {
+                                            view.outputString("Invalid Puzzle.");
+                                        }
+                                    }
+                                }
                             }
                         }
                         case "EXIT", "X" -> {
