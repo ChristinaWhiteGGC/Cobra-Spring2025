@@ -38,7 +38,7 @@ public class GameController {
         }
 
         // Instantiates a player and sets the room to the first room in the list
-        player = new Player(playerName, 1000, 1000, 1000);
+        player = new Player(playerName, 100, 0, 0);
         gsm.resetGame(player);
         view.printGameTitle();
         view.outputString("Welcome to Pyramid Plunder " + playerName + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
@@ -50,6 +50,8 @@ public class GameController {
         boolean isEntranceToGame = true;
 
         int nextRoomIndex = 1;
+        player.setRoom(getRoom(nextRoomIndex));
+
 
         // Controls whether player has input a direction
         // Resets on each iteration, defaults to true for first iteration of while loop to print the
@@ -57,12 +59,13 @@ public class GameController {
         boolean isMovingRooms = true;
 
         while (true) {
+            boolean hasMovedRooms = false;
             // If we are moving rooms, lets display the room message,
             // and if applicable the puzzle attached to the room
             if (isMovingRooms) {
                 // Print the room description
-                    view.printRoom(player.getRoom());
-                    isMovingRooms = false;
+                view.printRoom(player.getRoom());
+                isMovingRooms = false;
             }
 
             // keeps first room as not visited for 1st entry
@@ -76,17 +79,25 @@ public class GameController {
 
             //This will try to get the monster that is currently in the room
             Monster monster = GameStateManager.getMonsterInRoom(player.getRoom().getRoomId());
-            if (monster != null){
+            if (monster != null && (!monster.isDefeated())){
+
                 Scanner sc = new Scanner(System.in);
                 view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
                 System.out.println("Enter fight or flee: ");
-                String choice  = sc.nextLine();
-                if (choice.equalsIgnoreCase("fight")){
-                    fightMonster(monster);
+                String choice = sc.nextLine();
+                if (choice.equalsIgnoreCase("fight")) {
+                    int nextRoom = fightMonster(monster);
+                    if (nextRoom != -1) {
+                        isMovingRooms = true;
+                        nextRoomIndex = nextRoom;
+                        continue;
+                    }
                 } else if (choice.equalsIgnoreCase("flee")) {
                     view.outputString("You flee from " + monster.getName() + ".");
+                    nextRoomIndex = player.getPriorRoom();
+                    isMovingRooms = true;
                     continue;
-                }else {
+                } else {
                     System.out.println("Invalid choice: Fight or flee");
                     continue;
                 }
@@ -107,16 +118,18 @@ public class GameController {
                     switch (command[0].toUpperCase()) {
                         case "N", "E", "S", "W" -> {
                             int roomIndex = player.getRoom().getExit(command[0].toUpperCase());
-                            if (getRoom(roomIndex) != null) {
-                                if (nextRoomIndex != 0 && getRoom(roomIndex).canNavigateTo(player)) {
+                            Room r = getRoom(roomIndex);
+                            if (r != null) {
+                                if (nextRoomIndex != 0 && r.canNavigateTo(player)) {
                                     isMovingRooms = true;
                                     nextRoomIndex = roomIndex;
+                                    hasMovedRooms = true;
                                 } else {
                                     isMovingRooms = false;
                                     if (nextRoomIndex == 0) {
-                                        view.outputString("You can't go this way.");
+                                            view.outputString("You can't go this way.");
                                     } else {
-                                        view.outputString("Insufficient numbers of keys obtained to go here.");
+                                            view.outputString("Insufficient numbers of keys obtained to go here. You must have " + r.getLockConditions() + " keys. You currently have " + player.getKeys().size() + ".");
                                     }
                                 }
                             } else {
@@ -128,8 +141,8 @@ public class GameController {
                             nextRoomIndex = player.getPriorRoom();
                         }
                         case "LOCATION", "WHEREAMI" -> {
-                            isMovingRooms= false;
-                            view.outputString("You are currently in: " + player.getRoom().getName());
+                            isMovingRooms = false;
+                            view.outputString("You are currently in room #: " + player.getRoom().getID() + " " + player.getRoom().getName());
                             view.outputString(player.getRoom().getDescription() + "\n");
                         }
                         case "MAP" -> {
@@ -143,8 +156,8 @@ public class GameController {
                             view.outputString("Strength: " + player.getStr());
                         }
                         case "EXPLORE" -> {
-                            isMovingRooms= false;
-                            view.outputString("Detailed description of your current room: \n"+ player.getRoom().getDescription() + "\n");
+                            isMovingRooms = false;
+                            view.outputString("Detailed description of your current room: \n" + player.getRoom().getDescription() + "\n");
                         }
                         case "HELP" -> {
                             if (command.length == 1) {
@@ -153,14 +166,24 @@ public class GameController {
                                 view.printDetailedHelp(command[1]);
                             }
                         }
-                       case "SEARCH" -> {
+                        case "SEARCH" -> {
                             isMovingRooms = false;
                             if (!player.getRoom().getArtifacts().isEmpty()) {
                                 player.getRoom().getArtifacts().forEach((Artifact a) -> {
-                                    view.outputString(a.getName());
+                                    if (!a.getType().equals("key") && !a.getType().equals("object")) {
+                                        view.outputString("Item found: " + a.getName());
+                                        view.outputString("Type: " + a.getType());
+                                        view.outputString("Description: " + a.getDescription());
+                                        view.outputString("Effect: " + a.getTextEffect());
+                                        view.outputString("Options: PICKUP " + a.getName() + " | IGNORE " + a.getName() + " | SWAP " + a.getName());
+                                    }  else if(a.getType().equals("object")) {
+                                        view.outputString("Item found: " + a.getName());
+                                        view.outputString("Description: " + a.getDescription());
+                                        view.outputString("Options: PICKUP " + a.getName());
+                                    }
                                 });
                             } else {
-                                view.outputString("There are no artifacts in this room.");
+                                view.outputString("There are no items in this room.");
                             }
                             if (player.getRoom().getPuzzle() != null && !player.getRoom().getPuzzle().getIsSolved()) {
                                 view.outputString("Puzzle: " + player.getRoom().getPuzzle().getName());
@@ -170,23 +193,156 @@ public class GameController {
                             isMovingRooms = false;
                             // Check if player entered a filename after "SAVE"
                             if (command.length < 2 || command[1].isEmpty()) {
-                                view.outputString("Please enter the name of the item you'd like to pickup.");
+                                view.outputString("Please enter the name of the item you'd like to pick up.");
+                                break;
                             }
-                            final Artifact[] foundArtifact = new Artifact[1];
-                            StringBuilder itemName = new StringBuilder();
+
+                            StringBuilder itemNameBuilder = new StringBuilder();
                             for (int i = 1; i < command.length; i++) {
-                                itemName.append(command[i]).append(" ");
+                                itemNameBuilder.append(command[i]).append(" ");
                             }
-                            player.getRoom().getArtifacts().forEach((Artifact a) -> {
-                                if (a.getName().equalsIgnoreCase(itemName.toString().trim())) {
-                                    foundArtifact[0] = a;
+                            String itemName = itemNameBuilder.toString().trim();
+
+                            Artifact foundArtifact = null;
+                            for (Artifact a : player.getRoom().getArtifacts()) {
+                                if (a.getName().equalsIgnoreCase(itemName)) {
+                                    foundArtifact = a;
+                                    break;
                                 }
-                            });
-                            if (foundArtifact[0] == null) {
+                            }
+
+                            if (foundArtifact == null) {
                                 view.outputString("This item is not located in the room.");
                             } else {
-                                foundArtifact[0].pickup(player);
-                                view.outputString(foundArtifact[0].getName() + " has been added to your inventory.");
+                                Artifact existing = player.getArtifactByType(foundArtifact.getType());
+                                if (!foundArtifact.getType().equals("object")) {
+                                    if (existing != null) {
+                                        view.outputString("You already have a " + foundArtifact.getType() + " equipped.");
+                                        view.outputString("Use the 'SWAP " + foundArtifact.getName() + "' command to replace it.");
+                                    } else {
+                                        foundArtifact.pickup(player);
+                                        view.outputString(foundArtifact.getName() + " has been added to your inventory.");
+                                    }
+                                } else {
+                                    foundArtifact.pickup(player);
+                                    view.outputString(foundArtifact.getTextEffect());
+                                }
+                            }
+                        }
+                        case "USE" -> {
+                            isMovingRooms = false;
+                            if (command.length < 2 || command[1].isEmpty()) {
+                                view.outputString("Please enter the name of the item you'd like to use.");
+                                break;
+                            }
+                            StringBuilder itemNameBuilder = new StringBuilder();
+                            for (int i = 1; i < command.length; i++) {
+                                itemNameBuilder.append(command[i]).append(" ");
+                            }
+                            String itemName = itemNameBuilder.toString().trim();
+
+                            Artifact itemToUse = null;
+                            for (Artifact artifact : player.getInventory()) {
+                                if (artifact.getName().equalsIgnoreCase(itemName)) {
+                                    itemToUse = artifact;
+                                    break;
+                                }
+                            }
+
+                            if (itemToUse == null) {
+                                view.outputString("You don't have an item named '" + itemName + "' in your inventory.");
+                                break;
+                            }
+
+                            if (itemToUse instanceof Consumable) {
+                                Consumable consumable = (Consumable) itemToUse;
+                                if (consumable.isUsable()) {
+                                    consumable.applyEffects(player);
+                                    consumable.setCooldown();
+                                    view.outputString("You used " + consumable.getName() + ".");
+
+                                } else {
+                                    view.outputString(consumable.getName() + " is on cooldown. It will be usable in " + consumable.getRoomsUntilUsable() + " room(s).");
+                                }
+                            } else {
+                                view.outputString(itemToUse.getName() + " cannot be used.");
+                            }
+                        }
+                        case "SWAP" -> {
+                            isMovingRooms = false;
+
+                            if (command.length < 2 || command[1].isEmpty()) {
+                                view.outputString("Please specify the name of the item you'd like to swap.");
+                                break;
+                            }
+
+                            // Reconstruct item name
+                            StringBuilder swapItemNameBuilder = new StringBuilder();
+                            for (int i = 1; i < command.length; i++) {
+                                swapItemNameBuilder.append(command[i]).append(" ");
+                            }
+                            String swapItemName = swapItemNameBuilder.toString().trim();
+
+                            // Find item in room
+                            Artifact itemInRoom = null;
+                            for (Artifact artifact : player.getRoom().getArtifacts()) {
+                                if (artifact.getName().equalsIgnoreCase(swapItemName)) {
+                                    itemInRoom = artifact;
+                                    break;
+                                }
+                            }
+
+                            if (itemInRoom == null) {
+                                view.outputString("There is no item named '" + swapItemName + "' in this room.");
+                                break;
+                            }
+
+                            // Find matching type in inventory
+                            Artifact playerItem = player.getArtifactByType(itemInRoom.getType());
+                            if (playerItem == null) {
+                                view.outputString("You don't have an item of type '" + itemInRoom.getType() + "' to swap.");
+                                view.outputString("Use 'PICKUP " + itemInRoom.getName() + "' instead.");
+                                break;
+                            }
+
+                            // Perform the swap
+                            player.getRoom().getArtifacts().add(playerItem);
+                            player.removeFromInventory(playerItem);
+                            playerItem.removeEffects(player);
+
+                            // Remove current item
+                            player.addToInventory(itemInRoom);
+                            itemInRoom.applyEffects(player);
+                            player.getRoom().getArtifacts().remove(itemInRoom);            // Remove room item
+
+                            view.outputString("You swapped your " + playerItem.getName() +
+                                    " for " + itemInRoom.getName() + ".");
+                        }
+                        case "IGNORE" -> {
+                            isMovingRooms = false;
+                            if (command.length < 2 || command[1].isEmpty()) {
+                                view.outputString("Please specify the name of the item you'd like to ignore.");
+                                break;
+                            }
+
+                            StringBuilder ignoreItemBuilder = new StringBuilder();
+                            for (int i = 1; i < command.length; i++) {
+                                ignoreItemBuilder.append(command[i]).append(" ");
+                            }
+                            String ignoredItemName = ignoreItemBuilder.toString().trim();
+
+                            Artifact itemToIgnore = null;
+                            for (Artifact artifact : player.getRoom().getArtifacts()) {
+                                if (artifact.getName().equalsIgnoreCase(ignoredItemName)) {
+                                    itemToIgnore = artifact;
+                                    break;
+                                }
+                            }
+
+                            if (itemToIgnore == null) {
+                                view.outputString("There is no item named '" + ignoredItemName + "' in this room.");
+                            } else {
+                                view.outputString("You ignored the " + itemToIgnore.getName() + ".");
                             }
                         }
                         case "INVENTORY" -> {
@@ -234,7 +390,7 @@ public class GameController {
                                 } else if (command[0].equalsIgnoreCase("solve") && !player.getRoom().getPuzzle().getIsSolved()) {
                                     Puzzle puzzle = player.getRoom().getPuzzle();
                                     view.outputString(puzzle.getName());
-                                    view.outputString(puzzle.getDescriptions().getFirst());
+                                    view.outputString(puzzle.getDescriptions().get(0));
                                     String answer;
                                     switch (puzzle) {
                                         case Puzzle.StandardPuzzle standardPuzzle -> {
@@ -436,6 +592,15 @@ public class GameController {
             } while (nextRoomIndex == 0);
             // after valid input is received current room is set to room entered by user
             player.setRoom(getRoom(nextRoomIndex));
+            // Decrement cooldowns for consumables
+            if (hasMovedRooms) {
+                for (Artifact artifact : player.getInventory()) {
+                    if (artifact instanceof Consumable) {
+                        ((Consumable) artifact).decrementCooldown();
+                    }
+                }
+
+            }
         }
     }
 
@@ -443,15 +608,33 @@ public class GameController {
         return roomsList.get(roomIndex);
     }
 
-    private void fightMonster(Monster monster) {
+    private Monster getMonsterInRoom(int roomIndex) {
+        try {
+            // Implement logic to get the monster in the room based on roomIndex
+            Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
+            // </>his could involve checking the monster's locations
+            for (Monster monster : monstersList.values()) {
+                for (String location : monster.getLocations()) {
+                    if (Integer.parseInt(location) == roomIndex) {
+                        return monster;
+                    }
+                }
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        return null;
+    }
+
+    private int fightMonster(Monster monster) {
         Scanner sc = new Scanner(System.in);
-        // Implement the logic for fighting the monster
+
         view.outputString("You engage in a fight with " + monster.getName() + "!");
         while (monster.getHealth() > 0 && player.getHp() > 0) {
             System.out.println("Enter fight, block, use item, or flee:  ");
             String choice = sc.nextLine();
             if (choice.equalsIgnoreCase("fight")){
-                monster.takeDamage(player.getStr());
+            monster.takeDamage(player.getStr());
             } else if (choice.equalsIgnoreCase("block")) {
                 monster.setPlayerBlocking(true);
             } else if (choice.contains("use")) {
@@ -459,14 +642,17 @@ public class GameController {
                 System.out.println("Enter name of item: ");
                 String itemName = sc.nextLine();
                 if (player.getInventory().contains(itemName)){
+                    //implement use item logic ONLY if item is consumable
 
                 }
                 else {
                     System.out.println("Item is not in inventory.");
                 }
             } else if (choice.equalsIgnoreCase("flee")) {
+
                 //implement flee function
-                break;
+                player.setRoom(getRoom(player.getPriorRoom()));
+
             }else {
                 System.out.println("Invalid response. Enter fight, block, use item, or flee.");
                 continue;
@@ -479,8 +665,17 @@ public class GameController {
         if (monster.getHealth() <= 0) {
             view.outputString("You defeated the " + monster.getName() + "!");
             monster.setDefeated(true);
+            for (Artifact a : player.getRoom().getLoot()) {
+                view.outputString("You received the following loot: " + a.getName());
+                player.addToInventory(a);
+            }
+        } else if (isFlee) {
+            return player.getPriorRoom();
         } else {
             view.outputString("You were defeated by the " + monster.getName() + ".");
+            System.out.println("Game over");
+            System.exit(0);
         }
+        return -1;
     }
 }

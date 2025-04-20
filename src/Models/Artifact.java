@@ -11,7 +11,7 @@ public abstract class Artifact {
     protected final String name;
     private final String description;
     protected final String effect;
-    protected final String textEffect;
+    protected String textEffect;
 
     public Artifact(String id, String type, String name, String description, String effect, String textEffect) {
         this.id = id;
@@ -28,14 +28,14 @@ public abstract class Artifact {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|");
-                if (parts.length < 5) continue;
+                if (parts.length < 6) continue;
                 String id = parts[0];
                 String type = parts[1];
                 String name = parts[2];
                 String description = parts[3];
                 String effectValue = parts[4];
 
-                String textEffect = parts[5];
+                String textEffect = parts[5].replace("\\n", "\n");
 
 
                 Artifact artifact;
@@ -47,7 +47,7 @@ public abstract class Artifact {
                         artifact = new Weapon(id, name, description, effectValue, textEffect);
                         break;
                     case "consumable":
-                        artifact = new Consumable(id, name, description, effectValue);
+                        artifact = new Consumable(id, name, description, effectValue, textEffect);
                         break;
                     case "magic":
                         // Parse effectValue as effectType|uses for Magic artifacts
@@ -55,6 +55,9 @@ public abstract class Artifact {
                         String effectType = magicParts[0];
                         int uses = magicParts.length > 1 ? Integer.parseInt(magicParts[1]) : 1;
                         artifact = new Magic(id, name, description, effectType, uses);
+                        break;
+                    case "object":
+                        artifact = new StandardObject(id, name, description, effectValue, textEffect);
                         break;
                     case "key":
                         artifact = new Key(id, name, description, effectValue, textEffect);
@@ -74,6 +77,7 @@ public abstract class Artifact {
         }
         player.addToInventory(this);
         applyEffects(player);
+        player.getRoom().removeArtifact(this);
         return true;
     }
 
@@ -110,6 +114,9 @@ public abstract class Artifact {
     public String getType() { return type; }
     public String getName() { return name; }
     public String getEffect() { return effect; }
+    public String getDescription() {
+        return description;
+    }
 
     public String getTextEffect() { return textEffect; }
 }

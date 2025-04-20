@@ -104,16 +104,18 @@ public class Room {
     }
 
     public boolean canNavigateTo(Player player) {
-        int numberOfKeysObtained = 0;
-        for (Artifact a : player.getInventory()) {
-            if (a.getType().equals("key")) {
-                numberOfKeysObtained++;
-            }
-        }
-        if (numberOfKeysObtained >= lockConditions) {
+        if (player.getKeys().size() >= lockConditions) {
             return true;
         }
         return false;
+    }
+
+    public int getID(){
+        return roomId;
+    }
+
+    public int getLockConditions() {
+        return lockConditions;
     }
 
     public void setPuzzle(Puzzle p) {
@@ -170,6 +172,12 @@ public class Room {
     // TODO: To be called when monster is defeated and/or puzzle is solved
     public ArrayList<Artifact> getLoot() {
         return lootList;
+    }
+
+    public void playerGetsLoot(Player player) {
+        for (Artifact a : lootList) {
+            player.addToInventory(a);
+        }
     }
 
     public static Map<Integer,Room> loadRooms(ArrayList<String> readLines) {
