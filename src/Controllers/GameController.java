@@ -80,7 +80,7 @@ public class GameController {
             //This will try to get the monster currently in the room
 
             Monster monster = GameStateManager.getMonsterInRoom(player.getRoom().getRoomId());
-            if (monster != null && monster.isDefeated() == false){
+            if (monster != null && monster.isDefeated() == false) {
 
                 Scanner sc = new Scanner(System.in);
                 view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
@@ -142,9 +142,9 @@ public class GameController {
                                 } else {
                                     isMovingRooms = false;
                                     if (nextRoomIndex == 0) {
-                                            view.outputString("You can't go this way.");
+                                        view.outputString("You can't go this way.");
                                     } else {
-                                            view.outputString("Insufficient numbers of keys obtained to go here. You must have " + r.getLockConditions() + " keys. You currently have " + player.getKeys().size() + ".");
+                                        view.outputString("Insufficient numbers of keys obtained to go here. You must have " + r.getLockConditions() + " keys. You currently have " + player.getKeys().size() + ".");
                                     }
                                 }
                             } else {
@@ -197,7 +197,7 @@ public class GameController {
                                         view.outputString("Description: " + a.getDescription());
                                         view.outputString("Effect: " + a.getTextEffect());
                                         view.outputString("Options: PICKUP " + a.getName() + " | IGNORE " + a.getName() + " | SWAP " + a.getName());
-                                    }  else if(a.getType().equals("object")) {
+                                    } else if (a.getType().equals("object")) {
                                         view.outputString("Item found: " + a.getName());
                                         view.outputString("Description: " + a.getDescription());
                                         view.outputString("Options: PICKUP " + a.getName());
@@ -274,7 +274,7 @@ public class GameController {
                                 view.outputString("You don't have an item named '" + itemName + "' in your inventory.");
                                 break;
                             }
-                            if (itemName.equalsIgnoreCase("crook of osiris")) {
+                            if (itemName.equalsIgnoreCase("amulet")) {
                                 if (player.getRoom().getPuzzle() == null) {
                                     view.outputString("You have no puzzles in this room to solve.");
                                     break;
@@ -289,14 +289,14 @@ public class GameController {
                                         view.outputString("You received the following loot: " + a.getName());
                                     }
                                     player.getRoom().playerGetsLoot(player);
-                                    player.incrementCrookOfOsirisUses();
-                                    if (player.getCrookOfOsirisUses() >= 3) {
-                                        view.outputString("You have used the Crook of Osiris 3 times. Its power has faded.");
+                                    player.incrementAmuletUses();
+                                    if (player.getAmuletUses() >= 3) {
+                                        view.outputString("You have used the Amulet 3 times. Its power has faded.");
                                         player.removeFromInventory(itemToUse);
                                         break;
                                     }
-                                    view.outputString("You used the Crook of Osiris to solve the puzzle. (" +
-                                            player.getCrookOfOsirisUses() + "/3 uses)");
+                                    view.outputString("You used the Amulet to solve the puzzle. (" +
+                                            player.getAmuletUses() + "/3 uses)");
                                 }
                                 break;
                             }
@@ -478,7 +478,7 @@ public class GameController {
                                                     } else {
                                                         view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                     }
-                                                } else if (!answer.equalsIgnoreCase("hint")){
+                                                } else if (!answer.equalsIgnoreCase("hint")) {
                                                     player.setHp(player.getHp() - 5);
                                                     attempts++;
                                                     view.outputString("Wrong! You took 5 damage!");
@@ -744,57 +744,71 @@ public class GameController {
         // Implement the logic for fighting the monster
 
         view.outputString("You engage in a fight with " + monster.getName() + "!");
-        while (monster.getHealth() > 0 && player.getHp() > 0) {
-            System.out.println("Enter fight, block, use item, or flee:  ");
-            String choice = sc.nextLine();
-            if (choice.equalsIgnoreCase("fight")){
-                monster.takeDamage(player.getStr());
-            } else if (choice.equalsIgnoreCase("block")) {
-                monster.setPlayerBlocking(true);
-            } else if (choice.contains("use")) {
-                //implement item usage
-                System.out.println("Enter name of item: ");
-                String itemName = sc.nextLine();
-                if (player.getInventoryArtifactByName(itemName) != null) {
-                    //implement use item logic ONLY if item is consumable
-                    player.getArtifactByType("Consumable");
-                }
-                else {
-                    System.out.println("Item is not in inventory.");
-                }
-            } else if (choice.equalsIgnoreCase("flee")) {
+        while (true) {
+            while (monster.getHealth() > 0 && player.getHp() > 0) {
+                System.out.println("Enter fight, block, use item, or flee:  ");
+                String choice = sc.nextLine();
+                if (choice.equalsIgnoreCase("fight")) {
+                    monster.takeDamage(player.getStr());
+                } else if (choice.equalsIgnoreCase("block")) {
+                    monster.setPlayerBlocking(true);
+                } else if (choice.contains("use")) {
+                    //implement item usage
+                    System.out.println("Enter name of item: ");
+                    String itemName = sc.nextLine();
+                    if (player.getInventoryArtifactByName(itemName) != null) {
+                        //implement use item logic ONLY if item is consumable
+                        player.getArtifactByType("Consumable");
+                    } else {
+                        System.out.println("Item is not in inventory.");
+                    }
+                } else if (choice.equalsIgnoreCase("flee")) {
 
-                //implement flee function
+                    //implement flee function
 
-                player.setRoom(getRoom(player.getPriorRoom()));
-                isFlee = true;
-                break;
+                    player.setRoom(getRoom(player.getPriorRoom()));
+                    isFlee = true;
+                    break;
 
-            }else {
-                System.out.println("Invalid response. Enter fight, block, use item, or flee.");
-                continue;
-            }
-            // Assuming the monster has at least one attack
-            monster.executeAttack(player);
-            view.outputString("Monster health: " + monster.getHealth() + ", Player health: " + player.getHp());
-            monster.setPlayerBlocking(false);
-        }
-        if (monster.getHealth() <= 0) {
-            view.outputString("You defeated the " + monster.getName() + "!");
-            monster.setDefeated(true);
-            for (Artifact a : player.getRoom().getLoot()) {
-                view.outputString("You received the following loot: " + a.getName());
-                if (a.getType().equals("key")) {
-                    player.addToInventory(a);
                 } else {
-                    player.getRoom().addArtifact(a);
+                    System.out.println("Invalid response. Enter fight, block, use item, or flee.");
+                    continue;
+                }
+                // Assuming the monster has at least one attack
+                monster.executeAttack(player);
+                view.outputString("Monster health: " + monster.getHealth() + ", Player health: " + player.getHp());
+                monster.setPlayerBlocking(false);
+            }
+            if (isFlee) {
+                break;
+            }
+            if (monster.getHealth() <= 0) {
+                view.outputString("You defeated the " + monster.getName() + "!");
+                monster.setDefeated(true);
+                for (Artifact a : player.getRoom().getLoot()) {
+                    view.outputString("You received the following loot: " + a.getName());
+                    if (a.getType().equals("key")) {
+                        player.addToInventory(a);
+                    } else {
+                        player.getRoom().addArtifact(a);
+                    }
+                }
+                break;
+            } else {
+                player.setHp(0);
+                view.outputString("You were defeated by the " + monster.getName() + ".");
+                Artifact a = player.getInventoryArtifactByName("crook of osiris");
+                if (a != null) {
+                    view.outputString("A bright light shines down from the heavens and you revive with 1/2 health.");
+                    player.setHp(player.getBaseHealth() / 2);
+                    player.removeFromInventory(a);
+                    continue;
+                } else {
+                    view.outputString("Game over");
+                    System.exit(0);
+                    break;
                 }
             }
-        } else {
-            player.setHp(0);
-            view.outputString("You were defeated by the " + monster.getName() + ".");
-            System.out.println("Game over");
-            System.exit(0);
         }
         return -1;
     }
