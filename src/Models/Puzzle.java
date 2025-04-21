@@ -180,6 +180,23 @@ public abstract class Puzzle {
             if (index >= rightAnswers.size()) return null;
             return rightAnswers.get(index);
         }
+
+        public List<List<String>> generateColorTiles() {
+            Random random = new Random();
+            List<List<String>> colorTiles = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                String color1 = rightAnswers.get(random.nextInt(5));
+                String color2 = rightAnswers.get(random.nextInt(5));
+                while (color2.equals(color1)) {
+                    color2 = rightAnswers.get(random.nextInt(5));
+                }
+                colorTiles.add(Arrays.asList(color1, color1, color2));
+                for (List<String> colorGroup : colorTiles) {
+                    Collections.shuffle(colorGroup);
+                }
+            }
+            return colorTiles;
+        }
     }
 
     public static class MultiPuzzle extends Puzzle {
@@ -248,15 +265,6 @@ public abstract class Puzzle {
             for (int weight : weights) {
                 textToWeight.put(rightAnswers.get(i), weight);
                 i++;
-            }
-        }
-
-        public void generateColorTiles() {
-            Random random = new Random();
-            String color1 = rightAnswers.get(random.nextInt(5));
-            String color2 = rightAnswers.get(random.nextInt(5));
-            while (color2.equals(color1)) {
-                color2 = rightAnswers.get(random.nextInt(5));
             }
         }
     }

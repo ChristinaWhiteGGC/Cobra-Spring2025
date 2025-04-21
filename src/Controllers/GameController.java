@@ -118,6 +118,9 @@ public class GameController {
                             int roomIndex = player.getRoom().getExit(command[0].toUpperCase());
                             Room r = getRoom(roomIndex);
                             if (r != null) {
+                                if (!canProceed(player.getRoom(), r)) {
+                                    break;
+                                }
                                 if (nextRoomIndex != 0 && r.canNavigateTo(player)) {
                                     isMovingRooms = true;
                                     nextRoomIndex = roomIndex;
@@ -409,6 +412,12 @@ public class GameController {
                                         case Puzzle.StandardPuzzle standardPuzzle -> {
                                             int i = 0;
                                             int attempts = 0;
+                                            String[] paths = {"1", "2", "3"};
+                                            Random random = new Random();
+                                            String correctPath = paths[random.nextInt(paths.length)];
+                                            if (standardPuzzle.getName().equalsIgnoreCase("Pit Crossing")) {
+                                                view.outputString(Arrays.toString(paths));
+                                            }
                                             do {
                                                 answer = view.getAnswer();
                                                 if (answer.equalsIgnoreCase("hint")) {
@@ -423,12 +432,16 @@ public class GameController {
                                                         view.outputString("Try again first before another hint.");
                                                     }
                                                 }
-                                                if (standardPuzzle.solve(answer)) {
+                                                if (standardPuzzle.solve(answer) || (answer.equalsIgnoreCase(correctPath) && standardPuzzle.getName().equalsIgnoreCase("Pit Crossing"))) {
                                                     standardPuzzle.setIsSolved(true);
                                                     view.outputString("Correct! You solved the puzzle.");
                                                     List<Artifact> loot = player.getRoom().getLoot();
                                                     player.getRoom().playerGetsLoot(player);
-                                                    view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
+                                                    if (standardPuzzle.getName().equalsIgnoreCase("Pit Crossing")) {
+                                                        view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
+                                                    } else {
+                                                        view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
+                                                    }
                                                 } else if (!answer.equalsIgnoreCase("hint")){
                                                     player.setHp(player.getHp() - 5);
                                                     attempts++;
@@ -449,30 +462,67 @@ public class GameController {
                                                         view.outputString("Invalid Input.");
                                                     }
                                                 }
-                                            } while (player.getHp() > 0 && !standardPuzzle.solve(answer));
+                                            } while (!standardPuzzle.getIsSolved());
                                         }
                                         case Puzzle.BooleanPuzzle boolPuzzle -> {
                                             String condition = boolPuzzle.getCondition();
+                                            boolean torchOn = false;
+                                            boolean isStelthed = false;
                                             if (condition.equalsIgnoreCase("light")) {
                                                 if (boolPuzzle.solve(roomsList.get(6).getPuzzle().getIsSolved())) {
                                                     boolPuzzle.setIsSolved(true);
-                                                    view.outputString("The conditions have been met. Puzzle solved.");
+                                                    view.outputString("The light made the scarabs scatter away!");
                                                     List<Artifact> loot = player.getRoom().getLoot();
                                                     player.getRoom().playerGetsLoot(player);
                                                     view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                 } else {
-                                                    view.outputString("You have not met the conditions.");
+                                                    view.outputString("Yo");
                                                     player.setHp(player.getHp() - 5);
                                                     view.outputString("You took 5 damage!");
+                                                }
+                                            } else if (condition.equalsIgnoreCase("torch")) {
+                                                if (boolPuzzle.solve(torchOn)) {
+                                                    view.outputString("The torch lights up the room. It's safe to proceed.");
+                                                    List<Artifact> loot = player.getRoom().getLoot();
+                                                    player.getRoom().playerGetsLoot(player);
+                                                    view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
+                                                } else {
+                                                    player.setHp(player.getHp() - 5);
+                                                    view.outputString("It was too dark to proceed. You took 5 damage!");
+                                                }
+                                            } else if (condition.equalsIgnoreCase("stealth")) {
+                                                if (boolPuzzle.solve(isStelthed)) {
+                                                    view.outputString("You were able to sneak up and disable the statue.");
+                                                    List<Artifact> loot = player.getRoom().getLoot();
+                                                    player.getRoom().playerGetsLoot(player);
+                                                    view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
+                                                } else {
+                                                    player.setHp(player.getHp() - 5);
+                                                    view.outputString("The statue zapped you! You took 5 damage! ");
                                                 }
                                             }
                                         }
                                         case Puzzle.SequencePuzzle seqPuzzle -> {
+                                            List<List<String>> colorTiles = seqPuzzle.generateColorTiles();
+                                            int i = 0;
                                             while (!seqPuzzle.isComplete() && player.getHp() > 0) {
+                                                if (seqPuzzle.getName().equalsIgnoreCase("Arrow Trap")) {
+                                                    view.outputString(String.valueOf(colorTiles.get(i)));
+                                                }
                                                 view.outputString(seqPuzzle.getCurrentDescription());
                                                 answer = view.getAnswer();
-                                                if (seqPuzzle.solve(answer)) {
+                                                int count = 0;
+                                                if (colorTiles.get(i).contains(answer)) {
+
+                                                    for (String color : colorTiles.get(i)) {
+                                                        if (color.equalsIgnoreCase(answer)) {
+                                                            count++;
+                                                        }
+                                                    }
+                                                }
+                                                if (seqPuzzle.solve(answer) || count >= 2) {
                                                     view.outputString("Correct! Solved Riddle " + seqPuzzle.getIndex());
+                                                    i++;
                                                 } else {
                                                     view.outputString("Wrong!");
                                                     player.setHp(player.getHp() - 5);
@@ -697,5 +747,26 @@ public class GameController {
             System.exit(0);
         }
         return -1;
+    }
+
+    public boolean canProceed(Room currentRoom, Room nextRoom) {
+        Puzzle p = currentRoom.getPuzzle();
+        if (p != null && !p.getIsSolved() && nextRoom.getRoomId() != player.getPriorRoom()) {
+            int roomID = currentRoom.getRoomId();
+            if (roomID == 18) {
+                view.outputString("You have not been proven worthy. Approach the statue.");
+                return false;
+            }
+            if (roomID == 5 || roomID == 24) {
+                view.outputString("There's a deep pit in the way. You need to interact with it carefully.");
+                return false;
+            }
+            if (roomID == 12) {
+                player.setHp(player.getHp() - 5);
+                view.outputString("The floor is booby trapped! You took 5 damage!");
+                return false;
+            }
+        }
+        return true;
     }
 }
