@@ -57,6 +57,7 @@ public class GameController {
         // Resets on each iteration, defaults to true for first iteration of while loop to print the
         // room player starts in when game is initialized.
         boolean isMovingRooms = true;
+        boolean isStelthed = false;
 
         while (true) {
             boolean hasMovedRooms = false;
@@ -80,26 +81,30 @@ public class GameController {
             //This will try to get the monster currently in the room
 
             Monster monster = GameStateManager.getMonsterInRoom(player.getRoom().getRoomId());
-            if (monster != null && monster.isDefeated() == false){
-
+            if (monster != null && !monster.isDefeated()){
                 Scanner sc = new Scanner(System.in);
                 view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
-                System.out.println("Enter fight or flee: ");
-                String choice = sc.nextLine();
-                if (choice.equalsIgnoreCase("fight")) {
-                    int nextRoom = fightMonster(monster);
-                    if (nextRoom != -1) {
+                boolean validChoice = false;
+                while (!validChoice) {
+                    System.out.println("Enter fight or flee: ");
+                    String choice = sc.nextLine();
+                    if (choice.equalsIgnoreCase("fight")) {
+                        int nextRoom = fightMonster(monster);
+                        if (nextRoom != -1) {
+                            isMovingRooms = true;
+                            nextRoomIndex = nextRoom;
+                        }
+                        validChoice = true;
+                    } else if (choice.equalsIgnoreCase("flee")) {
+                        view.outputString("You flee from " + monster.getName() + ".");
+                        nextRoomIndex = player.getPriorRoom();
+                        player.setRoom(getRoom(nextRoomIndex));
                         isMovingRooms = true;
-                        nextRoomIndex = nextRoom;
+                        validChoice = true;
+                    } else {
+                        System.out.println("Invalid choice: Fight or flee");
+                        continue;
                     }
-                } else if (choice.equalsIgnoreCase("flee")) {
-                    view.outputString("You flee from " + monster.getName() + ".");
-                    nextRoomIndex = player.getPriorRoom();
-                    player.setRoom(getRoom(nextRoomIndex));
-                    isMovingRooms = true;
-                } else {
-                    System.out.println("Invalid choice: Fight or flee");
-                    continue;
                 }
             }
 
@@ -142,9 +147,9 @@ public class GameController {
                                 } else {
                                     isMovingRooms = false;
                                     if (nextRoomIndex == 0) {
-                                            view.outputString("You can't go this way.");
+                                        view.outputString("You can't go this way.");
                                     } else {
-                                            view.outputString("Insufficient numbers of keys obtained to go here. You must have " + r.getLockConditions() + " keys. You currently have " + player.getKeys().size() + ".");
+                                        view.outputString("Insufficient numbers of keys obtained to go here. You must have " + r.getLockConditions() + " keys. You currently have " + player.getKeys().size() + ".");
                                     }
                                 }
                             } else {
@@ -197,7 +202,7 @@ public class GameController {
                                         view.outputString("Description: " + a.getDescription());
                                         view.outputString("Effect: " + a.getTextEffect());
                                         view.outputString("Options: PICKUP " + a.getName() + " | IGNORE " + a.getName() + " | SWAP " + a.getName());
-                                    }  else if(a.getType().equals("object")) {
+                                    } else if (a.getType().equals("object")) {
                                         view.outputString("Item found: " + a.getName());
                                         view.outputString("Description: " + a.getDescription());
                                         view.outputString("Options: PICKUP " + a.getName());
@@ -274,7 +279,32 @@ public class GameController {
                                 view.outputString("You don't have an item named '" + itemName + "' in your inventory.");
                                 break;
                             }
+                            if (itemName.equalsIgnoreCase("amulet")) {
+                                if (player.getRoom().getPuzzle() == null) {
+                                    view.outputString("You have no puzzles in this room to solve.");
+                                    break;
+                                }
 
+                                if (player.getRoom().getPuzzle().getIsSolved()) {
+                                    view.outputString("This puzzle is already solved.");
+                                } else {
+                                    player.getRoom().getPuzzle().setIsSolved(true);
+                                    ArrayList<Artifact> loot = player.getRoom().getLoot();
+                                    for (Artifact a : loot) {
+                                        view.outputString("You received the following loot: " + a.getName());
+                                    }
+                                    player.getRoom().playerGetsLoot(player);
+                                    player.incrementAmuletUses();
+                                    if (player.getAmuletUses() >= 3) {
+                                        view.outputString("You have used the Amulet 3 times. Its power has faded.");
+                                        player.removeFromInventory(itemToUse);
+                                        break;
+                                    }
+                                    view.outputString("You used the Amulet to solve the puzzle. (" +
+                                            player.getAmuletUses() + "/3 uses)");
+                                }
+                                break;
+                            }
                             if (itemToUse instanceof Consumable) {
                                 Consumable consumable = (Consumable) itemToUse;
                                 if (consumable.isUsable()) {
@@ -371,6 +401,12 @@ public class GameController {
                             player.getInventory().forEach((Artifact a) -> {
                                 view.outputString(a.getName() + " - " + a.getTextEffect());
                             });
+                            if (!player.getKeys().isEmpty()) {
+                                view.outputString("Keys:");
+                                player.getKeys().forEach((Artifact a) -> {
+                                    view.outputString(a.getName());
+                                });
+                            }
                         }
                         case "LISTEN" -> {
                             isMovingRooms = false;
@@ -387,6 +423,7 @@ public class GameController {
                             while (target.isEmpty()) {
                                 view.outputString("You haven't specified a target.");
                                 command = view.getRoomInput();
+                                target = String.join(" ", Arrays.copyOfRange(command, 1, command.length)).trim();
                             }
                             for (Artifact a : player.getRoom().getArtifacts()) {
                                 if (target.equalsIgnoreCase(a.getName())) {
@@ -421,7 +458,7 @@ public class GameController {
                                             Random random = new Random();
                                             String correctPath = paths[random.nextInt(paths.length)];
                                             if (standardPuzzle.getName().equalsIgnoreCase("Pit Crossing")) {
-                                                view.outputString(Arrays.toString(paths));
+                                                view.outputString("Paths: " + Arrays.toString(paths));
                                             }
                                             do {
                                                 answer = view.getAnswer();
@@ -471,8 +508,6 @@ public class GameController {
                                         }
                                         case Puzzle.BooleanPuzzle boolPuzzle -> {
                                             String condition = boolPuzzle.getCondition();
-                                            boolean torchOn = false;
-                                            boolean isStelthed = false;
                                             if (condition.equalsIgnoreCase("light")) {
                                                 if (boolPuzzle.solve(roomsList.get(6).getPuzzle().getIsSolved())) {
                                                     boolPuzzle.setIsSolved(true);
@@ -485,38 +520,38 @@ public class GameController {
                                                     player.setHp(player.getHp() - 2);
                                                     view.outputString("You took 2 damage!");
                                                 }
-                                            } else if (condition.equalsIgnoreCase("torch")) {
-                                                if (boolPuzzle.solve(torchOn)) {
-                                                    view.outputString("The torch lights up the room. It's safe to proceed.");
-                                                    List<Artifact> loot = player.getRoom().getLoot();
-                                                    player.getRoom().playerGetsLoot(player);
-                                                    view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
-                                                } else {
-                                                    player.setHp(player.getHp() - 2);
-                                                    view.outputString("It was too dark to proceed. You took 5 damage!");
-                                                }
-                                            } else if (condition.equalsIgnoreCase("stealth")) {
+                                            }
+                                            if (condition.equalsIgnoreCase("stealth")) {
                                                 if (boolPuzzle.solve(isStelthed)) {
                                                     view.outputString("You were able to sneak up and disable the statue.");
                                                     List<Artifact> loot = player.getRoom().getLoot();
                                                     player.getRoom().playerGetsLoot(player);
                                                     view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
                                                 } else {
-                                                    player.setHp(player.getHp() - 5);
-                                                    view.outputString("The statue zapped you! You took 5 damage! ");
+                                                    player.setHp(player.getHp() - 2);
+                                                    view.outputString("The statue zapped you! You took 2 damage! ");
                                                 }
-                                                if (player.getHp() <= 0) {
-                                                    view.outputString("GAME OVER!");
-                                                    view.outputString("Would you like to restart? (Y/N)");
-                                                    answer = view.getAnswer();
-                                                    if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
-                                                        gsm.resetGame(player);
-                                                        view.printGameTitle();
-                                                        view.outputString("Welcome to Pyramid Plunder " + player.getName() + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
-                                                        startGame();
-                                                    } else if (answer.equalsIgnoreCase("n") || answer.equalsIgnoreCase("no")) {
-                                                        System.exit(0);
-                                                    }
+                                            }
+                                            if (condition.equalsIgnoreCase("stats")) {
+                                                if (player.getStr() >= 10 && player.getDef() >= 4) {
+                                                    boolPuzzle.setIsSolved(true);
+                                                    view.outputString("You are worthy. Proceed.");
+                                                    List<Artifact> loot = player.getRoom().getLoot();
+                                                    player.getRoom().playerGetsLoot(player);
+                                                    view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
+                                                }
+                                            }
+                                            if (player.getHp() <= 0) {
+                                                view.outputString("GAME OVER!");
+                                                view.outputString("Would you like to restart? (Y/N)");
+                                                answer = view.getAnswer();
+                                                if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
+                                                    gsm.resetGame(player);
+                                                    view.printGameTitle();
+                                                    view.outputString("Welcome to Pyramid Plunder " + player.getName() + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
+                                                    startGame();
+                                                } else if (answer.equalsIgnoreCase("n") || answer.equalsIgnoreCase("no")) {
+                                                    System.exit(0);
                                                 }
                                             }
                                         }
@@ -665,6 +700,10 @@ public class GameController {
                                 view.outputString("Invalid Puzzle.");
                             }
                         }
+                        case "SNEAK", "STEALTH", "CROUCH" -> {
+                            isStelthed = true;
+                            view.outputString("You are now sneaking.");
+                        }
                         case "EXIT", "X" -> {
                             view.outputString("Thanks for playing Pyramid Plunder!");
                             System.exit(0);
@@ -747,11 +786,9 @@ public class GameController {
         Scanner sc = new Scanner(System.in);
 
         boolean isFlee = false;
-        // Implement the logic for fighting the monster
-
-        view.outputString("You engage in a fight with " + monster.getName() + "!");
+        System.out.println("You engage in a fight with " + monster.getName() + "!");
         while (monster.getHealth() > 0 && player.getHp() > 0) {
-            System.out.println("Enter fight, block, use item, or flee:  ");
+            System.out.println("Enter fight, block, or flee:  ");
             String choice = sc.nextLine();
             if (choice.equalsIgnoreCase("fight")){
                 monster.takeDamage(player.getStr());
@@ -771,13 +808,12 @@ public class GameController {
             } else if (choice.equalsIgnoreCase("flee")) {
 
                 //implement flee function
-
-                player.setRoom(getRoom(player.getPriorRoom()));
+                int priorRoom = player.getPriorRoom();
+                player.setRoom(getRoom(priorRoom));
                 isFlee = true;
-                break;
-
+                return priorRoom;  // Return the prior room number instead of breaking
             }else {
-                System.out.println("Invalid response. Enter fight, block, use item, or flee.");
+                System.out.println("Invalid response. Enter fight, block, or flee.");
                 continue;
             }
             // Assuming the monster has at least one attack
@@ -786,15 +822,23 @@ public class GameController {
             monster.setPlayerBlocking(false);
         }
         if (monster.getHealth() <= 0) {
-            view.outputString("You defeated the " + monster.getName() + "!");
+            System.out.println("You defeated the " + monster.getName() + "!");
             monster.setDefeated(true);
+            GameStateManager.addDefeatedMonster(monster.getName());  // Add this line
             for (Artifact a : player.getRoom().getLoot()) {
-                view.outputString("You received the following loot: " + a.getName());
+                System.out.println("You received the following loot: " + a.getName());
                 player.addToInventory(a);
+                view.outputString("You received the following loot: " + a.getName());
+                if (a.getType().equals("key")) {
+                    player.addToInventory(a);
+                } else {
+                    player.getRoom().addArtifact(a);
+                }
             }
-        } else {
+        }
+        else {
             player.setHp(0);
-            view.outputString("You were defeated by the " + monster.getName() + ".");
+            System.out.println("You were defeated by the " + monster.getName() + ".");
             System.out.println("Game over");
             System.exit(0);
         }
@@ -811,11 +855,6 @@ public class GameController {
             }
             if (roomID == 5 || roomID == 24) {
                 view.outputString("There's a deep pit in the way. You need to interact with it carefully.");
-                return false;
-            }
-            if (roomID == 12) {
-                player.setHp(player.getHp() - 2);
-                view.outputString("The floor is booby trapped! You took 5 damage!");
                 return false;
             }
         }

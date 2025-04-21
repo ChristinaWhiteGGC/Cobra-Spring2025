@@ -18,6 +18,15 @@ public class Player extends Character {
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
    private final ArrayList<Artifact> keys = new ArrayList<>();
+   private int amuletUses = 0;
+
+   public int getAmuletUses() {
+      return amuletUses;
+   }
+
+   public void incrementAmuletUses() {
+      amuletUses++;
+   }
 
    private boolean isResurrectable = false;
 
@@ -25,8 +34,8 @@ public class Player extends Character {
       super(name, baseHp, baseStrength, baseDefense);
       this.inventoryList = new HashMap<>();
       this.setBaseHealth(100);
-      this.setBaseStrength(1);
-      this.setBaseDefense(1);
+      this.setBaseStrength(1000);
+      this.setBaseDefense(1000);
    }
 
    public void clearInventory() {
@@ -39,7 +48,7 @@ public class Player extends Character {
 
    public Artifact getInventoryArtifactByName(String name) {
       for (Artifact artifact : inventoryList.values()) {
-         if (artifact.getName().equals(name)) {
+         if (artifact.getName().equalsIgnoreCase(name)) {
             return artifact;
          }
       }

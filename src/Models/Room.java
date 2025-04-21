@@ -187,7 +187,7 @@ public class Room {
         for (Artifact a : lootList) {
             if (!a.getType().equals("key")) {
                 this.addArtifact(a);
-                this.removeArtifact(a);
+                this.removeLoot(a);
             } else {
                 p.addToInventory(a);
             }

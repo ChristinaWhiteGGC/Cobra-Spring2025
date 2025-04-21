@@ -5,7 +5,6 @@ A3|armor|Greaves|Shin protectors for when the enemy tries to get crafty.|DEF2|Ad
 A4|armor|Tjeket|Egyptian shield to deflect against archers and short range weapons.|DEF6|Adds +6 to player defense
 W1|weapon|Bow|Medium to long range weapon that while slow has the advantage of attacking from afar.|STR5|Adds +5 to player strength
 W2|weapon|Spear|Used for thrusting into the enemy with abandon.|STR10|Adds +10 to player strength
-W3|weapon|Golden Spear|A spear of legend.|STR8|Adds +8 to player strength
 M1|magic|Crook of Osiris|Owned by the Egyptian god of the afterlife, now in possession by a mere mortal.|MAG1|Upon death you resurrect from the dead with half health. The enemy is stunned for 2 turns.
 M2|magic|Amulet|Said to have belonged to a pharaoh of old.|MAG2|Enables player to automatically solve 3 puzzles
 C1|consumable|Buff Tonic|Tastes bitter but grants improvement to a desired stat.|STR5|+5 STR. Usable every 5 new/unvisited rooms.
