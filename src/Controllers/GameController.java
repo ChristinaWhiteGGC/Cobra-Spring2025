@@ -58,6 +58,7 @@ public class GameController {
         // Resets on each iteration, defaults to true for first iteration of while loop to print the
         // room player starts in when game is initialized.
         boolean isMovingRooms = true;
+        boolean isStelthed = false;
 
         while (true) {
             boolean hasMovedRooms = false;
@@ -418,6 +419,7 @@ public class GameController {
                             while (target.isEmpty()) {
                                 view.outputString("You haven't specified a target.");
                                 command = view.getRoomInput();
+                                target = String.join(" ", Arrays.copyOfRange(command, 1, command.length)).trim();
                             }
                             for (Artifact a : player.getRoom().getArtifacts()) {
                                 if (target.equalsIgnoreCase(a.getName())) {
@@ -452,7 +454,7 @@ public class GameController {
                                             Random random = new Random();
                                             String correctPath = paths[random.nextInt(paths.length)];
                                             if (standardPuzzle.getName().equalsIgnoreCase("Pit Crossing")) {
-                                                view.outputString(Arrays.toString(paths));
+                                                view.outputString("Paths: " + Arrays.toString(paths));
                                             }
                                             do {
                                                 answer = view.getAnswer();
@@ -480,10 +482,10 @@ public class GameController {
                                                             view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                         }
                                                     }
-                                                } else if (!answer.equalsIgnoreCase("hint")) {
-                                                    player.setHp(player.getHp() - 5);
+                                                } else if (!answer.equalsIgnoreCase("hint")){
+                                                    player.setHp(player.getHp() - 2);
                                                     attempts++;
-                                                    view.outputString("Wrong! You took 5 damage!");
+                                                    view.outputString("Wrong! You took 2 damage!");
                                                 }
                                                 if (player.getHp() <= 0) {
                                                     view.outputString("GAME OVER!");
@@ -505,8 +507,6 @@ public class GameController {
                                         }
                                         case Puzzle.BooleanPuzzle boolPuzzle -> {
                                             String condition = boolPuzzle.getCondition();
-                                            boolean torchOn = false;
-                                            boolean isStelthed = false;
                                             if (condition.equalsIgnoreCase("light")) {
                                                 if (boolPuzzle.solve(roomsList.get(6).getPuzzle().getIsSolved())) {
                                                     boolPuzzle.setIsSolved(true);
@@ -516,65 +516,89 @@ public class GameController {
                                                     view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                 } else {
                                                     view.outputString("You have not met the conditions.");
-                                                    player.setHp(player.getHp() - 5);
-                                                    view.outputString("You took 5 damage!");
+                                                    player.setHp(player.getHp() - 2);
+                                                    view.outputString("You took 2 damage!");
                                                 }
-                                            } else if (condition.equalsIgnoreCase("torch")) {
-                                                if (boolPuzzle.solve(torchOn)) {
-                                                    view.outputString("The torch lights up the room. It's safe to proceed.");
-                                                    List<Artifact> loot = player.getRoom().getLoot();
-                                                    player.getRoom().playerGetsLoot(player);
-                                                    view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
-                                                } else {
-                                                    player.setHp(player.getHp() - 5);
-                                                    view.outputString("It was too dark to proceed. You took 5 damage!");
-                                                }
-                                            } else if (condition.equalsIgnoreCase("stealth")) {
+                                            }
+                                            if (condition.equalsIgnoreCase("stealth")) {
                                                 if (boolPuzzle.solve(isStelthed)) {
                                                     view.outputString("You were able to sneak up and disable the statue.");
                                                     List<Artifact> loot = player.getRoom().getLoot();
                                                     player.getRoom().playerGetsLoot(player);
                                                     view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
                                                 } else {
-                                                    player.setHp(player.getHp() - 5);
-                                                    view.outputString("The statue zapped you! You took 5 damage! ");
+                                                    player.setHp(player.getHp() - 2);
+                                                    view.outputString("The statue zapped you! You took 2 damage! ");
+                                                }
+                                            }
+                                            if (condition.equalsIgnoreCase("stats")) {
+                                                if (player.getStr() >= 10 && player.getDef() >= 4) {
+                                                    boolPuzzle.setIsSolved(true);
+                                                    view.outputString("You are worthy. Proceed.");
+                                                    List<Artifact> loot = player.getRoom().getLoot();
+                                                    player.getRoom().playerGetsLoot(player);
+                                                    view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
+                                                }
+                                            }
+                                            if (player.getHp() <= 0) {
+                                                view.outputString("GAME OVER!");
+                                                view.outputString("Would you like to restart? (Y/N)");
+                                                answer = view.getAnswer();
+                                                if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
+                                                    gsm.resetGame();
+                                                    view.printGameTitle();
+                                                    view.outputString("Welcome to Pyramid Plunder " + player.getName() + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
+                                                    startGame();
+                                                } else if (answer.equalsIgnoreCase("n") || answer.equalsIgnoreCase("no")) {
+                                                    System.exit(0);
                                                 }
                                             }
                                         }
                                         case Puzzle.SequencePuzzle seqPuzzle -> {
                                             List<List<String>> colorTiles = seqPuzzle.generateColorTiles();
                                             int i = 0;
-                                            while (!seqPuzzle.isComplete() && player.getHp() > 0) {
+                                            while (!seqPuzzle.isComplete(i)) {
                                                 if (seqPuzzle.getName().equalsIgnoreCase("Arrow Trap")) {
                                                     view.outputString(String.valueOf(colorTiles.get(i)));
                                                 }
                                                 view.outputString(seqPuzzle.getCurrentDescription());
                                                 answer = view.getAnswer();
                                                 int count = 0;
-                                                if (colorTiles.get(i).contains(answer)) {
-
-                                                    for (String color : colorTiles.get(i)) {
-                                                        if (color.equalsIgnoreCase(answer)) {
-                                                            count++;
-                                                        }
+                                                String[] colors = colorTiles.get(i).toArray(new String[0]);
+                                                for  (String color : colors ) {
+                                                    if (color.equalsIgnoreCase(answer)) {
+                                                        count++;
                                                     }
                                                 }
                                                 if (seqPuzzle.solve(answer) || count >= 2) {
-                                                    view.outputString("Correct! Solved Riddle " + seqPuzzle.getIndex());
+                                                    view.outputString("Correct! Solved Riddle " + (i + 1));
                                                     i++;
                                                 } else {
                                                     view.outputString("Wrong!");
-                                                    player.setHp(player.getHp() - 5);
-                                                    view.outputString("You took 5 damage!");
+                                                    player.setHp(player.getHp() - 2);
+                                                    view.outputString("You took 2 damage!");
                                                     view.outputString("Try again.");
                                                 }
-                                                if (seqPuzzle.isComplete()) {
+                                                if (seqPuzzle.isComplete(i)) {
                                                     seqPuzzle.setIsSolved(true);
                                                     view.outputString("You solved all riddles!");
                                                     List<Artifact> loot = player.getRoom().getLoot();
                                                     player.getRoom().playerGetsLoot(player);
                                                     view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                     break;
+                                                }
+                                                if (player.getHp() <= 0) {
+                                                    view.outputString("GAME OVER!");
+                                                    view.outputString("Would you like to restart? (Y/N)");
+                                                    answer = view.getAnswer();
+                                                    if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
+                                                        gsm.resetGame();
+                                                        view.printGameTitle();
+                                                        view.outputString("Welcome to Pyramid Plunder " + player.getName() + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
+                                                        startGame();
+                                                    } else if (answer.equalsIgnoreCase("n") || answer.equalsIgnoreCase("no")) {
+                                                        System.exit(0);
+                                                    }
                                                 }
                                             }
                                         }
@@ -614,11 +638,24 @@ public class GameController {
                                                         if (sumOfWeight > 100) {
                                                             view.outputString("Too much weight.");
                                                         }
-                                                        view.outputString("Wrong! You took 5 damage!");
-                                                        player.setHp(player.getHp() - 5);
+                                                        view.outputString("Wrong! You took 2 damage!");
+                                                        player.setHp(player.getHp() - 2);
                                                         attempts++;
                                                     }
-                                                } while (player.getHp() > 0 && !puzzle.getIsSolved());
+                                                    if (player.getHp() <= 0) {
+                                                        view.outputString("GAME OVER!");
+                                                        view.outputString("Would you like to restart? (Y/N)");
+                                                        answer = view.getAnswer();
+                                                        if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
+                                                            gsm.resetGame();
+                                                            view.printGameTitle();
+                                                            view.outputString("Welcome to Pyramid Plunder " + player.getName() + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
+                                                            startGame();
+                                                        } else if (answer.equalsIgnoreCase("n") || answer.equalsIgnoreCase("no")) {
+                                                            System.exit(0);
+                                                        }
+                                                    }
+                                                } while (!puzzle.getIsSolved());
                                             }
                                             if (target.equalsIgnoreCase("Light the Torches")) {
                                                 List<String> torches = new ArrayList<>(List.of("1", "2", "3"));
@@ -647,11 +684,11 @@ public class GameController {
                                                         view.outputString("You solved the puzzle!");
                                                         player.getRoom().playerGetsLoot(player);
                                                     } else if (!answer.equalsIgnoreCase("hint")) {
-                                                        view.outputString("Wrong! You took 5 damage!");
-                                                        player.setHp(player.getHp() - 5);
+                                                        view.outputString("Wrong! You took 2 damage!");
+                                                        player.setHp(player.getHp() - 2);
                                                         attempts++;
                                                     }
-                                                } while (player.getHp() > 0 && !puzzle.getIsSolved());
+                                                } while (!puzzle.getIsSolved());
                                             }
                                         }
                                         default -> {
@@ -661,6 +698,10 @@ public class GameController {
                             } else {
                                 view.outputString("Invalid Puzzle.");
                             }
+                        }
+                        case "SNEAK", "STEALTH", "CROUCH" -> {
+                            isStelthed = true;
+                            view.outputString("You are now sneaking.");
                         }
                         case "EXIT", "X" -> {
                             view.outputString("Thanks for playing Pyramid Plunder!");
@@ -722,6 +763,24 @@ public class GameController {
         return roomsList.get(roomIndex);
     }
 
+    private Monster getMonsterInRoom(int roomIndex) {
+        try {
+            // Implement logic to get the monster in the room based on roomIndex
+            Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
+            // this could involve checking the monster's locations
+            for (Monster monster : monstersList.values()) {
+                for (String location : monster.getLocations()) {
+                    if (Integer.parseInt(location) == roomIndex) {
+                        return monster;
+                    }
+                }
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        return null;
+    }
+
     private int fightMonster(Monster monster) {
         Scanner sc = new Scanner(System.in);
 
@@ -734,7 +793,19 @@ public class GameController {
                 monster.takeDamage(player.getStr());
             } else if (choice.equalsIgnoreCase("block")) {
                 monster.setPlayerBlocking(true);
+            } else if (choice.contains("use")) {
+                //implement item usage
+                System.out.println("Enter name of item: ");
+                String itemName = sc.nextLine();
+                if (player.getInventoryArtifactByName(itemName) != null) {
+                    //implement use item logic ONLY if item is consumable
+                    player.getArtifactByType("Consumable");
+                }
+                else {
+                    System.out.println("Item is not in inventory.");
+                }
             } else if (choice.equalsIgnoreCase("flee")) {
+
                 //implement flee function
                 int priorRoom = player.getPriorRoom();
                 player.setRoom(getRoom(priorRoom));
@@ -783,11 +854,6 @@ public class GameController {
             }
             if (roomID == 5 || roomID == 24) {
                 view.outputString("There's a deep pit in the way. You need to interact with it carefully.");
-                return false;
-            }
-            if (roomID == 12) {
-                player.setHp(player.getHp() - 5);
-                view.outputString("The floor is booby trapped! You took 5 damage!");
                 return false;
             }
         }

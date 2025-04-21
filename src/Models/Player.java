@@ -34,8 +34,8 @@ public class Player extends Character {
       super(name, baseHp, baseStrength, baseDefense);
       this.inventoryList = new HashMap<>();
       this.setBaseHealth(100);
-      this.setBaseStrength(1);
-      this.setBaseDefense(1);
+      this.setBaseStrength(1000);
+      this.setBaseDefense(1000);
    }
 
    public void clearInventory() {
