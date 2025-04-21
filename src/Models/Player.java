@@ -18,6 +18,15 @@ public class Player extends Character {
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
    private final ArrayList<Artifact> keys = new ArrayList<>();
+   private int crookOfOsirisUses = 0;
+
+   public int getCrookOfOsirisUses() {
+      return crookOfOsirisUses;
+   }
+
+   public void incrementCrookOfOsirisUses() {
+      crookOfOsirisUses++;
+   }
 
    private boolean isResurrectable = false;
 

@@ -274,7 +274,32 @@ public class GameController {
                                 view.outputString("You don't have an item named '" + itemName + "' in your inventory.");
                                 break;
                             }
+                            if (itemName.equalsIgnoreCase("crook of osiris")) {
+                                if (player.getRoom().getPuzzle() == null) {
+                                    view.outputString("You have no puzzles in this room to solve.");
+                                    break;
+                                }
 
+                                if (player.getRoom().getPuzzle().getIsSolved()) {
+                                    view.outputString("This puzzle is already solved.");
+                                } else {
+                                    player.getRoom().getPuzzle().setIsSolved(true);
+                                    ArrayList<Artifact> loot = player.getRoom().getLoot();
+                                    for (Artifact a : loot) {
+                                        view.outputString("You received the following loot: " + a.getName());
+                                    }
+                                    player.getRoom().playerGetsLoot(player);
+                                    player.incrementCrookOfOsirisUses();
+                                    if (player.getCrookOfOsirisUses() >= 3) {
+                                        view.outputString("You have used the Crook of Osiris 3 times. Its power has faded.");
+                                        player.removeFromInventory(itemToUse);
+                                        break;
+                                    }
+                                    view.outputString("You used the Crook of Osiris to solve the puzzle. (" +
+                                            player.getCrookOfOsirisUses() + "/3 uses)");
+                                }
+                                break;
+                            }
                             if (itemToUse instanceof Consumable) {
                                 Consumable consumable = (Consumable) itemToUse;
                                 if (consumable.isUsable()) {
@@ -371,6 +396,12 @@ public class GameController {
                             player.getInventory().forEach((Artifact a) -> {
                                 view.outputString(a.getName() + " - " + a.getTextEffect());
                             });
+                            if (!player.getKeys().isEmpty()) {
+                                view.outputString("Keys:");
+                                player.getKeys().forEach((Artifact a) -> {
+                                    view.outputString(a.getName());
+                                });
+                            }
                         }
                         case "LISTEN" -> {
                             isMovingRooms = false;
@@ -753,7 +784,11 @@ public class GameController {
             monster.setDefeated(true);
             for (Artifact a : player.getRoom().getLoot()) {
                 view.outputString("You received the following loot: " + a.getName());
-                player.addToInventory(a);
+                if (a.getType().equals("key")) {
+                    player.addToInventory(a);
+                } else {
+                    player.getRoom().addArtifact(a);
+                }
             }
         } else {
             player.setHp(0);
