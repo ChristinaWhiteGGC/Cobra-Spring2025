@@ -172,8 +172,8 @@ public abstract class Puzzle {
             return index;
         }
 
-        public boolean isComplete() {
-            return index >= rightAnswers.size();
+        public boolean isComplete(int num) {
+            return num >= 5;
         }
 
         public String getCurrentPrompt() {
@@ -184,16 +184,18 @@ public abstract class Puzzle {
         public List<List<String>> generateColorTiles() {
             Random random = new Random();
             List<List<String>> colorTiles = new ArrayList<>();
+            String[] colors = rightAnswers.get(0).split(",");
             for (int i = 0; i < 5; i++) {
-                String color1 = rightAnswers.get(random.nextInt(5));
-                String color2 = rightAnswers.get(random.nextInt(5));
-                while (color2.equals(color1)) {
-                    color2 = rightAnswers.get(random.nextInt(5));
-                }
-                colorTiles.add(Arrays.asList(color1, color1, color2));
-                for (List<String> colorGroup : colorTiles) {
-                    Collections.shuffle(colorGroup);
-                }
+                int index = random.nextInt(colors.length);
+                List<String> colorGroup = new ArrayList<>();
+                colorGroup.add(colors[index]);
+                colorGroup.add(colors[index]);
+                do {
+                    index = random.nextInt(colors.length);
+                } while (colorGroup.contains(colors[index]));
+                colorGroup.add(colors[index]);
+                Collections.shuffle(colorGroup);
+                colorTiles.add(colorGroup);
             }
             return colorTiles;
         }

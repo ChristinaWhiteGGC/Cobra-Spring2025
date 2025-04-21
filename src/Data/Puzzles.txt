@@ -3,7 +3,7 @@ MULTI|Balancing Scale|Find the correct combination of 3 out of the 5 weights to 
 BOOL|Scarab Distraction|A swarm of mechanical scarabs guard the second key. Find a way to distract them.|light|7
 MULTI|Light the Torches|There are 3 torches. 1, 2, 3. Enter the numbers in an order to light the torches in the believed order.|1 2 3|6
 STND|Riddle of Light Reflection|"I am not a light, yet I can brighten a room. Bend me, and I will guide your path. But without me, all remains in gloom. What am I?"|Mirror|9
-SEQ|Arrow Trap|A booby-trapped floor blocks the next room. Search the room to reveal colored tiles. Choose your path carefully.|Red, Green, Blue, Yellow, White|12
+SEQ|Arrow Trap|A booby-trapped floor blocks the next room. Search the room to reveal colored tiles. Choose your path carefully.|Red,Green,Blue,Yellow,White|12
 BOOL|Guardian Sneaking|A guardian statue scans this room for movement. Proceed cautiously to get to the next room.|stealth|14
 STND|Riddle of the Obelisk|"Born of the sun, yet I bring the night. With a single gaze, I take away sight. Who am I?"|Solar Eclipse|15
 STND|Guardian's Riddle|"I am the guide of souls, yet I have no feet to walk. I weigh the hearts of mortals, yet I hold no scale. Who am I?"|Anubis|1, 18
