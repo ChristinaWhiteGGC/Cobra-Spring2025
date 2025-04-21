@@ -22,6 +22,7 @@ public class GameStateManager {
     private final Map<String, Artifact> artifactsList = new HashMap<>();
     private final Map<String, Monster> monstersList = new HashMap<>();
     private final Map<String, Puzzle> puzzlesList = new HashMap<>();
+    private static Set<String> defeatedMonsters = new HashSet<>();
 
     public void resetGame(Player player) {
         try {
@@ -301,17 +302,25 @@ public class GameStateManager {
     public static Monster getMonsterInRoom(int roomIndex) {
         try {
             Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
-            // this could involve checking the monster's locations
             for (Monster monster : monstersList.values()) {
                 for (String location : monster.getLocations()) {
-                    if (Integer.parseInt(location) == roomIndex) {
+                    if (Integer.parseInt(location) == roomIndex && !GameStateManager.isMonsterDefeated(monster.getName())) {
                         return monster;
                     }
                 }
             }
-        }catch (IOException ioe){
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         return null;
+    }
+
+
+    public static void addDefeatedMonster(String name) {
+        defeatedMonsters.add(name);
+    }
+
+    public static boolean isMonsterDefeated(String monsterName){
+        return defeatedMonsters.contains(monsterName);
     }
 }
