@@ -18,6 +18,15 @@ public class Player extends Character {
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
    private final ArrayList<Artifact> keys = new ArrayList<>();
+   private int crookOfOsirisUses = 0;
+
+   public int getCrookOfOsirisUses() {
+      return crookOfOsirisUses;
+   }
+
+   public void incrementCrookOfOsirisUses() {
+      crookOfOsirisUses++;
+   }
 
    private boolean isResurrectable = false;
 
@@ -35,6 +44,15 @@ public class Player extends Character {
 
    public Collection<Artifact> getInventory() {
       return inventoryList.values();
+   }
+
+   public Artifact getInventoryArtifactByName(String name) {
+      for (Artifact artifact : inventoryList.values()) {
+         if (artifact.getName().equals(name)) {
+            return artifact;
+         }
+      }
+      return null;
    }
    public ArrayList<Artifact> getKeys() {
       return keys;
@@ -93,11 +111,12 @@ public class Player extends Character {
 
    @Override
    public void takeDamage(int damage) {
-      int effectiveDamage = damage - this.getBaseDefense();
+      long damageReduction = Math.round(damage * 0.05) * this.getDef();
+      long effectiveDamage = damage - damageReduction;
       if (health < 0){
          health = 0;
       }
-      health -= effectiveDamage;
+      health -= (int) effectiveDamage;
       if (health < 0){
          health = 0;
       }
