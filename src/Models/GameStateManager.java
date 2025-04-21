@@ -23,7 +23,23 @@ public class GameStateManager {
     private final Map<String, Monster> monstersList = new HashMap<>();
     private final Map<String, Puzzle> puzzlesList = new HashMap<>();
 
-    public void resetGame(Player player) {
+    public Map<Integer, Room> getRoomsList() {
+        return roomsList;
+    }
+
+    public Map<String, Artifact> getArtifactsList() {
+        return artifactsList;
+    }
+
+    public Map<String, Monster> getMonstersList() {
+        return monstersList;
+    }
+
+    public Map<String, Puzzle> getPuzzlesList() {
+        return puzzlesList;
+    }
+
+    public void resetGame() {
         try {
             // First clear everything, then read the data files and parse
             roomsList.clear();
@@ -50,20 +66,22 @@ public class GameStateManager {
             for (Puzzle p : readPuzzles.values()) {
                 puzzlesList.put(p.getName(), p);
             }
-
-            // TODO: Remap monsters, and puzzles to rooms from data files.
-            mapArtifactsToRooms(roomsList, artifactsList);
-            mapMonstersToRooms(roomsList, monstersList);
-            mapPuzzlesToRooms(roomsList, puzzlesList);
-
-            // TODO: Verify what starting health is and set it here
-            player.setHp(100);
-            player.clearInventory();
-            player.setRoom(roomsList.get(1));
         } catch (IOException ioe) {
             System.out.println("Error reading in data files: " + ioe.getMessage());
             System.exit(1);
         }
+    }
+
+    public void mapGame(Player player) {
+        // TODO: Remap monsters, and puzzles to rooms from data files.
+        mapArtifactsToRooms(roomsList, artifactsList);
+        mapMonstersToRooms(roomsList, monstersList);
+        mapPuzzlesToRooms(roomsList, puzzlesList);
+
+        // TODO: Verify what starting health is and set it here
+        player.setHp(100);
+        player.clearInventory();
+        player.setRoom(roomsList.get(1));
     }
 
     private static void mapPuzzlesToRooms(Map<Integer, Room> roomsList, Map<String, Puzzle> puzzlesList) {
@@ -140,7 +158,7 @@ public class GameStateManager {
                             break;
                         }
                     }
-                }else {
+                } else {
                     artifact = artifactList.get(id);
                 }
 
@@ -185,7 +203,7 @@ public class GameStateManager {
         return lines;
     }
 
-    public static boolean save(String saveName, Map<Integer, Room> rooms, Map<String, Artifact> artifactsList, Player player) {
+    public static boolean save(String saveName, Map<Integer, Room> rooms, Player player) {
         try {
             PrintWriter writer = new PrintWriter(Paths.get("src", "Data", "Saves", saveName).toAbsolutePath().toString(), StandardCharsets.UTF_8);
 
@@ -203,12 +221,43 @@ public class GameStateManager {
             // Write out room state
             writer.println("Rooms:");
             for (Room r : rooms.values()) {
-                StringBuilder roomLine = new StringBuilder(r.getRoomId() + "~" + (r.getIsVisited() ? "true" : "false" + "~"));
+                StringBuilder roomLine = new StringBuilder();
+                roomLine.append("\t" + r.getRoomId());
+                roomLine.append("~" + (r.getIsVisited() ? "true" : "false"));
+                StringBuilder itemLines = new StringBuilder();
                 for (Artifact a : r.getArtifacts()) {
-                    roomLine.append(a.getId());
+                    if (a != null) {
+                        if (!itemLines.isEmpty()) {
+                            itemLines.append(",");
+                        }
+                        itemLines.append(a.getId());
+                    }
+                }
+                roomLine.append("~" + itemLines);
+                itemLines = new StringBuilder();
+                for (Artifact a : r.getLoot()) {
+                    if (a != null) {
+                        if (!itemLines.isEmpty()) {
+                            itemLines.append(",");
+                        }
+                        itemLines.append(a.getId());
+                    }
+                }
+                roomLine.append("~" + itemLines);
+                if (r.getMonster() != null && !r.getMonster().isDefeated()) {
+                    roomLine.append("~" + r.getMonster().getName());
+
+                } else {
+                    roomLine.append("~");
+                }
+                if (r.getPuzzle() != null && !r.getPuzzle().isSolved) {
+                    roomLine.append("~" + r.getPuzzle().getName());
+                } else {
+                    roomLine.append("~");
                 }
                 writer.println("\t" + roomLine);
             }
+
             writer.close();
         } catch (IOException e) {
             System.out.println("Unable to save game: " + e.getMessage());
@@ -217,7 +266,8 @@ public class GameStateManager {
         return true;
     }
 
-    public static boolean load(String loadName, Map<Integer, Room> roomsList, Map<String, Artifact> artifactsList, Player p) {
+    public static boolean load(String loadName, Map<Integer, Room> roomsList, Map<String, Artifact> artifactsList, Map<String, Monster> monstersList, Map<String, Puzzle> puzzlesList, Player p, GameStateManager gsm) {
+        gsm.resetGame();
         try {
             Exception invalidSaveGameData = new Exception("Invalid saved game data. Data file is corrupt.");
             ArrayList<String> savedLines = readFile("src", "Data", "Saves", loadName);
@@ -227,9 +277,6 @@ public class GameStateManager {
                     case "Player:" -> currentSection = DataFileSections.Player;
                     case "Player Inventory:" -> currentSection = DataFileSections.PlayerInventory;
                     case "Rooms:" -> currentSection = DataFileSections.Rooms;
-                    case "Puzzles:" -> currentSection = DataFileSections.Puzzles;
-                    case "Monsters:" -> currentSection = DataFileSections.Monsters;
-                    case "Artifacts:" -> currentSection = DataFileSections.Artifacts;
                     default -> {
                         line = line.trim();
                         if (line.isEmpty()) {
@@ -240,7 +287,7 @@ public class GameStateManager {
                         }
                         if (currentSection == DataFileSections.Player) {
                             // Name~HP~STR~DEF
-                            String[] sections = line.split("~");
+                            String[] sections = line.split("~", -1);
                             if (sections.length < 4) {
                                 System.out.println("Invalid save game data. Corrupt.");
                             }
@@ -256,25 +303,45 @@ public class GameStateManager {
                             } else {
                                 throw invalidSaveGameData;
                             }
-                        } else if (currentSection == DataFileSections.Rooms) {
+                        } else {
                             // Load room data
-                            String[] sections = line.split("~");
-                            if (sections.length < 2) {
+                            String[] sections = line.split("~", -1);
+                            if (sections.length < 3) {
                                 throw invalidSaveGameData;
                             }
+
                             int roomId = Integer.parseInt(sections[0]);
                             Room r = roomsList.get(roomId);
+
                             boolean isVisited = Boolean.parseBoolean(sections[1]);
+
                             if (isVisited) {
                                 r.setVisited();
                             }
-                            if (sections.length == 3) {
-                                // We have artifacts in the room
-                                String[] savedArtifactList = sections[2].split("\\|");
 
-                                for (String artifact : savedArtifactList) {
+                            String[] savedArtifactList = sections[2].split("\\|", -1);
+
+                            for (String artifact : savedArtifactList) {
+                                if (!artifact.isEmpty()) {
+                                    r.addArtifact(artifactsList.get(artifact));
+                                }
+                            }
+                            String[] savedLootList = sections[3].split("\\|", -1);
+
+                            for (String artifact : savedLootList) {
+                                if (!artifact.isEmpty()) {
                                     r.addLoot(artifactsList.get(artifact));
                                 }
+                            }
+                            String monsterName = sections[4];
+                            if (!monsterName.isEmpty()) {
+                                Monster m = monstersList.get(monsterName);
+                                r.setMonster(m);
+                            }
+                            String puzzleName = sections[5];
+                            if (!puzzleName.isEmpty()) {
+                                Puzzle puzzle = puzzlesList.get(puzzleName);
+                                r.setPuzzle(puzzle);
                             }
                         }
                     }
@@ -309,7 +376,7 @@ public class GameStateManager {
                     }
                 }
             }
-        }catch (IOException ioe){
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         return null;

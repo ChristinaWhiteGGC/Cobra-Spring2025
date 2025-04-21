@@ -39,7 +39,8 @@ public class GameController {
 
         // Instantiates a player and sets the room to the first room in the list
         player = new Player(playerName, 100, 0, 0);
-        gsm.resetGame(player);
+        gsm.resetGame();
+        gsm.mapGame(player);
         view.printGameTitle();
         view.outputString("Welcome to Pyramid Plunder " + playerName + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
         startGame();
@@ -472,11 +473,13 @@ public class GameController {
                                                     standardPuzzle.setIsSolved(true);
                                                     view.outputString("Correct! You solved the puzzle.");
                                                     List<Artifact> loot = player.getRoom().getLoot();
-                                                    player.getRoom().playerGetsLoot(player);
-                                                    if (standardPuzzle.getName().equalsIgnoreCase("Pit Crossing")) {
-                                                        view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
-                                                    } else {
-                                                        view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
+                                                    if (loot.size() > 0) {
+                                                        player.getRoom().playerGetsLoot(player);
+                                                        if (standardPuzzle.getName().equalsIgnoreCase("Pit Crossing")) {
+                                                            view.outputString("A " + loot.get(loot.size() - 1).getName() + " was found in the room!");
+                                                        } else {
+                                                            view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
+                                                        }
                                                     }
                                                 } else if (!answer.equalsIgnoreCase("hint")) {
                                                     player.setHp(player.getHp() - 5);
@@ -488,7 +491,8 @@ public class GameController {
                                                     view.outputString("Would you like to restart? (Y/N)");
                                                     answer = view.getAnswer();
                                                     if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
-                                                        gsm.resetGame(player);
+                                                        gsm.resetGame();
+                                                        gsm.mapGame(player);
                                                         view.printGameTitle();
                                                         view.outputString("Welcome to Pyramid Plunder " + player.getName() + "! Explore the rooms, solve puzzles, fight monsters, and find items.");
                                                         startGame();
@@ -672,7 +676,7 @@ public class GameController {
                                 break;
                             }
 
-                            if (GameStateManager.save(command[1], roomsList, artifactList, player)) {
+                            if (GameStateManager.save(command[1], gsm.getRoomsList(), player)) {
                                 view.outputString("Successfully saved game data to: " + command[1]);
                             } else {
                                 view.outputString("An error occurred while trying to save the game.");
@@ -687,7 +691,7 @@ public class GameController {
                                 break;
                             }
 
-                            if (GameStateManager.load(command[1], roomsList, artifactList, player)) {
+                            if (GameStateManager.load(command[1], gsm.getRoomsList(), gsm.getArtifactsList(), gsm.getMonstersList(), gsm.getPuzzlesList(), player, gsm)) {
                                 view.outputString("Welcome back to the game " + player.getName() + "!");
                                 view.outputString("You can continue where you left off.");
                             } else {
@@ -717,24 +721,6 @@ public class GameController {
 
     public Room getRoom(int roomIndex) {
         return roomsList.get(roomIndex);
-    }
-
-    private Monster getMonsterInRoom(int roomIndex) {
-        try {
-            // Implement logic to get the monster in the room based on roomIndex
-            Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
-            // this could involve checking the monster's locations
-            for (Monster monster : monstersList.values()) {
-                for (String location : monster.getLocations()) {
-                    if (Integer.parseInt(location) == roomIndex) {
-                        return monster;
-                    }
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-        return null;
     }
 
     private int fightMonster(Monster monster) {
@@ -802,7 +788,6 @@ public class GameController {
                     view.outputString("A bright light shines down from the heavens and you revive with 1/2 health.");
                     player.setHp(player.getBaseHealth() / 2);
                     player.removeFromInventory(a);
-                    continue;
                 } else {
                     view.outputString("Game over");
                     System.exit(0);
