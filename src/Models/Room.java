@@ -160,11 +160,16 @@ public class Room {
     }
 
     // Adds the artifact to the room instance
-    public void addLoot(Artifact a) {
-        lootList.add(a);
+    public void addLoot(Artifact a)
+    {
+        if (!lootList.contains(a)) {
+            lootList.add(a);
+        }
     }
     public void addArtifact(Artifact a) {
-        artifactList.add(a);
+        if (!artifactList.contains(a)) {
+            artifactList.add(a);
+        }
     }
     public void removeArtifact(Artifact i) {
         artifactList.remove(i);
@@ -178,7 +183,7 @@ public class Room {
     }
 
 
-    // TODO: To be called when monster is defeated and/or puzzle is solved
+
     public ArrayList<Artifact> getLoot() {
         return lootList;
     }
