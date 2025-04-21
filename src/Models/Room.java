@@ -183,7 +183,7 @@ public class Room {
     }
 
 
-    // TODO: To be called when monster is defeated and/or puzzle is solved
+
     public ArrayList<Artifact> getLoot() {
         return lootList;
     }

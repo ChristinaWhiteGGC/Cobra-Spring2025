@@ -74,12 +74,11 @@ public class GameStateManager {
     }
 
     public void mapGame(Player player) {
-        // TODO: Remap monsters, and puzzles to rooms from data files.
+
         mapArtifactsToRooms(roomsList, artifactsList);
         mapMonstersToRooms(roomsList, monstersList);
         mapPuzzlesToRooms(roomsList, puzzlesList);
 
-        // TODO: Verify what starting health is and set it here
         player.setHp(100);
         player.clearInventory();
         player.setRoom(roomsList.get(1));

@@ -27,11 +27,6 @@ public class GameView {
         outputString("Damage: " + p.getStr());
     }
 
-    public void printStats(Player p) {
-        printPlayerStats(p);
-        // TODO: Implement monster stats?
-    }
-
     // getRoomInput method asks user where they would like to go in the game and verifies if input is valid
     // returns directional input as a string or tells the user to reenter valid direction.
     public String[] getRoomInput() {
