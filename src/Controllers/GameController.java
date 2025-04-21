@@ -146,9 +146,9 @@ public class GameController {
                                 } else {
                                     isMovingRooms = false;
                                     if (nextRoomIndex == 0) {
-                                            view.outputString("You can't go this way.");
+                                        view.outputString("You can't go this way.");
                                     } else {
-                                            view.outputString("Insufficient numbers of keys obtained to go here. You must have " + r.getLockConditions() + " keys. You currently have " + player.getKeys().size() + ".");
+                                        view.outputString("Insufficient numbers of keys obtained to go here. You must have " + r.getLockConditions() + " keys. You currently have " + player.getKeys().size() + ".");
                                     }
                                 }
                             } else {
@@ -201,7 +201,7 @@ public class GameController {
                                         view.outputString("Description: " + a.getDescription());
                                         view.outputString("Effect: " + a.getTextEffect());
                                         view.outputString("Options: PICKUP " + a.getName() + " | IGNORE " + a.getName() + " | SWAP " + a.getName());
-                                    }  else if(a.getType().equals("object")) {
+                                    } else if (a.getType().equals("object")) {
                                         view.outputString("Item found: " + a.getName());
                                         view.outputString("Description: " + a.getDescription());
                                         view.outputString("Options: PICKUP " + a.getName());
@@ -278,7 +278,7 @@ public class GameController {
                                 view.outputString("You don't have an item named '" + itemName + "' in your inventory.");
                                 break;
                             }
-                            if (itemName.equalsIgnoreCase("crook of osiris")) {
+                            if (itemName.equalsIgnoreCase("amulet")) {
                                 if (player.getRoom().getPuzzle() == null) {
                                     view.outputString("You have no puzzles in this room to solve.");
                                     break;
@@ -293,14 +293,14 @@ public class GameController {
                                         view.outputString("You received the following loot: " + a.getName());
                                     }
                                     player.getRoom().playerGetsLoot(player);
-                                    player.incrementCrookOfOsirisUses();
-                                    if (player.getCrookOfOsirisUses() >= 3) {
-                                        view.outputString("You have used the Crook of Osiris 3 times. Its power has faded.");
+                                    player.incrementAmuletUses();
+                                    if (player.getAmuletUses() >= 3) {
+                                        view.outputString("You have used the Amulet 3 times. Its power has faded.");
                                         player.removeFromInventory(itemToUse);
                                         break;
                                     }
-                                    view.outputString("You used the Crook of Osiris to solve the puzzle. (" +
-                                            player.getCrookOfOsirisUses() + "/3 uses)");
+                                    view.outputString("You used the Amulet to solve the puzzle. (" +
+                                            player.getAmuletUses() + "/3 uses)");
                                 }
                                 break;
                             }
@@ -482,7 +482,7 @@ public class GameController {
                                                     } else {
                                                         view.outputString("Reward: " + loot.get(loot.size() - 1).getName() + "!");
                                                     }
-                                                } else if (!answer.equalsIgnoreCase("hint")){
+                                                } else if (!answer.equalsIgnoreCase("hint")) {
                                                     player.setHp(player.getHp() - 5);
                                                     attempts++;
                                                     view.outputString("Wrong! You took 5 damage!");

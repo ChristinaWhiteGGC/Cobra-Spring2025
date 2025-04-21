@@ -34,7 +34,6 @@ public abstract class Artifact {
                 String name = parts[2];
                 String description = parts[3];
                 String effectValue = parts[4];
-
                 String textEffect = parts[5].replace("\\n", "\n");
 
 
@@ -51,10 +50,7 @@ public abstract class Artifact {
                         break;
                     case "magic":
                         // Parse effectValue as effectType|uses for Magic artifacts
-                        String[] magicParts = effectValue.split(",");
-                        String effectType = magicParts[0];
-                        int uses = magicParts.length > 1 ? Integer.parseInt(magicParts[1]) : 1;
-                        artifact = new Magic(id, name, description, effectType, uses);
+                        artifact = new Magic(id, name, description, effectValue, textEffect);
                         break;
                     case "object":
                         artifact = new StandardObject(id, name, description, effectValue, textEffect);

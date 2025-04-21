@@ -18,14 +18,14 @@ public class Player extends Character {
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
    private final ArrayList<Artifact> keys = new ArrayList<>();
-   private int crookOfOsirisUses = 0;
+   private int amuletUses = 0;
 
-   public int getCrookOfOsirisUses() {
-      return crookOfOsirisUses;
+   public int getAmuletUses() {
+      return amuletUses;
    }
 
-   public void incrementCrookOfOsirisUses() {
-      crookOfOsirisUses++;
+   public void incrementAmuletUses() {
+      amuletUses++;
    }
 
    private boolean isResurrectable = false;
@@ -48,7 +48,7 @@ public class Player extends Character {
 
    public Artifact getInventoryArtifactByName(String name) {
       for (Artifact artifact : inventoryList.values()) {
-         if (artifact.getName().equals(name)) {
+         if (artifact.getName().equalsIgnoreCase(name)) {
             return artifact;
          }
       }
