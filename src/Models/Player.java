@@ -17,10 +17,6 @@ public class Player extends Character {
    // Hashmap of currently equipped artifacts by type
    private final Map<String, Artifact> equippedArtifacts = new HashMap<>();
 
-   private final int baseHealth = 100;
-   private final int baseStrength = 1000;
-   private final int baseDefense = 1000;
-
    private final ArrayList<Artifact> keys = new ArrayList<>();
 
    private boolean isResurrectable = false;
@@ -28,6 +24,9 @@ public class Player extends Character {
    public Player(String name, int baseHp, int baseStrength, int baseDefense) {
       super(name, baseHp, baseStrength, baseDefense);
       this.inventoryList = new HashMap<>();
+      this.setBaseHealth(100);
+      this.setBaseStrength(1);
+      this.setBaseDefense(1);
    }
 
    public void clearInventory() {
@@ -36,6 +35,15 @@ public class Player extends Character {
 
    public Collection<Artifact> getInventory() {
       return inventoryList.values();
+   }
+
+   public Artifact getInventoryArtifactByName(String name) {
+      for (Artifact artifact : inventoryList.values()) {
+         if (artifact.getName().equals(name)) {
+            return artifact;
+         }
+      }
+      return null;
    }
    public ArrayList<Artifact> getKeys() {
       return keys;
@@ -84,31 +92,22 @@ public class Player extends Character {
 
    @Override
    public int getDef() {
-      return this.baseDefense + this.defense;
+      return this.getBaseDefense() + this.defense;
    }
 
    @Override
    public int getStr() {
-      return this.baseStrength + this.strength;
-   }
-
-   public int getBaseHealth() {
-      return this.baseHealth;
-   }
-   public int getBaseDefense() {
-      return this.baseDefense;
-   }
-   public int getBaseStrength() {
-      return this.baseStrength;
+      return this.getBaseStrength() + this.strength;
    }
 
    @Override
    public void takeDamage(int damage) {
-      int effectiveDamage = damage - baseDefense;
+      long damageReduction = Math.round(damage * 0.05) * this.getDef();
+      long effectiveDamage = damage - damageReduction;
       if (health < 0){
          health = 0;
       }
-      health -= effectiveDamage;
+      health -= (int) effectiveDamage;
       if (health < 0){
          health = 0;
       }

@@ -26,11 +26,11 @@ public class Consumable extends Artifact {
         if (this.getEffect().equals("HPFULL")) {
             player.setHp(player.getBaseHealth());
         } else if (this.getEffect().startsWith("HP")) {
-            player.setHp(player.getHp() + Integer.parseInt(this.getEffect().replace("HP", "")));
+            player.setHp((player.getHp() - player.getBaseHealth()) + Integer.parseInt(this.getEffect().replace("HP", "")));
         } else if (this.getEffect().startsWith("DEF")) {
-            player.setDef(player.getDef() + Integer.parseInt(this.getEffect().replace("DEF", "")));
+            player.setDef((player.getDef() - player.getBaseDefense()) + Integer.parseInt(this.getEffect().replace("DEF", "")));
         } else if (this.getEffect().startsWith("STR")) {
-            player.setStr(player.getStr() + Integer.parseInt(this.getEffect().replace("STR", "")));
+            player.setStr((player.getStr() - player.getBaseStrength()) + Integer.parseInt(this.getEffect().replace("STR", "")));
         }
     }
 
