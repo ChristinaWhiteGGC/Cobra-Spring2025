@@ -723,24 +723,6 @@ public class GameController {
         return roomsList.get(roomIndex);
     }
 
-    private Monster getMonsterInRoom(int roomIndex) {
-        try {
-            // Implement logic to get the monster in the room based on roomIndex
-            Map<String, Monster> monstersList = Monster.loadMonsters(GameStateManager.readFile("src", "data", "Monsters.txt"));
-            // this could involve checking the monster's locations
-            for (Monster monster : monstersList.values()) {
-                for (String location : monster.getLocations()) {
-                    if (Integer.parseInt(location) == roomIndex) {
-                        return monster;
-                    }
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-        return null;
-    }
-
     private int fightMonster(Monster monster) {
         Scanner sc = new Scanner(System.in);
 
