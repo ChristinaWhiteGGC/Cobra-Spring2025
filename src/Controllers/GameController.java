@@ -81,26 +81,30 @@ public class GameController {
             //This will try to get the monster currently in the room
 
             Monster monster = GameStateManager.getMonsterInRoom(player.getRoom().getRoomId());
-            if (monster != null && monster.isDefeated() == false) {
-
+            if (monster != null && !monster.isDefeated()){
                 Scanner sc = new Scanner(System.in);
                 view.outputString("You encounter " + monster.getName() + "!. Do you want to fight or flee?");
-                System.out.println("Enter fight or flee: ");
-                String choice = sc.nextLine();
-                if (choice.equalsIgnoreCase("fight")) {
-                    int nextRoom = fightMonster(monster);
-                    if (nextRoom != -1) {
+                boolean validChoice = false;
+                while (!validChoice) {
+                    System.out.println("Enter fight or flee: ");
+                    String choice = sc.nextLine();
+                    if (choice.equalsIgnoreCase("fight")) {
+                        int nextRoom = fightMonster(monster);
+                        if (nextRoom != -1) {
+                            isMovingRooms = true;
+                            nextRoomIndex = nextRoom;
+                        }
+                        validChoice = true;
+                    } else if (choice.equalsIgnoreCase("flee")) {
+                        view.outputString("You flee from " + monster.getName() + ".");
+                        nextRoomIndex = player.getPriorRoom();
+                        player.setRoom(getRoom(nextRoomIndex));
                         isMovingRooms = true;
-                        nextRoomIndex = nextRoom;
+                        validChoice = true;
+                    } else {
+                        System.out.println("Invalid choice: Fight or flee");
+                        continue;
                     }
-                } else if (choice.equalsIgnoreCase("flee")) {
-                    view.outputString("You flee from " + monster.getName() + ".");
-                    nextRoomIndex = player.getPriorRoom();
-                    player.setRoom(getRoom(nextRoomIndex));
-                    isMovingRooms = true;
-                } else {
-                    System.out.println("Invalid choice: Fight or flee");
-                    continue;
                 }
             }
 
@@ -727,73 +731,49 @@ public class GameController {
         Scanner sc = new Scanner(System.in);
 
         boolean isFlee = false;
-        // Implement the logic for fighting the monster
-
-        view.outputString("You engage in a fight with " + monster.getName() + "!");
-        while (true) {
-            while (monster.getHealth() > 0 && player.getHp() > 0) {
-                System.out.println("Enter fight, block, use item, or flee:  ");
-                String choice = sc.nextLine();
-                if (choice.equalsIgnoreCase("fight")) {
-                    monster.takeDamage(player.getStr());
-                } else if (choice.equalsIgnoreCase("block")) {
-                    monster.setPlayerBlocking(true);
-                } else if (choice.contains("use")) {
-                    //implement item usage
-                    System.out.println("Enter name of item: ");
-                    String itemName = sc.nextLine();
-                    if (player.getInventoryArtifactByName(itemName) != null) {
-                        //implement use item logic ONLY if item is consumable
-                        player.getArtifactByType("Consumable");
-                    } else {
-                        System.out.println("Item is not in inventory.");
-                    }
-                } else if (choice.equalsIgnoreCase("flee")) {
-
-                    //implement flee function
-
-                    player.setRoom(getRoom(player.getPriorRoom()));
-                    isFlee = true;
-                    break;
-
+        System.out.println("You engage in a fight with " + monster.getName() + "!");
+        while (monster.getHealth() > 0 && player.getHp() > 0) {
+            System.out.println("Enter fight, block, or flee:  ");
+            String choice = sc.nextLine();
+            if (choice.equalsIgnoreCase("fight")){
+                monster.takeDamage(player.getStr());
+            } else if (choice.equalsIgnoreCase("block")) {
+                monster.setPlayerBlocking(true);
+            } else if (choice.equalsIgnoreCase("flee")) {
+                //implement flee function
+                int priorRoom = player.getPriorRoom();
+                player.setRoom(getRoom(priorRoom));
+                isFlee = true;
+                return priorRoom;  // Return the prior room number instead of breaking
+            }else {
+                System.out.println("Invalid response. Enter fight, block, or flee.");
+                continue;
+            }
+            // Assuming the monster has at least one attack
+            monster.executeAttack(player);
+            view.outputString("Monster health: " + monster.getHealth() + ", Player health: " + player.getHp());
+            monster.setPlayerBlocking(false);
+        }
+        if (monster.getHealth() <= 0) {
+            System.out.println("You defeated the " + monster.getName() + "!");
+            monster.setDefeated(true);
+            GameStateManager.addDefeatedMonster(monster.getName());  // Add this line
+            for (Artifact a : player.getRoom().getLoot()) {
+                System.out.println("You received the following loot: " + a.getName());
+                player.addToInventory(a);
+                view.outputString("You received the following loot: " + a.getName());
+                if (a.getType().equals("key")) {
+                    player.addToInventory(a);
                 } else {
-                    System.out.println("Invalid response. Enter fight, block, use item, or flee.");
-                    continue;
-                }
-                // Assuming the monster has at least one attack
-                monster.executeAttack(player);
-                view.outputString("Monster health: " + monster.getHealth() + ", Player health: " + player.getHp());
-                monster.setPlayerBlocking(false);
-            }
-            if (isFlee) {
-                break;
-            }
-            if (monster.getHealth() <= 0) {
-                view.outputString("You defeated the " + monster.getName() + "!");
-                monster.setDefeated(true);
-                for (Artifact a : player.getRoom().getLoot()) {
-                    view.outputString("You received the following loot: " + a.getName());
-                    if (a.getType().equals("key")) {
-                        player.addToInventory(a);
-                    } else {
-                        player.getRoom().addArtifact(a);
-                    }
-                }
-                break;
-            } else {
-                player.setHp(0);
-                view.outputString("You were defeated by the " + monster.getName() + ".");
-                Artifact a = player.getInventoryArtifactByName("crook of osiris");
-                if (a != null) {
-                    view.outputString("A bright light shines down from the heavens and you revive with 1/2 health.");
-                    player.setHp(player.getBaseHealth() / 2);
-                    player.removeFromInventory(a);
-                } else {
-                    view.outputString("Game over");
-                    System.exit(0);
-                    break;
+                    player.getRoom().addArtifact(a);
                 }
             }
+        }
+        else {
+            player.setHp(0);
+            System.out.println("You were defeated by the " + monster.getName() + ".");
+            System.out.println("Game over");
+            System.exit(0);
         }
         return -1;
     }
